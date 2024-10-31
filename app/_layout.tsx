@@ -1,37 +1,36 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+import { Stack } from "expo-router";
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </ThemeProvider>
+    <Stack>
+      <Stack.Screen name="index" 
+      options={{ headerShown: false }} />
+      <Stack.Screen name="about" 
+      options={{ headerShown: false }} />
+      <Stack.Screen name="HomePage"
+      options={{ headerShown: false }} />
+      <Stack.Screen name="ProfilePage"
+      options={{ headerShown: false }} />
+      <Stack.Screen name="FriendPage"
+      options={{ headerShown: false }} />
+      <Stack.Screen name="MessagingYu"
+      options={{ headerShown: false }} />
+      <Stack.Screen name="ChatRoomYu"
+      options={{ headerShown: false }} />
+      <Stack.Screen name="ChatRoomFriend"
+      options={{ headerShown: false }} />
+      <Stack.Screen name="OnboardingPage1"
+      options={{ headerShown: false }} />
+      <Stack.Screen name="OnboardingPage2"
+      options={{ headerShown: false }} />
+      <Stack.Screen name="OnboardingPage3"
+      options={{ headerShown: false }} />
+      <Stack.Screen name="OnboardingPage4"
+      options={{ headerShown: false }} />
+      <Stack.Screen name="OnboardingPage5"
+      options={{ headerShown: false }} />
+      <Stack.Screen name="OnboardingPage6"
+      options={{ headerShown: false }} />
+    </Stack>
   );
 }
