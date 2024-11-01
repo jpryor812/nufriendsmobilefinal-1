@@ -7,10 +7,66 @@ const RelationshipTracker = () => {
   const params = useLocalSearchParams();
   const router = useRouter();
 
-  // Find the friend using the ID from params
   const friend = friendsData.find(f => f.id === Number(params.id));
-
   if (!friend) return null;
+
+  // Helper function to calculate percentile rank
+  const calculatePercentile = (value: number, category: 'messages' | 'streak' | 'daysAsFriends' | 'mutualFriends') => {
+    const sortedValues = [...friendsData]
+      .map(f => f[category])
+      .sort((a, b) => b - a); // Sort in descending order
+    
+    const position = sortedValues.indexOf(value);
+    const percentile = (position / sortedValues.length) * 100;
+    
+    if (percentile <= 5) return 'top5';
+    if (percentile <= 10) return 'top10';
+    if (percentile <= 25) return 'top25';
+    return null;
+  };
+
+  // Get percentile ranks for each category
+  const messagePercentile = calculatePercentile(friend.messages, 'messages');
+  const streakPercentile = calculatePercentile(friend.streak, 'streak');
+  const daysasfriendsPercentile = calculatePercentile(friend.daysAsFriends, 'daysAsFriends');
+  const mutualFriendsPercentile = calculatePercentile(friend.mutualFriends, 'mutualFriends');
+
+  // Helper component for trophy display
+  const TrophyIndicator = ({ percentile }: { percentile: string | null }) => {
+    if (!percentile) return null;
+
+    const getPercentileText = () => {
+      switch (percentile) {
+        case 'top5': return 'Top 5%!';
+        case 'top10': return 'Top 10%!';
+        case 'top25': return 'Top 25%!';
+        default: return '';
+      }
+    };
+
+    return (
+      <View style={styles.trophyContainer}>
+        <Text style={[
+          styles.trophyText,
+          percentile === 'top5' && styles.trophyTextGold,
+          percentile === 'top10' && styles.trophyTextSilver,
+          percentile === 'top25' && styles.trophyTextBronze,
+        ]}>
+          {getPercentileText()}
+        </Text>
+        <Image 
+          source={require('../assets/images/trophy_emoji_progress_bar.png')}
+          style={[
+            styles.trophy_icon,
+            percentile === 'top5' && styles.trophyGold,
+            percentile === 'top10' && styles.trophySilver,
+            percentile === 'top25' && styles.trophyBronze,
+          ]}
+          resizeMode='contain'
+        />
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -22,12 +78,6 @@ const RelationshipTracker = () => {
       </TouchableOpacity>
 
       <View style={styles.container}>
-        <View style={styles.header}>
-          <Image
-            source={require('../assets/images/Settings.png')}
-            style={{ width: 24, height: 24 }}
-          />
-        </View>
 
         <View style={styles.userInfo}>
           <View style={styles.nameContainer}>
@@ -62,47 +112,64 @@ const RelationshipTracker = () => {
           <Text style={styles.detailText}>24 years-old</Text>
         </View>
         </View>
-                {/* Will ask users directly for their city, gender, and age for this data and for filtering */}
+        <Text style={styles.detailText}>Is open to dating</Text>
+                {/* Will askusers directly for their city, gender, and age for this data and for filtering */}
         {/* Friends Since */}
+
+        <View style={styles.statsSection}>
+        <Text style={styles.statsHeader}>Stats</Text>
         <View style={styles.friendsSince}>
         <Image source={require('../assets/images/champagne.png')}
                 style={{ width: 20, height: 20 }} />
           <Text style={styles.friendsSinceText}>Friends since 11/23/2024 (37 days)</Text>
+          <Image source={require('../assets/images/champagne.png')}
+                style={{ width: 20, height: 20 }} />
         </View>
 
+        {/* Messages Stat */}
+        <TrophyIndicator percentile={messagePercentile} />
+        <View style={styles.statCard}>
+          <Image 
+            source={require('../assets/images/mailbox_emoji (1).png')}
+            style={{ width: 28, height: 28 }} 
+          />
+          <Text style={styles.statText}>Messages Sent: {friend.messages}</Text>
+        </View>
 
-          {/* Stats Section */}
-          <View style={styles.statsSection}>
-            <Text style={styles.statsHeader}>Stats</Text>
+        {/* Streak Stat */}
+        <TrophyIndicator percentile={streakPercentile} />
+        <View style={styles.statCard}>
+          <Image 
+            source={require('../assets/images/fire emoji (1).png')}
+            style={{ width: 28, height: 28 }} 
+          />
+          <Text style={styles.statText}>Longest Streak: {friend.streak} Days</Text>
+        </View>
 
-            <Text style={styles.trophyText}>Top 5%!</Text>
-            <View style={styles.statCard}>
-              <Image source={require('../assets/images/mailbox_emoji (1).png')}
-                style={{ width: 28, height: 28 }} />
-              <Text style={styles.statText}>Messages Sent: {friend.messages}</Text>
-              <View style={styles.trophyContainer}>
-              </View>
-            </View>
+                {/* Streak Stat */}
+                <TrophyIndicator percentile={daysasfriendsPercentile} />
+        <View style={styles.statCard}>
+          <Image 
+            source={require('../assets/images/calendar_emoji.png')}
+            style={{ width: 28, height: 28 }} 
+          />
+          <Text style={styles.statText}>Days as Friends: {friend.daysAsFriends} Days</Text>
+        </View>
 
-            <Text style={styles.trophyText}>Top 20%!</Text>
-            <View style={styles.statCard}>
-              <Image source={require('../assets/images/fire emoji (1).png')}
-                style={{ width: 28, height: 28 }} />
-              <Text style={styles.statText}>Longest Streak: {friend.streak} Days</Text>
-              <View style={styles.trophyContainer}>
-              </View>
-            </View>
-
-            <View style={styles.statCard}>
-              <Image source={require('../assets/images/hand_progress_bar.png')}
-                style={{ width: 28, height: 28 }} />
-              <Text style={styles.statText}>Mutual Friends: {friend.mutualFriends}</Text>
-            </View>
-          </View>
-
-          <Text style={styles.badgesHeader}>Badges</Text>
+        {/* Mutual Friends Stat */}
+        <TrophyIndicator percentile={mutualFriendsPercentile} />
+        <View style={styles.statCard}>
+          <Image 
+            source={require('../assets/images/hand_progress_bar.png')}
+            style={{ width: 28, height: 28 }} 
+          />
+          <Text style={styles.statText}>Mutual Friends: {friend.mutualFriends}</Text>
         </View>
       </View>
+
+      <Text style={styles.badgesHeader}>Badges</Text>
+      </View>
+    </View>
     </SafeAreaView>
   );
 };
@@ -138,12 +205,11 @@ const styles = StyleSheet.create({
   },
   userInfo: {
     alignItems: 'center',
-    marginTop: -4,
   },
   nameContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   pcText: {
     color: '#3498db',
@@ -191,13 +257,20 @@ const styles = StyleSheet.create({
   friendsSince: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 22,
+    marginTop:-4,
+    justifyContent: 'center',
   },
   friendsSinceText: {
-    color: '#000',
+    color: '#3498db',
     marginLeft: 5,
+    marginRight: 5,
+    textAlign: 'center',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   statsSection: {
-    marginTop: 20,
+    marginTop: 16,
   },
   statsHeader: {
     fontSize: 18,
@@ -213,28 +286,52 @@ const styles = StyleSheet.create({
     padding: 6,
     paddingLeft: 12,
     borderRadius: 16,
-    marginBottom: 12,
-    width: '80%',
+    marginBottom: 22,
+    width: '78%',
     borderWidth: 2,
     borderColor: '#3498db',
   },
   statText: {
-    marginLeft: 12,
+    marginLeft: 14,
     flex: 1,
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#00C64F'
+    color: '#3498db'
   },
   trophyContainer: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    marginBottom: -4,
+    zIndex: 1,
+    marginTop: -16,
+  },
+  trophy_icon: {
+    width: 22,
+    height: 22,
+    marginLeft: 4,
   },
   trophyText: {
-    color: '#666',
-    marginLeft: 5,
-    fontSize: 12,
-    alignItems: 'flex-end',
-    justifyContent: 'flex-end',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  trophyTextGold: {
+    color: '#FFD700',
+  },
+  trophyTextSilver: {
+    color: '#C0C0C0',
+  },
+  trophyTextBronze: {
+    color: '#CD7F32',
+  },
+  trophyGold: {
+    tintColor: '#FFD700',
+  },
+  trophySilver: {
+    tintColor: '#C0C0C0',
+  },
+  trophyBronze: {
+    tintColor: '#CD7F32',
   },
   badgesHeader: {
     fontSize: 18,
