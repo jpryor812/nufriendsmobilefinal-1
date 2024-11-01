@@ -8,10 +8,6 @@ import { Link } from "expo-router";
 // Add type for navigation if using TypeScript
 const HomePage = () => {
 
-  const handleFindFriends = () => {
-    console.log('Find New Friends pressed');
-  };
-
   const handleUpgrade = () => {
     console.log('Upgrade to Premium pressed');
   };
@@ -23,7 +19,6 @@ const HomePage = () => {
   return (
     <SafeAreaView style={styles.container}>
       <HeaderButtons 
-        onPressFindFriends={handleFindFriends}
         onPressUpgrade={handleUpgrade}
       />
       <View style={styles.introContainer}>

@@ -1,18 +1,23 @@
 import React from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Link } from 'expo-router';
 
 interface ButtonProps {
-  onPressFindFriends: () => void;
   onPressUpgrade: () => void;
 }
 
-const HeaderButtons: React.FC<ButtonProps> = ({ onPressFindFriends, onPressUpgrade }) => {
+const HeaderButtons: React.FC<ButtonProps> = ({ onPressUpgrade }) => {
   return (
     <View style={styles.buttonContainer}>
-      <TouchableOpacity style={styles.button} onPress={onPressFindFriends}>
-        <Text style={styles.buttonText}>Find New Friends!</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={onPressUpgrade}>
+      <Link href="/FindNewFriends" asChild>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>Find New Friends!</Text>
+        </TouchableOpacity>
+      </Link>
+      <TouchableOpacity
+        style={styles.button} 
+        onPress={onPressUpgrade}
+      >
         <Text style={styles.buttonText}>Upgrade to Premium</Text>
       </TouchableOpacity>
     </View>

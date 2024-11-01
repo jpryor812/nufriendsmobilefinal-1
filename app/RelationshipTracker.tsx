@@ -31,6 +31,59 @@ const RelationshipTracker = () => {
   const daysasfriendsPercentile = calculatePercentile(friend.daysAsFriends, 'daysAsFriends');
   const mutualFriendsPercentile = calculatePercentile(friend.mutualFriends, 'mutualFriends');
 
+  interface GenderIcon {
+    source: any;
+    dimensions: {
+      width: number;
+      height: number;
+    };
+  }
+
+  const getGenderIcon = (gender: string): GenderIcon => {
+    switch (gender.toLowerCase()) {
+      case 'female':
+        return {
+          source: require('../assets/images/female_icon.png'),
+          dimensions: {
+            width: 12,
+            height: 18
+          }
+        };
+      case 'male':
+        return {
+          source: require('../assets/images/male_icon.png'),
+          dimensions: {
+            width: 14,
+            height: 14
+          }
+        };
+      case 'non-binary':
+        return {
+          source: require('../assets/images/non-binary_icon.png'),
+          dimensions: {
+            width: 12,
+            height: 22
+          }
+        };
+      case 'other':
+        return {
+          source: require('../assets/images/face_icon.png'),
+          dimensions: {
+            width: 18,
+            height: 20
+          }
+        };
+      case 'prefer not to say':
+        return {
+          source: require('../assets/images/minus_sign.png'),
+          dimensions: {
+            width: 8,
+            height: 2
+          }
+        };
+    }
+  };
+
   // Helper component for trophy display
   const TrophyIndicator = ({ percentile }: { percentile: string | null }) => {
     if (!percentile) return null;
@@ -89,29 +142,48 @@ const RelationshipTracker = () => {
           </View>
 
           {/* Send Message Button */}
-          <TouchableOpacity style={styles.messageButton}>
-            <Image source={require('../assets/images/incoming_envelope.png')}
-              style={{ width: 36, height: 18 }} />
-            <Text style={styles.messageButtonText}>Send Message</Text>
-          </TouchableOpacity>
+          <TouchableOpacity 
+    style={styles.messageButton}
+    onPress={() => router.push({
+        pathname: '/ChatRoomFriend',
+        params: {
+            userId: friend.id,
+            username: friend.name,
+            avatar: JSON.stringify(friend.avatar) // Need to stringify since we're parsing it back in ChatRoomFriend
+        }
+    })}
+>
+    <Image 
+        source={require('../assets/images/incoming_envelope.png')}
+        style={{ width: 36, height: 18 }} 
+    />
+    <Text style={styles.messageButtonText}>Send Message</Text>
+</TouchableOpacity>
 
           <View style={styles.details}>
-            <View style={styles.detailContainer}>
-          <Image source={require('../assets/images/Home_icon.png')}
-                style={{ width: 22, height: 22 }} />
-          <Text style={styles.detailText}>Pittsburgh, PA</Text>
-        </View>
-        <View style={styles.detailContainer}>
-          <Image source={require('../assets/images/male_icon.png')}
-                style={{ width: 16, height: 16 }} />
-          <Text style={styles.detailText}>Male</Text>
-        </View>
-        <View style={styles.detailContainer}>
+    <View style={styles.detailContainer}>
+        <Image source={require('../assets/images/Home_icon.png')}
+            style={{ width: 22, height: 22 }} />
+        <Text style={styles.detailText}>{friend.residence}</Text>
+    </View>
+    <View style={styles.detailContainer}>
+    {(() => {
+        const iconInfo = getGenderIcon(friend.gender);
+        return (
+            <Image 
+                source={iconInfo.source}
+                style={iconInfo.dimensions}
+            />
+        );
+    })()}
+    <Text style={styles.detailText}>{friend.gender}</Text>
+</View>
+    <View style={styles.detailContainer}>
         <Image source={require('../assets/images/ph_cake.png')}
-                style={{ width: 18, height: 18 }} />
-          <Text style={styles.detailText}>24 years-old</Text>
-        </View>
-        </View>
+            style={{ width: 18, height: 18 }} />
+        <Text style={styles.detailText}>{friend.age} years-old</Text>
+    </View>
+</View>
         <Text style={styles.detailText}>Is open to dating</Text>
                 {/* Will askusers directly for their city, gender, and age for this data and for filtering */}
         {/* Friends Since */}
@@ -121,7 +193,8 @@ const RelationshipTracker = () => {
         <View style={styles.friendsSince}>
         <Image source={require('../assets/images/champagne.png')}
                 style={{ width: 20, height: 20 }} />
-          <Text style={styles.friendsSinceText}>Friends since 11/23/2024 (37 days)</Text>
+          <Text style={styles.friendsSinceText}>Friends since 11/23/2024</Text>
+          {/* will have this input created for the day they matched when app is actually live */}
           <Image source={require('../assets/images/champagne.png')}
                 style={{ width: 20, height: 20 }} />
         </View>
@@ -225,7 +298,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    padding: 10,
+    padding: 8,
     borderRadius: 12,
     marginBottom: 10,
     borderWidth: 2,
@@ -249,6 +322,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         marginRight: 10,
+        paddingVertical: 4,
     },
   detailText: {
     color: '#000',
