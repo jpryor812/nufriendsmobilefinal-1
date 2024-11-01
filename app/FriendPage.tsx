@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Image, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, Image, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
 import Dropdown from '../components/DropdownMenu';
 import FooterNavigation from '../components/FooterNavigation';
 import HeaderButtons from '@/components/HeaderButtons';
@@ -33,7 +33,23 @@ const FriendItem: React.FC<FriendItemProps> = ({ friend, primaryLabel }) => {
   };
 
   return (
-    <SafeAreaView style={styles.friendItem}>
+    <Link
+    href={{
+      pathname: "/RelationshipTracker",
+      params: {
+        id: friend.id.toString(),  // Convert to string to ensure safe passing
+        initials: friend.initials,
+        name: friend.name,
+        messages: friend.messages.toString(),
+        daysAsFriends: friend.daysAsFriends.toString(),
+        streak: friend.streak.toString(),
+        mutualFriends: friend.mutualFriends.toString(),
+        avatar: friend.avatar
+      }
+    }}
+    asChild
+  >
+    <TouchableOpacity style={styles.friendItem}>
       <View style={styles.avatarContainer}>
         {friend.streak > 0 && <Text style={styles.fireEmoji}>🔥</Text>}
         <Image 
@@ -45,7 +61,8 @@ const FriendItem: React.FC<FriendItemProps> = ({ friend, primaryLabel }) => {
         <Text style={styles.name}>{friend.name}</Text>
         <Text style={styles.dataCount}>{getPrimaryData()} {primaryLabel}</Text>
       </View>
-    </SafeAreaView>
+    </TouchableOpacity>
+    </Link>
   );
 };
 
@@ -53,6 +70,7 @@ const FriendPage: React.FC = () => {
   const [sortOption, setSortOption] = useState('messagesMost');
   const [primaryDataLabel, setPrimaryDataLabel] = useState('messages');
   const [friends, setFriends] = useState<Friend[]>([
+
     { 
       id: 1, 
       initials: 'JP', 

@@ -13,6 +13,8 @@ export default function RootLayout() {
       options={{ headerShown: false }} />
       <Stack.Screen name="FriendPage"
       options={{ headerShown: false }} />
+      <Stack.Screen name="RelationshipTracker"
+      options={{ headerShown: false }} />
       <Stack.Screen name="MessagingYu"
       options={{ headerShown: false }} />
       <Stack.Screen name="ChatRoomYu"

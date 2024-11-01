@@ -33,10 +33,7 @@ const MessagingFriend = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-        <FriendProfile 
-            imageSource={require('../assets/images/yu_progress_bar.png')} // or whatever your image path is
-            name="Yu :)" // or whatever name you want to display
-            />
+        <FriendProfile imageSource={0} name={''} />
       <TouchableWithoutFeedback onPress={dismissKeyboard}>
         <View style={{ flex: 1 }}>
           <MessageContainer 

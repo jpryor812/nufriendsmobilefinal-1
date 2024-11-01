@@ -118,10 +118,10 @@ const FriendsList: React.FC = () => {
           id: 8, 
           initials: 'QP', 
           name: 'Qpp123', 
-          messages: 912, 
-          daysAsFriends: 198, 
-          streak: 15, 
-          mutualFriends: 21,
+          messages: 112, 
+          daysAsFriends: 98, 
+          streak: 5, 
+          mutualFriends: 7,
           avatar: require('../assets/images/profile_picture.jpg')
       },
       { 
