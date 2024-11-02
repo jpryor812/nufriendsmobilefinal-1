@@ -1,3 +1,4 @@
+//When we launch, only show countries/states/cities where we have active users
 import React, { useState, useRef } from 'react';
 import {
   View,
@@ -155,7 +156,6 @@ const StateDropdown = ({ onStatesChange }: StateDropdownProps) => {
       {/* Selected states horizontal scroll */}
       {selectedStates.length > 0 && (
         <View style={styles.selectedStatesContainer}>
-          <Text style={styles.selectedStatesTitle}>Selected States:</Text>
           <Text style={styles.selectedStatesSubTitle}>Side scroll to view all selections</Text>
           <ScrollView 
             horizontal
@@ -235,7 +235,6 @@ const styles = StyleSheet.create({
   selectedStatesContainer: {
     width: '100%',
     paddingHorizontal: 4,
-    marginTop: 4,
   },
   selectedStatesTitle: {
     fontSize: 16,
@@ -244,8 +243,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   selectedStatesSubTitle: {
-    fontSize: 8,
+    fontSize: 10,
     marginBottom: 8,
+    marginTop: -4,
     color: '#333',
     textAlign: 'center',
     fontStyle: 'italic',
@@ -260,16 +260,17 @@ const styles = StyleSheet.create({
   stateChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFE074',
+    backgroundColor: '#42ade2',
     borderRadius: 20,
-    paddingVertical: 6,
+    paddingVertical: 2,
     paddingHorizontal: 12,
     marginRight: 8,
   },
   stateChipText: {
     fontSize: 14,
-    color: '#000',
+    color: '#fff',
     marginRight: 4,
+    fontWeight: 'bold',
   },
   removeButton: {
     marginLeft: 4,

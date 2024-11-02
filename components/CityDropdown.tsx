@@ -175,7 +175,6 @@ const CityDropdown = ({ onCitiesChange }: CityDropdownProps) => {
       {/* Selected cities horizontal scroll */}
       {selectedCities.length > 0 && (
         <View style={styles.selectedCitiesContainer}>
-          <Text style={styles.selectedCitiesTitle}>Selected Cities:</Text>
           <Text style={styles.selectedCitiesSubTitle}>Side scroll to view all selections</Text>
           <ScrollView 
             horizontal
@@ -256,7 +255,6 @@ container: {
   selectedCitiesContainer: {
     width: '100%',
     paddingHorizontal: 4,
-    marginTop: 4,
   },
   selectedCitiesTitle: {
     fontSize: 16,
@@ -265,8 +263,9 @@ container: {
     textAlign: 'center',
   },
   selectedCitiesSubTitle: {
-    fontSize: 8,
+    fontSize: 10,
     marginBottom: 8,
+    marginTop: -4,
     color: '#333',
     textAlign: 'center',
     fontStyle: 'italic',
@@ -281,16 +280,17 @@ container: {
   cityChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFE074',
+    backgroundColor: '#42ade2',
     borderRadius: 20,
-    paddingVertical: 6,
+    paddingVertical: 2,
     paddingHorizontal: 12,
     marginRight: 8,
   },
   cityChipText: {
     fontSize: 14,
-    color: '#000',
+    color: '#fff',
     marginRight: 4,
+    fontWeight: 'bold',
   },
   removeButton: {
     marginLeft: 4,

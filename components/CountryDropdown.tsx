@@ -132,7 +132,6 @@ const CountryDropdown = ({ onCountriesChange }: CountryDropdownProps) => {
       {/* Selected countries horizontal scroll */}
       {selectedCountries.length > 0 && (
         <View style={styles.selectedCountriesContainer}>
-          <Text style={styles.selectedCountriesTitle}>Selected Countries:</Text>
           <Text style={styles.selectedCountriesSubTitle}>Side scroll to view all selections</Text>
           <ScrollView 
             horizontal
@@ -212,7 +211,6 @@ const styles = StyleSheet.create({
   selectedCountriesContainer: {
     width: '100%',
     paddingHorizontal: 4,
-    marginTop: 4,
   },
   selectedCountriesTitle: {
     fontSize: 16,
@@ -221,8 +219,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   selectedCountriesSubTitle: {
-    fontSize: 8,
+    fontSize: 10,
     marginBottom: 8,
+    marginTop: -4,
     color: '#333',
     textAlign: 'center',
     fontStyle: 'italic',
@@ -237,16 +236,17 @@ const styles = StyleSheet.create({
   countryChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFE074',
+    backgroundColor: '#42ade2',
     borderRadius: 20,
-    paddingVertical: 6,
+    paddingVertical: 2,
     paddingHorizontal: 12,
     marginRight: 8,
   },
   countryChipText: {
     fontSize: 14,
-    color: '#000',
+    color: '#fff',
     marginRight: 4,
+    fontWeight: 'bold',
   },
   removeButton: {
     marginLeft: 4,
