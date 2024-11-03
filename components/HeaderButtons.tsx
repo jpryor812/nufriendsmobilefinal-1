@@ -14,12 +14,13 @@ const HeaderButtons: React.FC<ButtonProps> = ({ onPressUpgrade }) => {
           <Text style={styles.buttonText}>Find New Friends!</Text>
         </TouchableOpacity>
       </Link>
-      <TouchableOpacity
-        style={styles.button} 
-        onPress={onPressUpgrade}
-      >
+
+      <Link href="/UpgradeToPremium" asChild>
+      <TouchableOpacity style={styles.button} >
         <Text style={styles.buttonText}>Upgrade to Premium</Text>
       </TouchableOpacity>
+      </Link>
+      
     </View>
   );
 };
