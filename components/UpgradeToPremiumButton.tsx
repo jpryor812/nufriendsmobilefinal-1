@@ -14,20 +14,21 @@ const UpgradeToPremiumButton: React.FC = () => {
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
     priceContainer: {
-        padding: 12,
+        padding: 10,
         backgroundColor: '#3AB4FF',
         width: '80%',
         borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 4,
+        marginTop: 2,
     },
     priceText: {
-        fontSize: 24,
+        fontSize: 22,
         fontWeight: 'bold',
         color: '#fff',
     },

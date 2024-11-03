@@ -1,14 +1,21 @@
 // app/subscription.tsx
-import React from 'react';
-import { View, StyleSheet, SafeAreaView } from 'react-native';
+import React, {useState} from 'react';
+import { View, StyleSheet, SafeAreaView, ScrollView, Image, Text, TouchableOpacity } from 'react-native';
 import MonthlySubscriptionHeader from '@/components/MonthlySubscriptionHeader';
 import PricingToggle from '@/components/PricingToggle';
 import FeatureContainer from '@/components/FeatureContainer';
 import PremiumPrice from '@/components/PremiumPrice';
 import UpgradeToPremiumButton from '@/components/UpgradeToPremiumButton';
+import { Ionicons } from '@expo/vector-icons';
+import Colors from '../assets/Colors'; // Ensure this path is correct
+import { useRouter } from 'expo-router';
 
 const UpgradeToPremium = () => {
-  const features = [
+  const router = useRouter();
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
+
+
+    const features = [
     {
       icon: require('@/assets/images/Yu_excited_no_speech.png'), 
       isImage: true,
@@ -47,14 +54,14 @@ const UpgradeToPremium = () => {
         text: 'accessories and',
         primaryTwo: '2x',
         textTwo: 'coin boosts',
-        subtext: ''
+        subtext: 'Twice the items twice as fast'
       },
       {
         icon: '⚡️', 
         isImage: false,
         highlight: 'Get',
-        primary: 'one',
-        text: 'new friend',
+        primary: billingPeriod === 'monthly' ? 'one' : 'three',
+        text: billingPeriod === 'monthly' ? 'new friend' : 'new friends',
         primaryTwo: 'instantly',
         textTwo: '',
         subtext: ''
@@ -64,8 +71,24 @@ const UpgradeToPremium = () => {
 
   return (
     <SafeAreaView style={styles.container}>  
-      <MonthlySubscriptionHeader />
-      <PricingToggle />
+          <View style={styles.headerContainer}>
+      <TouchableOpacity 
+        style={styles.backButton}
+        onPress={() => router.back()}
+      >
+        <Ionicons name="arrow-back" size={24} color={Colors.primary} />
+      </TouchableOpacity>
+      <Image 
+        source={require('../assets/images/yu_progress_bar.png')} 
+        style={styles.yu}
+      />
+      <Text style={styles.header}>Never Feel Alone Again</Text>
+      <Text style={styles.subHeader}>What You Get With Premium:</Text>
+    </View>
+      <PricingToggle 
+              billingPeriod={billingPeriod}
+              setBillingPeriod={setBillingPeriod}
+            />
       <View style={styles.featuresContainer}>
         {features.map((feature, index) => (
           <FeatureContainer
@@ -81,7 +104,7 @@ const UpgradeToPremium = () => {
           />
         ))}
       </View>
-      <PremiumPrice />
+      <PremiumPrice billingPeriod={billingPeriod} />
       <UpgradeToPremiumButton />
     </SafeAreaView>
   );
@@ -93,10 +116,32 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0FCFE',
   },
   featuresContainer: {
-    marginTop: 20, // Add space after the pricing toggle
+    marginTop: 10, // Add space after the pricing toggle
   },
-  header: {
-    marginBottom: 10,
+    headerContainer: {
+    marginBottom: 16,
+},
+backButton: {
+  marginLeft: 10,
+  padding: 10, // Added padding for better touch target
+},
+yu: {
+  width: 60,
+  height: 60,
+  alignSelf: 'center',
+  marginTop: -32,
+},
+header: {
+  fontSize: 24,
+  fontWeight: 'bold',
+  textAlign: 'center',
+  marginTop: 10,
+  marginBottom: 10,
+},
+  subHeader: {
+      fontSize: 16,
+      textAlign: 'center',
+      marginHorizontal: 20,
   },
 });
 

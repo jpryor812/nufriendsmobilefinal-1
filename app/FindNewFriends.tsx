@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Link } from 'expo-router';
+import { useRouter } from 'expo-router';
 import CityDropdown from '../components/CityDropdown';
 import StateDropdown from '../components/StateDropdown';
 import CountryDropdown from '../components/CountryDropdown';
@@ -11,6 +11,8 @@ import FindFriendsButton from '@/components/FindMyFriendsButton';
 import FooterNavigation from '@/components/FooterNavigation';
 
 const FindNewFriends = () => {
+  const router = useRouter();
+
   const handleCitiesChange = (cities: string[]) => {
     console.log('Selected cities:', cities);
   };
@@ -32,8 +34,9 @@ const FindNewFriends = () => {
   };
 
   const handleFindFriends = () => {
-    console.log('Find New Friends pressed');
+    router.push('/FindingFriends');
   };
+
 
   return (
     <SafeAreaView style={styles.container}>

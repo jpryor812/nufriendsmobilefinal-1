@@ -35,8 +35,8 @@ const styles = StyleSheet.create({
     padding: 10, // Added padding for better touch target
   },
   yu: {
-    width: 80,
-    height: 80,
+    width: 60,
+    height: 60,
     alignSelf: 'center',
     marginTop: -16,
   },

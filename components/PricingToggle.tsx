@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
-const PricingToggle = () => {
-  const [billingPeriod, setBillingPeriod] = useState('monthly');
+interface PricingToggleProps {
+  billingPeriod: 'monthly' | 'annual';
+  setBillingPeriod: (period: 'monthly' | 'annual') => void;
+}
 
+const PricingToggle: React.FC<PricingToggleProps> = ({ 
+  billingPeriod, 
+  setBillingPeriod 
+}) => {
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
@@ -42,6 +48,11 @@ const PricingToggle = () => {
           </TouchableOpacity>
         </View>
         <Text style={styles.foundingMemberBonus}>*Founding Member Bonus!</Text>
+        {billingPeriod === 'annual' && (
+          <Text style={styles.promoText}>
+            *The first 1,000 annual premium users get TWO years of premium membership for the price of One!!
+          </Text>
+        )}
       </View>
     </View>
   );
@@ -100,8 +111,19 @@ const styles = StyleSheet.create({
     color: '#10B981',
     marginTop: 4,
     alignSelf: 'flex-end',
-    marginRight: 30, 
+    marginRight: 30,
     textAlign: 'center',
+  },
+  promoText: {
+    fontSize: 12,
+    color: '#10B981',
+    marginTop: 6,
+    textAlign: 'center',
+    paddingHorizontal: 20,
+    fontWeight: '500',
+    // Optional: add some animation or styling to make it stand out
+    borderRadius: 8,
+    marginHorizontal: 16,
   },
 });
 

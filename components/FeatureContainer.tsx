@@ -2,26 +2,26 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, ImageSourcePropType } from 'react-native';
 
 interface FeatureProps {
-  icon: string | ImageSourcePropType; // Can be emoji string or image source
-  isImage?: boolean; // Flag to determine if icon is an image
-  highlight: string;
-  primary: string;
-  text: string;
-  primaryTwo: string;
-  textTwo: string;
-  subtext: string;
-}
-
-const FeatureContainer: React.FC<FeatureProps> = ({
-  icon,
-  isImage = false,
-  highlight,
-  primary,
-  text,
-  primaryTwo,
-  textTwo,
-  subtext
-}) => {
+    icon: string | ImageSourcePropType;
+    isImage?: boolean;
+    highlight?: string; // Made optional
+    primary: string;
+    text: string;
+    primaryTwo?: string; // Made optional
+    textTwo?: string; // Made optional
+    subtext?: string; // Made optional
+  }
+  
+  const FeatureContainer: React.FC<FeatureProps> = ({
+    icon,
+    isImage = false,
+    highlight,
+    primary,
+    text,
+    primaryTwo,
+    textTwo,
+    subtext
+  }) => {
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
@@ -37,13 +37,21 @@ const FeatureContainer: React.FC<FeatureProps> = ({
       
       <View style={styles.textContainer}>
         <View style={styles.mainTextRow}>
-          <Text style={styles.highlight}>{highlight}</Text>
+          {highlight && ( // Only render if highlight exists
+            <Text style={styles.highlight}>{highlight}</Text>
+          )}
           <Text style={styles.primary}>{primary}</Text>
           <Text style={styles.text}>{text}</Text>
-          <Text style={styles.primaryTwo}>{primaryTwo}</Text>
-          <Text style={styles.textTwo}>{textTwo}</Text>
+          {primaryTwo && ( // Only render if primaryTwo exists
+            <Text style={styles.primaryTwo}>{primaryTwo}</Text>
+          )}
+          {textTwo && ( // Only render if textTwo exists
+            <Text style={styles.textTwo}>{textTwo}</Text>
+          )}
         </View>
-        <Text style={styles.subtext}>{subtext}</Text>
+        {subtext && ( // Only render if subtext exists
+          <Text style={styles.subtext}>{subtext}</Text>
+        )}
       </View>
     </View>
   );
@@ -56,8 +64,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'white',
     borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
     marginHorizontal: 16,
     marginVertical: 6,
     shadowColor: '#000',
@@ -70,8 +78,8 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   iconContainer: {
-    width: 48,
-    height: 48,
+    width: 40,
+    height: 40,
     backgroundColor: '#EFF6FF', // light blue background
     borderRadius: 24,
     alignItems: 'center',
@@ -79,11 +87,11 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   icon: {
-    fontSize: 28,
+    fontSize: 24,
   },
   iconImage: {
-    width: 38, // Adjust size as needed
-    height: 38, // Adjust size as needed
+    width: 32, // Adjust size as needed
+    height: 32, // Adjust size as needed
     resizeMode: 'contain',
   },
   textContainer: {
