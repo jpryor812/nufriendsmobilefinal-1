@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, SafeAreaView, TouchableOpacity } from 'react-native';
 import Card from './Card';
+import { Link } from "expo-router";
 
 type Friend = {
   id: number;
@@ -110,10 +111,10 @@ type StreakItemProps = {
   streak: number;
   name: string;
   avatar: any;
-  onViewRelationship: () => void;
+  userId: number;
 };
 
-const StreakItem: React.FC<StreakItemProps> = ({ streak, name, avatar, onViewRelationship }) => (
+const StreakItem: React.FC<StreakItemProps> = ({ streak, name, avatar, userId }) => (
   <View style={styles.streakItem}>
     <View style={styles.leftContainer}>
       <Text style={styles.fireEmoji}>🔥</Text>
@@ -124,12 +125,17 @@ const StreakItem: React.FC<StreakItemProps> = ({ streak, name, avatar, onViewRel
         <Image source={avatar} style={styles.avatar} />
       </View>
       <Text style={styles.name}>{name}</Text>
-      <TouchableOpacity 
-        style={styles.button}
-        onPress={onViewRelationship}
+      <Link 
+        href={{
+          pathname: "/RelationshipTracker",
+          params: { id: userId, name: name }
+        }}
+        asChild
       >
-        <Text style={styles.buttonText}>See More</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>See More</Text>
+        </TouchableOpacity>
+      </Link>
     </View>
   </View>
 );
@@ -139,15 +145,11 @@ const ActiveStreaks: React.FC = () => {
     .filter(friend => friend.streak > 0)
     .sort((a, b) => b.streak - a.streak)
     .map(friend => ({
+      id: friend.id,
       streak: friend.streak,
       name: friend.name,
       avatar: friend.avatar
     }));
-
-    const handleViewRelationship = (name: string) => {
-      // Handle button press - you can add navigation or other logic here
-      console.log(`Viewing relationship with ${name}`);
-    };
 
     return (
       <Card style={styles.container}>
@@ -155,8 +157,10 @@ const ActiveStreaks: React.FC = () => {
         {activeStreaks.map((item, index) => (
           <StreakItem 
             key={index} 
-            {...item} 
-            onViewRelationship={() => handleViewRelationship(item.name)}
+            streak={item.streak}
+            name={item.name}
+            avatar={item.avatar}
+            userId={item.id}
           />
         ))}
       </Card>

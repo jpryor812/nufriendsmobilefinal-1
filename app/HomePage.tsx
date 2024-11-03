@@ -8,6 +8,7 @@ import { Link } from "expo-router";
 // Add type for navigation if using TypeScript
 const HomePage = () => {
 
+
   const handleUpgrade = () => {
     console.log('Upgrade to Premium pressed');
   };

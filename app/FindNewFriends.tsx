@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
 import CityDropdown from '../components/CityDropdown';
@@ -8,6 +8,7 @@ import CountryDropdown from '../components/CountryDropdown';
 import GenderDropdown from '../components/GenderDropdown';
 import FindMoreFriendsButton from '@/components/FindMoreFriendsButton';
 import FindFriendsButton from '@/components/FindMyFriendsButton';
+import FooterNavigation from '@/components/FooterNavigation';
 
 const FindNewFriends = () => {
   const handleCitiesChange = (cities: string[]) => {
@@ -36,13 +37,10 @@ const FindNewFriends = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Link href="/HomePage" style={styles.backButton}>
-          <Text style={styles.backButtonText}>← Back to Home</Text>
-      </Link>
+      <ScrollView style={styles.scrollContainer}>
       <Text style={styles.PageTitle}>Find Your New Friend!!</Text>
       <Text style={styles.PageSubTitle}>Feel free to use the filters to look for specific friends or just search anywhere!</Text>
-      <Text style={styles.PageSubSubTitle}>Note: The broader your search, the quicker you'll find friends</Text>
-      <Text style={styles.PageSubSubTitle}>Note 2: We only show options as they relate to our active users so you may not see every possible option. We update this weekly.</Text>
+      <Text style={styles.PageSubSubTitle}>Note: The broader your search, the quicker you'll find friends! Also, We only show options as they relate to our active users so you may not see every possible option. We update this weekly.</Text>
       <View style={styles.dropdownsContainer}>
         <CityDropdown onCitiesChange={handleCitiesChange} />
         <StateDropdown onStatesChange={handleStatesChange} />
@@ -54,6 +52,10 @@ const FindNewFriends = () => {
           <FindMoreFriendsButton onPress={handlePress} />
         </View>
       </View>
+      </ScrollView>
+      <View style={styles.footerContainer}>
+      <FooterNavigation />
+      </View>
     </SafeAreaView>
   );
 };
@@ -62,6 +64,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F0FCFE',
+  },
+  scrollContainer: {
+    flex: 1,
   },
   dropdownsContainer: {
     padding: 20,
@@ -111,6 +116,10 @@ const styles = StyleSheet.create({
   backButtonText: {
     color: '#3498db',
     fontSize: 16,
+  },
+  footerContainer: {
+    width: '100%',
+    marginTop: 'auto',
   },
 });
 
