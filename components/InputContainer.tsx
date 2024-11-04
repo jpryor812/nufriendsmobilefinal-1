@@ -76,7 +76,7 @@ const InputContainer: React.FC<InputContainerProps> = ({ onSendMessage, onHeight
             height: inputHeight, 
             bottom: inputContainerPosition.interpolate({
               inputRange: [-SCREEN_HEIGHT, 0],
-              outputRange: ['0%', '2%'],
+              outputRange: ['0%', '5%'],
               extrapolate: 'clamp',
             })
           }
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.OS === 'ios' ? 10 : 10,
     fontSize: 16,
     marginRight: 10,
-    maxHeight: 100,
+    maxHeight: 140,
   },
   sendButton: {
     backgroundColor: '#4EBCEF',

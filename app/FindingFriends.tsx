@@ -158,7 +158,6 @@ interface Friend {
           {selectedFriend ? (
         <>
           <FoundFriendProfile friend={selectedFriend} />
-          <Text>Debug: Friend found - {selectedFriend.name}</Text>
         </>
       ) : (
         <Text>Debug: No friend selected</Text>

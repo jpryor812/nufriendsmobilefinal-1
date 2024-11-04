@@ -2,7 +2,7 @@ import ChatMessageBox from '@/components/ChatMessageBox';
 import Colors from '@/assets/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState, useCallback, useEffect } from 'react';
-import { ImageBackground, StyleSheet, View, Image, Text } from 'react-native';
+import { ImageBackground, StyleSheet, View, Image, Text, TouchableOpacity } from 'react-native';
 import {
   GiftedChat,
   Bubble,
@@ -15,12 +15,14 @@ import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context'
 import messageData from '@/assets/messages.json';
 import { useLocalSearchParams } from 'expo-router';
 import FriendProfileMessageHeader from '@/components/FriendProfileMessageHeader';
+import YuSuggestions from '@/components/YuSuggestions';
 
 const ChatRoomFriend = () => {
   const [text, setText] = useState('');
   const insets = useSafeAreaInsets();
   const [messages, setMessages] = useState<IMessage[]>([]);
   const { userId, username, avatar } = useLocalSearchParams();
+  const [isYuSuggestionsMode, setIsYuSuggestionsMode] = useState(false);
 
   const getAvatarImage = () => {
     if (avatar) {
@@ -51,27 +53,43 @@ useEffect(() => {
     setMessages((previousMessages: any[]) => GiftedChat.append(previousMessages, messages));
   }, []);
 
+  const handleYuSuggestionsSelect = (content: string) => {
+    setText(content);
+    setIsYuSuggestionsMode(false);
+  };
+
   const renderInputToolbar = (props: any) => {
+    if (isYuSuggestionsMode) {
+      return (
+        <YuSuggestions
+          onSelectContent={handleYuSuggestionsSelect}
+          onClose={() => setIsYuSuggestionsMode(false)}
+        />
+      );
+    }
     return (
       <InputToolbar
         {...props}
         containerStyle={{ backgroundColor: Colors.background }}
         renderActions={() => (  // Changed from null to a function
-          <View style={{
-            height: 44,
-            justifyContent: 'center',
-            paddingLeft: 12,
-            marginTop: 4,
-          }}>
+          <TouchableOpacity 
+            onPress={() => setIsYuSuggestionsMode(true)}
+            style={{
+              height: 44,
+              justifyContent: 'center',
+              paddingLeft: 12,
+              marginTop: 4,
+            }}
+          >
             <Image 
-              source={require('../assets/images/yu_question_onboarding.png')} // Replace with your image path
+              source={require('../assets/images/yu_question_onboarding.png')}
               style={{
                 width: 40,
                 height: 40,
                 justifyContent: 'center',
               }}
             />
-          </View>
+          </TouchableOpacity>
         )}
         renderSend={(props) => (
           <View style={{
