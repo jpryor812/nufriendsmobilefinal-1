@@ -2,7 +2,7 @@ import ChatMessageBox from '@/components/ChatMessageBox';
 import Colors from '@/assets/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState, useCallback, useEffect } from 'react';
-import { ImageBackground, StyleSheet, View, Image, Text, TouchableOpacity } from 'react-native';
+import { ImageBackground, StyleSheet, View, Image, Text, TouchableOpacity, Animated } from 'react-native';
 import {
   GiftedChat,
   Bubble,
@@ -16,6 +16,7 @@ import messageData from '@/assets/messages.json';
 import { useLocalSearchParams } from 'expo-router';
 import FriendProfileMessageHeader from '@/components/FriendProfileMessageHeader';
 import YuSuggestions from '@/components/YuSuggestions';
+import AnimatedYuButton from '@/components/AnimatedYuButton';
 
 const ChatRoomFriend = () => {
   const [text, setText] = useState('');
@@ -58,38 +59,40 @@ useEffect(() => {
     setIsYuSuggestionsMode(false);
   };
 
+  // Combined handler for Yu-generated messages
+  const handleYuMessage = (text: string) => {
+    console.log('ChatRoomFriend received message:', text);
+    
+    const newMessage: IMessage = {
+      _id: Math.random().toString(),
+      text: text,
+      createdAt: new Date(),
+      user: {
+        _id: 1,
+        name: 'You',
+      },
+    };
+
+    setMessages(previousMessages => GiftedChat.append(previousMessages, [newMessage]));
+    setIsYuSuggestionsMode(false);
+  };
+
   const renderInputToolbar = (props: any) => {
     if (isYuSuggestionsMode) {
       return (
         <YuSuggestions
-          onSelectContent={handleYuSuggestionsSelect}
+          onSelectContent={handleYuMessage}
           onClose={() => setIsYuSuggestionsMode(false)}
         />
       );
     }
+
     return (
       <InputToolbar
         {...props}
         containerStyle={{ backgroundColor: Colors.background }}
-        renderActions={() => (  // Changed from null to a function
-          <TouchableOpacity 
-            onPress={() => setIsYuSuggestionsMode(true)}
-            style={{
-              height: 44,
-              justifyContent: 'center',
-              paddingLeft: 12,
-              marginTop: 4,
-            }}
-          >
-            <Image 
-              source={require('../assets/images/yu_question_onboarding.png')}
-              style={{
-                width: 40,
-                height: 40,
-                justifyContent: 'center',
-              }}
-            />
-          </TouchableOpacity>
+        renderActions={() => (
+          <AnimatedYuButton onPress={() => setIsYuSuggestionsMode(true)} />
         )}
         renderSend={(props) => (
           <View style={{
@@ -102,10 +105,6 @@ useEffect(() => {
             paddingHorizontal: 2,
           }}>
             <Ionicons name="add" color={Colors.primary} size={28} />
-            {text === '' && (
-              <>
-              </>
-            )}
             {text !== '' && (
               <Send {...props} containerStyle={{ justifyContent: 'center' }}>
                 <Ionicons name="send" color={Colors.primary} size={22} />
@@ -118,22 +117,18 @@ useEffect(() => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }}>
+    <SafeAreaView style={styles.container}>
       <ImageBackground
-        style={{
-          flex: 1,
-          backgroundColor: Colors.background,
-        }}
+        style={styles.background}
       >
         <FriendProfileMessageHeader 
-        imageSource={getAvatarImage()}
-        name={username as string} // Use the username from params
-      />
-     
+          imageSource={getAvatarImage()}
+          name={username as string}
+        />
+        
         <GiftedChat
           messages={messages}
-          onSend={(messages: any) => onSend(messages)}
-          onInputTextChanged={setText}
+          onSend={onSend}
           user={{ _id: 1 }}
           isKeyboardInternallyHandled={true}
           keyboardShouldPersistTaps="handled"
@@ -148,7 +143,7 @@ useEffect(() => {
           renderSystemMessage={(props) => (
             <SystemMessage {...props} textStyle={{ color: Colors.gray }} />
           )}
-          bottomOffset={insets.bottom - 36} // Adjusted bottomOffset to move the input container up slightly
+          bottomOffset={insets.bottom - 36}
           renderAvatar={null}
           maxComposerHeight={100}
           textInputProps={styles.composer}
@@ -156,17 +151,11 @@ useEffect(() => {
             <Bubble
               {...props}
               textStyle={{
-                right: {
-                  color: '#fff',
-                },
+                right: { color: '#fff' },
               }}
               wrapperStyle={{
-                left: {
-                  backgroundColor: '#eee',
-                },
-                right: {
-                  backgroundColor: '#6ecfff',
-                },
+                left: { backgroundColor: '#eee' },
+                right: { backgroundColor: '#6ecfff' },
               }}
             />
           )}
@@ -181,6 +170,24 @@ useEffect(() => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+  background: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+  yuButton: {
+    height: 44,
+    justifyContent: 'center',
+    paddingLeft: 12,
+    marginTop: 4,
+  },
+  yuImage: {
+    width: 40,
+    height: 40,
+  },
   composer: {
     borderRadius: 18,
     borderWidth: 1,
@@ -190,7 +197,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 2,
     marginBottom: 2,
-    textAlignVertical: 'center', // Center text vertically
+    textAlignVertical: 'center',
   },
 });
 

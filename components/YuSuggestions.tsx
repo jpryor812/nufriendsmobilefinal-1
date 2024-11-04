@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/assets/Colors';
+import YuGeneratedResponseContainer from './YuGeneratedResponseContainer';
+import {Link} from 'expo-router';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
@@ -34,6 +36,8 @@ const YuSuggestions: React.FC<YuSuggestionsProps> = ({ onSelectContent, onClose 
     quickReplies.map(() => new Animated.Value(0))
   ).current;
   const selectedAnimation = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
+  const responseContainerAnimation = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
+
 
   const resetState = () => {
     setSelectedId(null);
@@ -58,11 +62,11 @@ const YuSuggestions: React.FC<YuSuggestionsProps> = ({ onSelectContent, onClose 
       });
     });
 
-    // Run the slide out animations
+    // Run all animations in sequence
     Animated.parallel(slideOutAnimations).start(() => {
       setAnimationPhase(1);
       
-      // Phase 2: Slide selected item back in
+      // Then do the rest of the animations in sequence
       Animated.sequence([
         // Wait a brief moment
         Animated.delay(200),
@@ -80,12 +84,38 @@ const YuSuggestions: React.FC<YuSuggestionsProps> = ({ onSelectContent, onClose 
           friction: 6,
           tension: 40,
           useNativeDriver: true,
+        }),
+        
+        // Add delay before response container
+        Animated.delay(200),
+        
+        // Slide in response container
+        Animated.spring(responseContainerAnimation, {
+          toValue: 0,
+          friction: 6,
+          tension: 40,
+          useNativeDriver: true,
         })
       ]).start(() => {
         setAnimationPhase(2);
         setAnimationComplete(true);
       });
     });
+};
+const handleSendMessage = (text: string) => {
+  console.log('YuSuggestions received message:', text); // Debug log
+  onSelectContent(text); // Pass to ChatRoomFriend
+  onClose();
+};
+
+  const handleEditMessage = (text: string) => {
+    // Handle editing the message
+    console.log('Editing message:', text);
+  };
+
+  const handleSuggestChanges = () => {
+    // Handle suggesting changes
+    console.log('Suggesting changes');
   };
 
   return (
@@ -111,6 +141,12 @@ const YuSuggestions: React.FC<YuSuggestionsProps> = ({ onSelectContent, onClose 
             )}
           </View>
         </TouchableOpacity>
+      </View>
+      <View style={styles.lowerHeader}>
+                <Text style={styles.YuUseCounter}>0/25 used this week</Text>
+        <Link href="/UpgradeToPremium">
+        <Text style={styles.MoreYu}>Want more?</Text>
+        </Link>
       </View>
       <View style={styles.content}>
         {/* Regular replies that slide out */}
@@ -161,7 +197,27 @@ const YuSuggestions: React.FC<YuSuggestionsProps> = ({ onSelectContent, onClose 
             </TouchableOpacity>
           </Animated.View>
         )}
-      </View>
+                {/* Generated Response Container */}
+                {selectedId && (
+          <Animated.View
+            style={[
+              styles.responseContainer,
+              {
+                transform: [{ translateY: responseContainerAnimation }],
+                opacity: animationPhase >= 1 ? 1 : 0,
+              },
+            ]}
+          >
+          <YuGeneratedResponseContainer
+            selectedPrompt={quickReplies.find(reply => reply.id === selectedId)?.text || ''}
+            onSendMessage={handleSendMessage}
+            onEditMessage={handleEditMessage}
+            onSuggestChanges={handleSuggestChanges}
+            onClose={onClose}
+          />
+        </Animated.View>
+      )}
+    </View>
     </View>
   );
 };
@@ -171,23 +227,37 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
     borderTopWidth: 1,
     borderTopColor: Colors.lightGray,
-    height: 300,
+    height: 400,
   },
   Yu: {
     height: 50,
     width: 50,
   },
+  YuUseCounter: {
+    fontSize: 9,
+    color: Colors.gray,
+  },
+  MoreYu: {
+    fontSize: 9,
+    color: Colors.gray,
+    textDecorationLine: 'underline',
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.lightGray,
+    paddingTop: 10,
+    marginLeft: 10,
   },
   headerCompleted: {
+  },
+  lowerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 2,
     borderBottomWidth: 1,
-    backgroundColor: Colors.background,
     borderBottomColor: Colors.lightGray,
+    gap: 12,
+    marginLeft: 12,
   },
   closeButton: {
     position: 'absolute',
@@ -207,16 +277,16 @@ const styles = StyleSheet.create({
   replyButtonContainer: {
     paddingHorizontal: 16,
     marginTop: 12,
+    paddingVertical: 2,
   },
   selectedContainer: {
     position: 'absolute',
-    top: 2,
     left: 0,
     right: 0,
     zIndex: 2,
   },
   replyButton: {
-    padding: 8,
+    padding: 10,
     borderRadius: 20,
     marginBottom: 2,
     borderWidth: 2,
@@ -241,6 +311,13 @@ const styles = StyleSheet.create({
   headerButton: {
     position: 'absolute',
     right: 24,
+  },
+  responseContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    top: 40, // Adjust this value to position below the selected reply
   },
 });
 
