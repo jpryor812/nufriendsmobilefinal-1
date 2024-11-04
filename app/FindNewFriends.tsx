@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { View, StyleSheet, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -12,21 +12,28 @@ import FooterNavigation from '@/components/FooterNavigation';
 
 const FindNewFriends = () => {
   const router = useRouter();
+  const [selectedFilters, setSelectedFilters] = useState({
+    cities: [] as string[],
+    states: [] as string[],
+    countries: [] as string[],
+    genders: [] as string[],
+  });
 
   const handleCitiesChange = (cities: string[]) => {
-    console.log('Selected cities:', cities);
+    setSelectedFilters(prev => ({ ...prev, cities }));
   };
 
   const handleStatesChange = (states: string[]) => {
     console.log('Selected states:', states);
+    setSelectedFilters(prev => ({ ...prev, states }));
   };
 
   const handleCountriesChange = (countries: string[]) => {
-    console.log('Selected countries:', countries);
+    setSelectedFilters(prev => ({ ...prev, countries }));
   };
 
   const handleGendersChange = (genders: string[]) => {
-    console.log('Selected genders:', genders);
+    setSelectedFilters(prev => ({ ...prev, genders }));
   };
 
   const handlePress = () => {
@@ -34,8 +41,15 @@ const FindNewFriends = () => {
   };
 
   const handleFindFriends = () => {
-    router.push('/FindingFriends');
+    console.log('Filters being passed:', selectedFilters);
+    router.push({
+      pathname: '/FindingFriends',
+      params: {
+        filters: JSON.stringify(selectedFilters)
+      }
+    });
   };
+
 
 
   return (

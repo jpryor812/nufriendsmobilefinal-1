@@ -3,7 +3,7 @@ import { View, StyleSheet, Text, Animated, Platform, UIManager, Image } from 're
 import ProgressBar from '../components/ProgressBar';
 import BigYuOnboarding from '../components/BigYuOnboarding';
 import ChatBubble from '../components/ChatBubble'; 
-import BigYuSearching from '../components/BigYuSearching';
+import BigYuSearchingOnboarding from '../components/BigYuSearchingOnboarding';
 import SearchingBubble from '../components/SearchingBubble';
 import OnboardingFriendListAnimation from '../components/OnboardingFriendListAnimation';
 import { router } from 'expo-router';
@@ -165,7 +165,7 @@ const OnboardingPage5 = () => {
             }
           ]}
         >
-          <BigYuSearching text={searchText} />
+          <BigYuSearchingOnboarding text={searchText} />
         </Animated.View>
   
         {/* Bottom bubble that fades in below image */}

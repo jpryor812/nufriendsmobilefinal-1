@@ -7,7 +7,9 @@ export interface Friend {
     streak: number;
     mutualFriends: number;
     avatar: any;
-    residence: string;
+    city: string;
+    state: string;
+    country: string;
     age: number;
     gender: string;
 }
@@ -22,7 +24,9 @@ export const friendsData: Friend[] = [
         streak: 7, 
         mutualFriends: 12,
         avatar: require('../assets/images/profile_picture.jpg'),
-        residence: "Seattle",
+        city: "Seattle",
+        state: "Washington",
+        country: "United States",
         age: 24,
         gender: "Male"
     },
@@ -35,7 +39,9 @@ export const friendsData: Friend[] = [
         streak: 4, 
         mutualFriends: 8,
         avatar: require('../assets/images/profile_icon.png'),
-        residence: "Boston",
+        city: "Boston",
+        state: "Massachusetts",
+        country: "United States",
         age: 19,
         gender: "Non-binary"
     },
@@ -48,7 +54,9 @@ export const friendsData: Friend[] = [
         streak: 9, 
         mutualFriends: 15,
         avatar: require('../assets/images/profile-800x800.png'),
-        residence: "Chicago",
+        city: "Chicago",
+        state: "Illinois",
+        country: "United States",
         age: 27,
         gender: "Female"
     },
@@ -61,7 +69,9 @@ export const friendsData: Friend[] = [
         streak: 3, 
         mutualFriends: 6,
         avatar: require('../assets/images/profile2-500x500.png'),
-        residence: "Austin",
+        city: "Austin",
+        state: "Texas",
+        country: "United States",
         age: 22,
         gender: "Male"
     },
@@ -74,7 +84,9 @@ export const friendsData: Friend[] = [
         streak: 12, 
         mutualFriends: 19,
         avatar: require('../assets/images/profile3-500x500.png'),
-        residence: "Portland",
+        city: "Portland",
+        state: "Oregon",
+        country: "United States",
         age: 25,
         gender: "Female"
     },
@@ -87,7 +99,9 @@ export const friendsData: Friend[] = [
         streak: 0, 
         mutualFriends: 7,
         avatar: require('../assets/images/profile_picture.jpg'),
-        residence: "Denver",
+        city: "Denver",
+        state: "Colorado",
+        country: "United States",
         age: 30,
         gender: "Other"
     },
@@ -100,7 +114,9 @@ export const friendsData: Friend[] = [
         streak: 0, 
         mutualFriends: 4,
         avatar: require('../assets/images/profile_picture.jpg'),
-        residence: "Miami",
+        city: "Miami",
+        state: "Florida",
+        country: "United States",
         age: 21,
         gender: "Male"
     },
@@ -113,7 +129,9 @@ export const friendsData: Friend[] = [
         streak: 15, 
         mutualFriends: 21,
         avatar: require('../assets/images/profile_picture.jpg'),
-        residence: "Nashville",
+        city: "Nashville",
+        state: "Tennessee",
+        country: "United States",
         age: 26,
         gender: "Female"
     },
@@ -126,7 +144,9 @@ export const friendsData: Friend[] = [
         streak: 0, 
         mutualFriends: 9,
         avatar: require('../assets/images/profile_picture.jpg'),
-        residence: "San Francisco",
+        city: "San Francisco",
+        state: "California",
+        country: "United States",
         age: 23,
         gender: "Prefer not to say"
     },
@@ -139,7 +159,9 @@ export const friendsData: Friend[] = [
         streak: 6,
         mutualFriends: 14,
         avatar: require('../assets/images/profile_icon.png'),
-        residence: "Philadelphia",
+        city: "Philadelphia",
+        state: "Pennsylvania",
+        country: "United States",
         age: 28,
         gender: "Male"
     },
@@ -152,7 +174,9 @@ export const friendsData: Friend[] = [
         streak: 11,
         mutualFriends: 16,
         avatar: require('../assets/images/profile-800x800.png'),
-        residence: "Las Vegas",
+        city: "Las Vegas",
+        state: "Nevada",
+        country: "United States",
         age: 24,
         gender: "Male"
     },
@@ -165,7 +189,9 @@ export const friendsData: Friend[] = [
         streak: 2,
         mutualFriends: 7,
         avatar: require('../assets/images/profile2-500x500.png'),
-        residence: "Houston",
+        city: "Houston",
+        state: "Texas",
+        country: "United States",
         age: 20,
         gender: "Prefer not to say"
     },
@@ -178,7 +204,9 @@ export const friendsData: Friend[] = [
         streak: 8,
         mutualFriends: 11,
         avatar: require('../assets/images/profile3-500x500.png'),
-        residence: "San Diego",
+        city: "San Diego",
+        state: "California",
+        country: "United States",
         age: 29,
         gender: "Male"
     },
@@ -191,7 +219,9 @@ export const friendsData: Friend[] = [
         streak: 0,
         mutualFriends: 5,
         avatar: require('../assets/images/profile_picture.jpg'),
-        residence: "Phoenix",
+        city: "Phoenix",
+        state: "Arizona",
+        country: "United States",
         age: 25,
         gender: "Male"
     },
@@ -204,7 +234,9 @@ export const friendsData: Friend[] = [
         streak: 13,
         mutualFriends: 18,
         avatar: require('../assets/images/profile_icon.png'),
-        residence: "Atlanta",
+        city: "Atlanta",
+        state: "Georgia",
+        country: "United States",
         age: 23,
         gender: "Non-binary"
     },
@@ -217,7 +249,9 @@ export const friendsData: Friend[] = [
         streak: 5,
         mutualFriends: 10,
         avatar: require('../assets/images/profile-800x800.png'),
-        residence: "Dallas",
+        city: "Dallas",
+        state: "Texas",
+        country: "United States",
         age: 27,
         gender: "Male"
     },
@@ -230,7 +264,9 @@ export const friendsData: Friend[] = [
         streak: 14,
         mutualFriends: 20,
         avatar: require('../assets/images/profile2-500x500.png'),
-        residence: "Oakland",
+        city: "Oakland",
+        state: "California",
+        country: "United States",
         age: 22,
         gender: "Male"
     },
@@ -243,7 +279,9 @@ export const friendsData: Friend[] = [
         streak: 0,
         mutualFriends: 6,
         avatar: require('../assets/images/profile3-500x500.png'),
-        residence: "Minneapolis",
+        city: "Minneapolis",
+        state: "Minnesota",
+        country: "United States",
         age: 26,
         gender: "Male"
     },
@@ -256,7 +294,9 @@ export const friendsData: Friend[] = [
         streak: 7,
         mutualFriends: 13,
         avatar: require('../assets/images/profile_picture.jpg'),
-        residence: "Sacramento",
+        city: "Sacramento",
+        state: "California",
+        country: "United States",
         age: 24,
         gender: "Male"
     },
@@ -269,7 +309,9 @@ export const friendsData: Friend[] = [
         streak: 3,
         mutualFriends: 8,
         avatar: require('../assets/images/profile_icon.png'),
-        residence: "Cleveland",
+        city: "Cleveland",
+        state: "Ohio",
+        country: "United States",
         age: 28,
         gender: "Female"
     },
@@ -282,7 +324,9 @@ export const friendsData: Friend[] = [
         streak: 10,
         mutualFriends: 15,
         avatar: require('../assets/images/profile-800x800.png'),
-        residence: "New York",
+        city: "New York",
+        state: "New York",
+        country: "United States",
         age: 30,
         gender: "Male"
     },
@@ -295,7 +339,9 @@ export const friendsData: Friend[] = [
         streak: 4,
         mutualFriends: 9,
         avatar: require('../assets/images/profile2-500x500.png'),
-        residence: "Los Angeles",
+        city: "Los Angeles",
+        state: "California",
+        country: "United States",
         age: 25,
         gender: "Male"
     },
@@ -308,7 +354,9 @@ export const friendsData: Friend[] = [
         streak: 12,
         mutualFriends: 17,
         avatar: require('../assets/images/profile3-500x500.png'),
-        residence: "San Jose",
+        city: "San Jose",
+        state: "California",
+        country: "United States",
         age: 21,
         gender: "Other"
     },
@@ -321,7 +369,9 @@ export const friendsData: Friend[] = [
         streak: 1,
         mutualFriends: 7,
         avatar: require('../assets/images/profile_picture.jpg'),
-        residence: "Detroit",
+        city: "Detroit",
+        state: "Michigan",
+        country: "United States",
         age: 19,
         gender: "Male"
     },
@@ -334,7 +384,9 @@ export const friendsData: Friend[] = [
         streak: 6,
         mutualFriends: 12,
         avatar: require('../assets/images/profile_icon.png'),
-        residence: "Washington",
+        city: "Washington",
+        state: "District of Columbia",
+        country: "United States",
         age: 26,
         gender: "Male"
     }
