@@ -12,7 +12,7 @@ const OnboardingPage6 = () => (
     {/* then type something in the text box and send the message, then after sending the message, router to the next page where we demonstrate using Yu */}
 
     <View style={styles.link_container}>
-      <Link href="/OnboardingPage5" style={styles.link}>
+      <Link href="/OnboardingSendMessages" style={styles.link}>
         <View style={styles.continue_button_container}>
           <Text style={styles.continue_button_text}>Continue</Text>
         </View>
