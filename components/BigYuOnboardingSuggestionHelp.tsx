@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Text, Image, } from 'react-native';
 
-const BigYuOnboarding = ({ text }: { text: string }) => {
+const BigYuOnboardingSuggestionHelp = ({ text }: { text: string }) => {
   return (
     <View style={styles.container}>
       <View style={styles.big_yu_chat_bubble_container}>
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#ccc',
     padding: 20,
-    width: '76%',
+    width: '84%',
     marginBottom: 0, // Remove bottom margin
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -65,8 +65,8 @@ const styles = StyleSheet.create({
     // Slightly overlap with the chat bubble to hide the gap
   },
   big_yu_question_onboarding: {
-    width: 180,
-    height: 180,
+    width: 130,
+    height: 130,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     color: '#42ade2',
-    fontSize: 20,
+    fontSize: 16,
   },
   chatBubbleArrowInner: {
     width: 0,
@@ -92,4 +92,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BigYuOnboarding;
+export default BigYuOnboardingSuggestionHelp;

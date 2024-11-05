@@ -14,16 +14,17 @@ import {
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import messageData from '@/assets/messages2.json';
 import { useLocalSearchParams } from 'expo-router';
-import FriendProfileMessageHeader from '@/components/FriendProfileMessageHeader';
+import FriendProfileMessageHeaderOnboarding from '@/components/FriendProfileMessageHeaderOnboarding';
 import YuSuggestions from '@/components/YuSuggestions';
 import AnimatedYuButton from '@/components/AnimatedYuButton';
 import MessageContainer from '@/components/MessageContainer';
-import BigYuOnboarding from '@/components/BigYuOnboarding';
+import BigYuOnboardingPlusContinue from '@/components/BigYuOnboardingPlusContinue';
+import {router} from 'expo-router';
 
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
-const ChatRoomFriend = () => {
+const ChatRoomFriendOnboarding = () => {
     const [text, setText] = useState('');
     const insets = useSafeAreaInsets();
     const [isLoadingMessages, setIsLoadingMessages] = useState(true);
@@ -36,6 +37,9 @@ const ChatRoomFriend = () => {
     const [isTyping, setIsTyping] = useState(false);
     const [showBigYu, setShowBigYu] = useState(false);
     const bigYuAnimation = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
+    const handleContinue = () => {
+        router.push('/OnboardingMessageWithYuSuggestions'); // Replace with your actual route
+      };
   
     const simulateTypingAndSend = (messageToType: string) => {
       setIsTyping(true);
@@ -225,7 +229,7 @@ const renderInputToolbar = (props: any) => {
       <ImageBackground
         style={styles.background}
       >
-        <FriendProfileMessageHeader 
+        <FriendProfileMessageHeaderOnboarding 
           imageSource={require('../assets/images/profile_picture.jpg')}
           name= "Jpp123"
         />
@@ -291,8 +295,9 @@ const renderInputToolbar = (props: any) => {
                     },
                   ]}
                 >
-                  <BigYuOnboarding 
+                  <BigYuOnboardingPlusContinue 
                     text="If you're still not sure what to say after I help start the conversation for you, I have another way to help you continue the conversation. Let's check it out!" // Or whatever text you want to display
+                    onContinue={handleContinue}
                   />
                 </Animated.View>
             )}
@@ -345,4 +350,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ChatRoomFriend;
+export default ChatRoomFriendOnboarding;

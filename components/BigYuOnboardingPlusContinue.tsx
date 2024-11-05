@@ -1,7 +1,15 @@
 import React from 'react';
-import { View, StyleSheet, Text, Image, } from 'react-native';
+import { View, StyleSheet, Text, Image, TouchableOpacity } from 'react-native';
 
-const BigYuOnboarding = ({ text }: { text: string }) => {
+interface BigYuOnboardingPlusContinueProps {
+  text: string;
+  onContinue: () => void; // Add this prop
+}
+
+const BigYuOnboardingPlusContinue: React.FC<BigYuOnboardingPlusContinueProps> = ({ 
+  text, 
+  onContinue 
+}) => {
   return (
     <View style={styles.container}>
       <View style={styles.big_yu_chat_bubble_container}>
@@ -16,10 +24,16 @@ const BigYuOnboarding = ({ text }: { text: string }) => {
           resizeMode='contain'
         />
       </View>
+      <TouchableOpacity 
+        style={styles.continue_button_container}
+        onPress={onContinue}
+      >
+        <Text style={styles.continue_button_text}>Let's do it!</Text>
+      </TouchableOpacity>
     </View>
   );
 };
-//Just add the continue button to the BigYuOnboarding component
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -90,6 +104,21 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: -17, // Adjust this to position it correctly over the border arrow
   },
+  continue_button_container: {
+    width: 300,
+    height: 50, // Fixed height for the button
+    backgroundColor: '#6ECFFF',
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  continue_button_text: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    textAlignVertical: 'center', // For Android
+  },
 });
 
-export default BigYuOnboarding;
+export default BigYuOnboardingPlusContinue;

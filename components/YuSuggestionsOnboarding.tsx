@@ -16,7 +16,7 @@ import {Link} from 'expo-router';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
-interface YuSuggestionsProps {
+interface YuSuggestionsOnboardingProps {
   onSelectContent: (content: string) => void;
   onClose: () => void;
 }
@@ -28,7 +28,7 @@ const quickReplies = [
   { id: '4', text: "Start a new conversation/HELP!" },
 ];
 
-const YuSuggestions: React.FC<YuSuggestionsProps> = ({ onSelectContent, onClose }) => {
+const YuSuggestionsOnboarding: React.FC<YuSuggestionsOnboardingProps> = ({ onSelectContent, onClose }) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [animationComplete, setAnimationComplete] = useState(false);
   const [animationPhase, setAnimationPhase] = useState(0);
@@ -142,12 +142,6 @@ const handleSendMessage = (text: string) => {
           </View>
         </TouchableOpacity>
       </View>
-      <View style={styles.lowerHeader}>
-                <Text style={styles.YuUseCounter}>0/25 used this week</Text>
-        <Link href="/UpgradeToPremium">
-        <Text style={styles.MoreYu}>Want more?</Text>
-        </Link>
-      </View>
       <View style={styles.content}>
         {/* Regular replies that slide out */}
         {quickReplies.map((reply, index) => (
@@ -232,6 +226,7 @@ const styles = StyleSheet.create({
   Yu: {
     height: 42,
     width: 42,
+    marginLeft: 8,
   },
   YuUseCounter: {
     fontSize: 9,
@@ -246,7 +241,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingTop: 6,
-    marginLeft: 10,
+    borderBottomWidth: 1,
+    padding: 2,
+    borderBottomColor: Colors.lightGray,
   },
   headerCompleted: {
   },
@@ -276,7 +273,7 @@ const styles = StyleSheet.create({
   },
   replyButtonContainer: {
     paddingHorizontal: 16,
-    marginTop: 12,
+    marginTop: 10,
     paddingVertical: 2,
   },
   selectedContainer: {
@@ -296,6 +293,8 @@ const styles = StyleSheet.create({
   selectedReplyButton: {
     borderColor: '#e9e9e9',
     backgroundColor: '#57C7FF',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
   },
   replyText: {
     fontSize: 14,
@@ -321,4 +320,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default YuSuggestions;
+export default YuSuggestionsOnboarding;
