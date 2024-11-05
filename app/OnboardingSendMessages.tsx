@@ -1,8 +1,8 @@
 import ChatMessageBox from '@/components/ChatMessageBox';
 import Colors from '@/assets/Colors';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState, useCallback, useEffect } from 'react';
-import { ImageBackground, StyleSheet, View, Image, Text, TouchableOpacity, Animated, Easing } from 'react-native';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { ImageBackground, StyleSheet, View, Image, Text, TouchableOpacity, Animated, Easing, Dimensions } from 'react-native';
 import {
   GiftedChat,
   Bubble,
@@ -18,6 +18,10 @@ import FriendProfileMessageHeader from '@/components/FriendProfileMessageHeader'
 import YuSuggestions from '@/components/YuSuggestions';
 import AnimatedYuButton from '@/components/AnimatedYuButton';
 import MessageContainer from '@/components/MessageContainer';
+import BigYuOnboarding from '@/components/BigYuOnboarding';
+
+
+const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 const ChatRoomFriend = () => {
     const [text, setText] = useState('');
@@ -30,6 +34,8 @@ const ChatRoomFriend = () => {
       opacity: Animated.Value;
     }[]>([]);
     const [isTyping, setIsTyping] = useState(false);
+    const [showBigYu, setShowBigYu] = useState(false);
+    const bigYuAnimation = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   
     const simulateTypingAndSend = (messageToType: string) => {
       setIsTyping(true);
@@ -61,7 +67,18 @@ const ChatRoomFriend = () => {
             duration: 500,
             easing: Easing.ease,
             useNativeDriver: true,
-          }).start();
+          }).start(() => {
+
+          setTimeout(() => {
+            setShowBigYu(true);
+            Animated.spring(bigYuAnimation, {
+              toValue: 0,
+              friction: 8,
+              tension: 40,
+              useNativeDriver: true,
+            }).start();
+          }, 2000);
+        });
   
           setText('');
         }
@@ -265,6 +282,21 @@ const renderInputToolbar = (props: any) => {
             );
         }}
         />
+                    {showBigYu && (
+                <Animated.View
+                  style={[
+                    styles.bigYuContainer,
+                    {
+                      transform: [{ translateY: bigYuAnimation }],
+                    },
+                  ]}
+                >
+                  <BigYuOnboarding 
+                    text="If you're still not sure what to say after I help start the conversation for you, I have another way to help you continue the conversation. Let's check it out!" // Or whatever text you want to display
+                  />
+                </Animated.View>
+            )}
+
       </ImageBackground>
     </SafeAreaView>
   );
@@ -299,6 +331,17 @@ const styles = StyleSheet.create({
     marginTop: 2,
     marginBottom: 2,
     textAlignVertical: 'center',
+  },
+  bigYuContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)', // Optional: add semi-transparent background
   },
 });
 

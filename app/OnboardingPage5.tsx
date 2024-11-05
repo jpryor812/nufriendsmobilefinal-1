@@ -56,7 +56,7 @@ const OnboardingPage5 = () => {
         setSearchText("Then, You'll see a conversation begin on your behalf based on you and your new friend's interests...");
         setTimeout(() => {
           router.push('/OnboardingPage6');
-        }, 6500);
+        }, 6000);
       }, 1500);
       return () => clearTimeout(timer);
     }
