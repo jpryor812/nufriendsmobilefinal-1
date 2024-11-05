@@ -47,6 +47,7 @@ const YuGeneratedResponseContainer: React.FC<YuGeneratedResponseContainerProps> 
           value={messageText}
           onChangeText={setMessageText}
           placeholder="Your message..."
+          placeholderTextColor={'#888888'}
           textAlignVertical="top"
         />
       </View>
@@ -76,6 +77,7 @@ const YuGeneratedResponseContainer: React.FC<YuGeneratedResponseContainerProps> 
           value={suggestionText}
           onChangeText={setSuggestionText}
           placeholder="Suggest changes for Yu to tweak the message..."
+          placeholderTextColor={'#888888'}
           textAlignVertical="top"
         />
       </View>
@@ -109,7 +111,7 @@ const styles = StyleSheet.create({
   messageInput: {
     flex: 1,
     fontSize: 14,
-    color: '#2B2B2B',
+    color: '#444444',
   },
   buttonsContainer: {
     gap: 6,
@@ -136,12 +138,12 @@ const styles = StyleSheet.create({
     borderColor: '#E0E0E0',
   },
   primaryButtonText: {
-    color: '#555555',
+    color: '#444444',
     fontSize: 12,
     fontWeight: '600',
   },
   secondaryButtonText: {
-    color: '#555555',
+    color: '#444444',
     fontSize: 12,
     fontWeight: '600',
   },
@@ -153,7 +155,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 84
   },
   suggestButtonText: {
-    color: '#555555',
+    color: '#444444',
     fontSize: 14,
     fontWeight: '500',
   },

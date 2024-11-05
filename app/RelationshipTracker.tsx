@@ -164,7 +164,7 @@ const RelationshipTracker = () => {
     <View style={styles.detailContainer}>
         <Image source={require('../assets/images/Home_icon.png')}
             style={{ width: 22, height: 22 }} />
-        <Text style={styles.detailText}>{friend.residence}</Text>
+        <Text style={styles.detailText}>{friend.city}</Text>
     </View>
     <View style={styles.detailContainer}>
     {(() => {

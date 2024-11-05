@@ -7,7 +7,7 @@ import { Link } from 'expo-router';
 const OnboardingPage4 = () => (
   <View style={styles.appContainer}>
     <ProgressBar progress={20} />
-    <BigYuOnboarding text="Here's How it Will Work..." />
+    <BigYuOnboarding text="I'm excited to help you find five new friends in just a few minutes, but first, let me explain how you can have the best experience possible in this community!" />
 
     <View style={styles.link_container}>
       <Link href="/OnboardingPage5" style={styles.link}>

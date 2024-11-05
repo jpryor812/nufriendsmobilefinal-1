@@ -96,20 +96,17 @@ useEffect(() => {
         )}
         renderSend={(props) => (
           <View style={{
-            height: 44,
-            marginTop: 4,
+            height: 40,
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
-            marginRight: 12,
-            paddingHorizontal: 2,
+            gap: 6,
+            paddingHorizontal: 6,
           }}>
-            <Ionicons name="add" color={Colors.primary} size={28} />
-            {text !== '' && (
-              <Send {...props} containerStyle={{ justifyContent: 'center' }}>
-                <Ionicons name="send" color={Colors.primary} size={22} />
-              </Send>
-            )}
+            <Send {...props} containerStyle={{ justifyContent: 'center' }}>
+              <Ionicons name="send" color={Colors.primary} size={22} />
+            </Send>
+            <Ionicons name="add" color={Colors.primary} size={22} />
           </View>
         )}
       />

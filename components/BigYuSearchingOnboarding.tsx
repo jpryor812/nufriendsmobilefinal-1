@@ -40,8 +40,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 2,
     borderColor: '#ccc',
-    padding: 20,
-    width: '76%',
+    padding: 16,
+    width: '80%',
     marginBottom: 0, // Remove bottom margin
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },

@@ -227,11 +227,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
     borderTopWidth: 1,
     borderTopColor: Colors.lightGray,
-    height: 400,
+    height: 380,
   },
   Yu: {
-    height: 50,
-    width: 50,
+    height: 42,
+    width: 42,
   },
   YuUseCounter: {
     fontSize: 9,
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 10,
+    paddingTop: 6,
     marginLeft: 10,
   },
   headerCompleted: {
