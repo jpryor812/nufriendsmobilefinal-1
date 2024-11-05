@@ -17,6 +17,7 @@ import { useLocalSearchParams } from 'expo-router';
 import FriendProfileMessageHeader from '@/components/FriendProfileMessageHeader';
 import YuSuggestions from '@/components/YuSuggestions';
 import AnimatedYuButton from '@/components/AnimatedYuButton';
+import MessageContainer from '@/components/MessageContainer';
 
 const ChatRoomFriend = () => {
   const [text, setText] = useState('');
@@ -118,6 +119,7 @@ useEffect(() => {
           messages={messages}
           onSend={onSend}
           user={{ _id: 1 }}
+          inverted={false}
           isKeyboardInternallyHandled={true}
           keyboardShouldPersistTaps="handled"
           listViewProps={{
@@ -143,13 +145,15 @@ useEffect(() => {
               }}
               wrapperStyle={{
                 left: { backgroundColor: '#eee' },
-                right: { backgroundColor: '#6ecfff' },
+                right: { backgroundColor: '#6ecfff'},
               }}
             />
           )}
           renderInputToolbar={renderInputToolbar}
           renderMessage={(props) => (
+            <View style={{ marginBottom: 6 }}>
             <ChatMessageBox {...props} />
+            </View>
           )}
         />
       </ImageBackground>

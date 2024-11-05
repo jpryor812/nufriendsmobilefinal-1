@@ -14,7 +14,7 @@ const OnboardingPage6 = () => (
     <View style={styles.link_container}>
       <Link href="/OnboardingSendMessages" style={styles.link}>
         <View style={styles.continue_button_container}>
-          <Text style={styles.continue_button_text}>Continue</Text>
+          <Text style={styles.continue_button_text}>See how it works!</Text>
         </View>
       </Link>
     </View>
