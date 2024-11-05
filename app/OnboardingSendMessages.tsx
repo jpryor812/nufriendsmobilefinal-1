@@ -20,36 +20,77 @@ import AnimatedYuButton from '@/components/AnimatedYuButton';
 import MessageContainer from '@/components/MessageContainer';
 
 const ChatRoomFriend = () => {
-  const [text, setText] = useState('');
-  const insets = useSafeAreaInsets();
-  const [isLoadingMessages, setIsLoadingMessages] = useState(true);
-  const [isYuSuggestionsMode, setIsYuSuggestionsMode] = useState(false);
-  const [displayedMessages, setDisplayedMessages] = useState<IMessage[]>([]);
-  const [animatedMessages, setAnimatedMessages] = useState<{
-    message: IMessage;
-    opacity: Animated.Value;
-  }[]>([]);
-
-  useEffect(() => {
-    // First, prepare all messages
-    const allMessages = messageData.map((message) => ({
-      _id: message.id,
-      text: message.msg,
-      createdAt: new Date(message.date),
-      user: {
-        _id: message.from,
-        name: message.from ? 'You' : 'Jpp123',
-      },
-    }));
-
-    const addMessagesWithDelay = (messages: IMessage[], index: number) => {
+    const [text, setText] = useState('');
+    const insets = useSafeAreaInsets();
+    const [isLoadingMessages, setIsLoadingMessages] = useState(true);
+    const [isYuSuggestionsMode, setIsYuSuggestionsMode] = useState(false);
+    const [displayedMessages, setDisplayedMessages] = useState<IMessage[]>([]);
+    const [animatedMessages, setAnimatedMessages] = useState<{
+      message: IMessage;
+      opacity: Animated.Value;
+    }[]>([]);
+    const [isTyping, setIsTyping] = useState(false);
+  
+    const simulateTypingAndSend = (messageToType: string) => {
+      setIsTyping(true);
+      let currentIndex = 0;
+      
+      const typingInterval = setInterval(() => {
+        if (currentIndex <= messageToType.length) {
+          setText(messageToType.slice(0, currentIndex));
+          currentIndex++;
+        } else {
+          clearInterval(typingInterval);
+          setIsTyping(false);
+          
+          const newMessage: IMessage = {
+            _id: Math.random().toString(),
+            text: messageToType,
+            createdAt: new Date(),
+            user: {
+              _id: 1,
+              name: 'You',
+            },
+          };
+  
+          const opacity = new Animated.Value(0);
+          setAnimatedMessages(prev => [...prev, { message: newMessage, opacity }]);
+          
+          Animated.timing(opacity, {
+            toValue: 1,
+            duration: 500,
+            easing: Easing.ease,
+            useNativeDriver: true,
+          }).start();
+  
+          setText('');
+        }
+      }, 120);
+    };
+  
+    useEffect(() => {
+      const allMessages = messageData.map((message) => ({
+        _id: message.id,
+        text: message.msg,
+        createdAt: new Date(message.date),
+        user: {
+          _id: message.from,
+          name: message.from ? 'You' : 'Jpp123',
+        },
+      }));
+  
+      const addMessagesWithDelay = (messages: IMessage[], index: number) => {
         if (index >= messages.length) {
           setIsLoadingMessages(false);
+          // Start typing animation after messages are loaded
+          setTimeout(() => {
+            simulateTypingAndSend("Oh wow! Good luck!!");
+          }, 2000);
           return;
         }
-
+  
         const opacity = new Animated.Value(0);
-
+  
         setTimeout(() => {
           setAnimatedMessages(prev => [...prev, { message: messages[index], opacity }]);
           
@@ -59,94 +100,108 @@ const ChatRoomFriend = () => {
             easing: Easing.ease,
             useNativeDriver: true,
           }).start();
-
+  
           addMessagesWithDelay(messages, index + 1);
-        }, 1200); // 1 second delay
+        }, 1200);
       };
   
-      // Start adding messages
       addMessagesWithDelay(allMessages, 0);
   
-      // Cleanup function
       return () => {
         setDisplayedMessages([]);
         setIsLoadingMessages(true);
       };
-    }, []); // Empty dependency array since we only want this to run once
-
+    }, []);
+  
     const renderMessage = (props: any) => {
-        const messageAnimation = animatedMessages.find(
-          am => am.message._id === props.currentMessage._id
-        );
-    
-        return (
-          <Animated.View style={{ opacity: messageAnimation?.opacity || 1 }}>
-            <ChatMessageBox {...props} />
-          </Animated.View>
-        );
-      };
+      const messageAnimation = animatedMessages.find(
+        am => am.message._id === props.currentMessage._id
+      );
+  
+      return (
+        <Animated.View style={{ opacity: messageAnimation?.opacity || 1 }}>
+          <ChatMessageBox {...props} />
+        </Animated.View>
+      );
+    };
   
     const onSend = useCallback((messages = []) => {
       setDisplayedMessages((previousMessages) => GiftedChat.append(previousMessages, messages));
     }, []);
-
-  const handleYuSuggestionsSelect = (content: string) => {
-    setText(content);
-    setIsYuSuggestionsMode(false);
-  };
-
-  // Combined handler for Yu-generated messages
-  const handleYuMessage = (text: string) => {
-    console.log('ChatRoomFriend received message:', text);
-    
-    const newMessage: IMessage = {
-      _id: Math.random().toString(),
-      text: text,
-      createdAt: new Date(),
-      user: {
-        _id: 1,
-        name: 'You',
-      },
+  
+    const handleYuSuggestionsSelect = (content: string) => {
+      setText(content);
+      setIsYuSuggestionsMode(false);
     };
-    setDisplayedMessages(previousMessages => GiftedChat.append(previousMessages, [newMessage])); // Changed from setMessages to setDisplayedMessages
-    setIsYuSuggestionsMode(false);
-  };
+  
+    const handleYuMessage = (text: string) => {
+      console.log('ChatRoomFriend received message:', text);
+      
+      const newMessage: IMessage = {
+        _id: Math.random().toString(),
+        text: text,
+        createdAt: new Date(),
+        user: {
+          _id: 1,
+          name: 'You',
+        },
+      };
+  
+      const opacity = new Animated.Value(0);
+      setAnimatedMessages(prev => [...prev, { message: newMessage, opacity }]);
+      
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 500,
+        easing: Easing.ease,
+        useNativeDriver: true,
+      }).start();
+  
+      setIsYuSuggestionsMode(false);
+    };
 
-  const renderInputToolbar = (props: any) => {
-    if (isYuSuggestionsMode) {
-      return (
-        <YuSuggestions
-          onSelectContent={handleYuMessage}
-          onClose={() => setIsYuSuggestionsMode(false)}
-        />
-      );
-    }
-
+// Modify renderInputToolbar to show the typing text
+const renderInputToolbar = (props: any) => {
+  if (isYuSuggestionsMode) {
     return (
-      <InputToolbar
-        {...props}
-        containerStyle={{ backgroundColor: Colors.background }}
-        renderActions={() => (
-          <AnimatedYuButton onPress={() => setIsYuSuggestionsMode(true)} />
-        )}
-        renderSend={(props) => (
-          <View style={{
-            height: 40,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 6,
-            paddingHorizontal: 6,
-          }}>
-            <Send {...props} containerStyle={{ justifyContent: 'center' }}>
-              <Ionicons name="send" color={Colors.primary} size={22} />
-            </Send>
-            <Ionicons name="add" color={Colors.primary} size={22} />
-          </View>
-        )}
+      <YuSuggestions
+        onSelectContent={handleYuMessage}
+        onClose={() => setIsYuSuggestionsMode(false)}
       />
     );
-  };
+  }
+
+  return (
+    <InputToolbar
+      {...props}
+      text={text} // Add this line to show the typing text
+      containerStyle={{ backgroundColor: Colors.background }}
+      textInputProps={{
+        ...props.textInputProps,
+        editable: !isTyping, // Disable input while typing animation is happening
+        value: text, // Add this to ensure text shows while typing
+      }}
+      renderActions={() => (
+        <AnimatedYuButton onPress={() => setIsYuSuggestionsMode(true)} />
+      )}
+      renderSend={(props) => (
+        <View style={{
+          height: 40,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 6,
+          paddingHorizontal: 6,
+        }}>
+          <Send {...props} containerStyle={{ justifyContent: 'center' }}>
+            <Ionicons name="send" color={Colors.primary} size={22} />
+          </Send>
+          <Ionicons name="add" color={Colors.primary} size={22} />
+        </View>
+      )}
+    />
+  );
+};
 
   return (
     <SafeAreaView style={styles.container}>
