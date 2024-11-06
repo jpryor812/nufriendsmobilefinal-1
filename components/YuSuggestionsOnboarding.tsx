@@ -1,9 +1,3 @@
-//Write pre-written statements for each bubble that types in one by one like send message part to answer the question and then have the user click Send Message
-//Oh nice, good luck defending your title! Have you played in many tournaments before? Was the last one your first win or have you wona  few?
-//"Nice, good luck at the tournament! What's your favorite deck strategy to play? I always love hearing about other players' favorite cards and combos!"
-//"That's awesome about your tournament! I haven't competed in a while, but I used to run a mono-black control deck back in the day that did pretty well at my local game store. Made it to the finals once but got absolutely crushed by this incredible angel deck! Are you playing any particular strategy for defending your title?"
-//"That's exciting about your Magic tournament! Do you compete in any other card games or board game tournaments too? I've always wondered about trying some competitive Pokémon TCG or even chess tournaments myself."
-
 import React, { useState, useRef } from 'react';
 import { 
   View, 
@@ -19,13 +13,15 @@ import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/assets/Colors';
 import YuGeneratedResponseContainer from './YuGeneratedResponseContainer';
 import {router} from 'expo-router';
+import BigYuOnboardingSuggestionHelp from './BigYuOnboardingSuggestionHelp';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 interface YuSuggestionsOnboardingProps {
-  onSelectContent: (content: string) => void;
-  onClose: () => void;
-}
+    onSelectContent: (content: string) => void;
+    onClose: () => void;
+    onSelectionChange: (isSelected: boolean) => void;  // Add this
+  }
 
 const quickReplies = [
   { id: '1', text: "Ask Jpp123 if he's ever played in a tournament before" },
@@ -34,8 +30,11 @@ const quickReplies = [
   { id: '4', text: "Ask Jpp123 if he plays any other card or board" },
 ];
 
-const YuSuggestionsOnboarding: React.FC<YuSuggestionsOnboardingProps> = ({ onSelectContent, onClose }) => {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+const YuSuggestionsOnboarding: React.FC<YuSuggestionsOnboardingProps> = ({ 
+    onSelectContent, 
+    onClose, 
+    onSelectionChange  // Add this
+  }) => {  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [animationComplete, setAnimationComplete] = useState(false);
   const [animationPhase, setAnimationPhase] = useState(0);
   const replyAnimations = useRef<Animated.Value[]>(
@@ -43,6 +42,7 @@ const YuSuggestionsOnboarding: React.FC<YuSuggestionsOnboardingProps> = ({ onSel
   ).current;
   const selectedAnimation = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   const responseContainerAnimation = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
+  const [isSelected, setIsSelected] = useState(false);
 
 
   const resetState = () => {
@@ -57,7 +57,7 @@ const YuSuggestionsOnboarding: React.FC<YuSuggestionsOnboardingProps> = ({ onSel
   
   const handleReplySelect = (id: string, text: string) => {
     setSelectedId(id);
-    const selectedIndex = quickReplies.findIndex(reply => reply.id === id);
+    onSelectionChange(true); 
     
     // Phase 1: Slide all items out
     const slideOutAnimations = replyAnimations.map((anim) => {

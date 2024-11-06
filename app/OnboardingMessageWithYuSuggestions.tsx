@@ -96,12 +96,13 @@ useEffect(() => {
 };
 
 
-  const renderInputToolbar = (props: any) => {
+const renderInputToolbar = (props: any) => {
     if (isYuSuggestionsMode) {
       return (
         <YuSuggestionsOnboarding
-          onSelectContent={handleYuSuggestionsSelect}  // Change this from handleYuMessage
+          onSelectContent={handleYuSuggestionsSelect}
           onClose={() => setIsYuSuggestionsMode(false)}
+          onSelectionChange={setSuggestionSelected}  // Add this
         />
       );
     }
@@ -183,22 +184,22 @@ useEffect(() => {
             </View>
             )}
         />  
-                    {showCenterImage && (
-                <Animated.View
-                  style={[
-                    styles.centerContainer,
-                    {
-                      transform: [{ translateY: centerImageAnimation }],
-                    },
-                  ]}
-                  pointerEvents="box-none" 
-                >
-                <BigYuOnboardingSuggestionHelp 
-                    text={suggestionSelected 
-                        ? "Great choice! Now you can edit the message if you'd like, or send it as is. I'll keep learning from our interactions to provide even better suggestions next time!"
-                        : "Based on what I know about you and your new friend, I'll always be here to help you drive existing and new conversations if needed. These suggestions will always be unique based on the conversation and constantly updated. Tap a suggestion to see what happens next!"
-                    }
-                />
+    {showCenterImage && (
+      <Animated.View
+        style={[
+          styles.centerContainer,
+          {
+            transform: [{ translateY: centerImageAnimation }],
+          },
+        ]}
+        pointerEvents="box-none" 
+      >
+        <BigYuOnboardingSuggestionHelp 
+          text={suggestionSelected 
+            ? "Great choice! Now you can edit the message if you'd like, or send it as is. I'll keep learning from our interactions to provide even better suggestions next time!"
+            : "Based on what I know about you and your new friend, I'll always be here to help you drive existing and new conversations if needed. These suggestions will always be unique based on the conversation and constantly updated. Tap a suggestion to see what happens next!"
+          }
+        />
                 </Animated.View>
                 )}
       </ImageBackground>
