@@ -1,18 +1,31 @@
 import React from 'react';
-import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Dimensions } from 'react-native';
 import ProgressBar from '../components/ProgressBar';
 import BigYuOnboarding from '../components/BigYuOnboarding';
+import InputContainer from '../components/InputContainer';
 
-const OnboardingQ1 = ({ navigation }: { navigation: any }) => (
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+const OnboardingQuestion1 = ({ navigation }: { navigation: any }) => (
   <View style={styles.appContainer}>
     <ProgressBar progress={10} />
-    <BigYuOnboarding text="Question 1: {'\n'} Where are you from? Was there anything you liked or disliked about your hometown?" />
-    <TouchableOpacity
-      style={styles.continue_button_container}
-      onPress={() => navigation.navigate('OnboardingPage11')}
-    >
-      <Text style={styles.continue_button_text}>Continue</Text>
-    </TouchableOpacity>
+    <BigYuOnboarding 
+      text={`Question 1: \nWhere are you from? Was there anything you liked or disliked about your hometown?`} 
+    />
+    <View style={styles.inputWrapper}>
+      <InputContainer 
+        placeholder="Type your answer here..."
+        onHeightChange={(height) => {
+          // Handle height change if needed
+        }}
+        onSendMessage={(message) => {
+          // Handle send message
+          navigation.navigate('OnboardingPage11');
+        }}
+        width={SCREEN_WIDTH * 0.9} // Add width prop
+        maxHeight={200} // Add maxHeight prop
+      />
+    </View>
   </View>
 );
 
@@ -24,20 +37,13 @@ const styles = StyleSheet.create({
     marginTop: 0,
     backgroundColor: '#F0FCFE',
   },
-  continue_button_container: {
-    width: '90%',
-    height: '6%',
-    backgroundColor: '#6ECFFF',
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: '10%',
+  inputWrapper: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    paddingBottom: 20, // Add some padding at the bottom
   },
-  continue_button_text: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
+  // ... rest of your styles
 });
 
-export default OnboardingQ1;
+export default OnboardingQuestion1;

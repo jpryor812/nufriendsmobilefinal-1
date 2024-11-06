@@ -43,6 +43,8 @@ export default function RootLayout() {
       options={{ headerShown: false }} />
       <Stack.Screen name="OnboardingMessageWithYuSuggestions"
       options={{ headerShown: false }} />
+      <Stack.Screen name="OnboardingQuestion1"
+      options={{ headerShown: false }} />
     </Stack>
   );
 }

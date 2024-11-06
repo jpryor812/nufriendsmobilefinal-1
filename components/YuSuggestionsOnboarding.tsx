@@ -12,7 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/assets/Colors';
 import YuGeneratedResponseContainer from './YuGeneratedResponseContainer';
-import {Link} from 'expo-router';
+import {router} from 'expo-router';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
@@ -25,7 +25,7 @@ const quickReplies = [
   { id: '1', text: "Ask Jpp123 if he's ever played in a tournament before" },
   { id: '2', text: "Ask Jpp123 if he has any favorite cards or strategies" },
   { id: '3', text: "Ask Jpp123 where the tournament is being held" },
-  { id: '4', text: "Start a new conversation/HELP!" },
+  { id: '4', text: "Talk about your past experience with playing Magic" },
 ];
 
 const YuSuggestionsOnboarding: React.FC<YuSuggestionsOnboardingProps> = ({ onSelectContent, onClose }) => {
@@ -114,8 +114,7 @@ const handleSendMessage = (text: string) => {
   };
 
   const handleSuggestChanges = () => {
-    // Handle suggesting changes
-    console.log('Suggesting changes');
+    router.push('/OnboardingQuestion1');
   };
 
   return (

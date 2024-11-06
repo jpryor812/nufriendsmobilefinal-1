@@ -1,3 +1,4 @@
+//Write pre-written statements for each bubble that types in one by one like send message part to answer the question and then have the user click Send Message
 import ChatMessageBox from '@/components/ChatMessageBox';
 import Colors from '@/assets/Colors';
 import { Ionicons } from '@expo/vector-icons';
