@@ -1,4 +1,10 @@
-import React, { useState } from 'react';
+//Write pre-written statements for each bubble that types in one by one like send message part to answer the question and then have the user click Send Message
+//Oh nice, good luck defending your title! Have you played in many tournaments before? Was the last one your first win or have you wona  few?
+//"Nice, good luck at the tournament! What's your favorite deck strategy to play? I always love hearing about other players' favorite cards and combos!"
+//"That's awesome about your tournament! I haven't competed in a while, but I used to run a mono-black control deck back in the day that did pretty well at my local game store. Made it to the finals once but got absolutely crushed by this incredible angel deck! Are you playing any particular strategy for defending your title?"
+//"That's exciting about your Magic tournament! Do you compete in any other card games or board game tournaments too? I've always wondered about trying some competitive Pokémon TCG or even chess tournaments myself."
+
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -16,6 +22,30 @@ interface YuGeneratedResponseContainerProps {
   onSuggestChanges: (text: string) => void;
   onClose: () => void;
 }
+ 
+const promptMap = {
+    "1": "Ask Jpp123 if he's ever played in a tournament before",
+    "2": "Ask Jpp123 if he has any favorite cards or strategies",
+    "3": "Talk about your past experiences with playing Magic",
+    "4": "Ask Jpp123 if he plays any other card or board games"
+  };
+
+  const preWrittenResponses = {
+    "1": "Oh nice, good luck defending your title! Have you played in many tournaments before? Was the last one your first win or have you won a few?",
+    "2": "Nice, good luck at the tournament! What's your favorite deck strategy to play? I always love hearing about other players' favorite cards and combos!",
+    "3": "That's awesome about your tournament! I haven't competed in a while, but I used to run a mono-black control deck back in the day that did pretty well at my local game store. Made it to the finals once but got absolutely crushed by this incredible angel deck! Are you playing any particular strategy for defending your title?",
+    "4": "That's exciting about your Magic tournament! Do you compete in any other card games or board game tournaments too? I've always wondered about trying some competitive Pokémon TCG or even chess tournaments myself."
+};
+  
+  // Then update the getPromptId function
+  const getPromptId = (prompt: string): string => {
+      for (const [id, promptText] of Object.entries(promptMap)) {
+          if (prompt.includes(promptText)) {
+              return id;
+          }
+      }
+      return "1"; // default fallback
+  };
 
 const YuGeneratedResponseContainer: React.FC<YuGeneratedResponseContainerProps> = ({
   selectedPrompt,
@@ -24,16 +54,22 @@ const YuGeneratedResponseContainer: React.FC<YuGeneratedResponseContainerProps> 
   onSuggestChanges,
   onClose
 }) => {
+    
     const [messageText, setMessageText] = useState('');
     const [suggestionText, setSuggestionText] = useState(''); // New state for suggestion input
 
-    const handleSendMessage = () => {
-        if (messageText.trim()) {
-          console.log('Sending message:', messageText); // Debug log
-          onSendMessage(messageText);
-          setMessageText('');
-          onClose();
-        }
+      useEffect(() => {
+        const promptId = getPromptId(selectedPrompt) as keyof typeof preWrittenResponses;
+        setMessageText(preWrittenResponses[promptId] || '');
+      }, [selectedPrompt]);
+  
+      const handleSendMessage = () => {
+          if (messageText.trim()) {
+            console.log('Sending message:', messageText);
+            onSendMessage(messageText);
+            setMessageText('');
+            onClose();
+          }
       };
 
   return (

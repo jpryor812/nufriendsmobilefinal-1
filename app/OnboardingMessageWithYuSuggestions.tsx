@@ -1,4 +1,3 @@
-//Write pre-written statements for each bubble that types in one by one like send message part to answer the question and then have the user click Send Message
 import ChatMessageBox from '@/components/ChatMessageBox';
 import Colors from '@/assets/Colors';
 import { Ionicons } from '@expo/vector-icons';
@@ -30,7 +29,8 @@ const OnboardingMessageWithYuSuggestions = () => {
   const [isYuSuggestionsMode, setIsYuSuggestionsMode] = useState(false);
   const [showCenterImage, setShowCenterImage] = useState(false);
   const centerImageAnimation = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
-
+  const [suggestionSelected, setSuggestionSelected] = useState(false);
+  
   const getAvatarImage = () => {
     if (avatar) {
         return JSON.parse(avatar as string);
@@ -79,16 +79,11 @@ useEffect(() => {
 
   const handleYuSuggestionsSelect = (content: string) => {
     setText(content);
-    setIsYuSuggestionsMode(false);
-  };
-
-  // Combined handler for Yu-generated messages
-  const handleYuMessage = (text: string) => {
-    console.log('ChatRoomFriend received message:', text);
+    setSuggestionSelected(true);
     
     const newMessage: IMessage = {
       _id: Math.random().toString(),
-      text: text,
+      text: content,
       createdAt: new Date(),
       user: {
         _id: 1,
@@ -98,13 +93,14 @@ useEffect(() => {
 
     setMessages(previousMessages => GiftedChat.append(previousMessages, [newMessage]));
     setIsYuSuggestionsMode(false);
-  };
+};
+
 
   const renderInputToolbar = (props: any) => {
     if (isYuSuggestionsMode) {
       return (
         <YuSuggestionsOnboarding
-          onSelectContent={handleYuMessage}
+          onSelectContent={handleYuSuggestionsSelect}  // Change this from handleYuMessage
           onClose={() => setIsYuSuggestionsMode(false)}
         />
       );
@@ -198,9 +194,11 @@ useEffect(() => {
                   pointerEvents="box-none" 
                 >
                 <BigYuOnboardingSuggestionHelp 
-                text="Based on what I know about you and your new friend, I'll always be here to help you drive existing and new conversations if needed. These suggestions will always be unique based on the conversation and constantly updated. Tap a suggestion to see what happens next!" 
-                pointerEvents="none" 
-             />
+                    text={suggestionSelected 
+                        ? "Great choice! Now you can edit the message if you'd like, or send it as is. I'll keep learning from our interactions to provide even better suggestions next time!"
+                        : "Based on what I know about you and your new friend, I'll always be here to help you drive existing and new conversations if needed. These suggestions will always be unique based on the conversation and constantly updated. Tap a suggestion to see what happens next!"
+                    }
+                />
                 </Animated.View>
                 )}
       </ImageBackground>
