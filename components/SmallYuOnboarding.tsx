@@ -21,27 +21,17 @@ const BigYuOnboarding = ({ text }: { text: string }) => {
 };
 //Just add the continue button to the BigYuOnboarding component
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    width: '90%',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexDirection: 'column',
-  },
   big_yu_chat_bubble_container: {
-    position: 'relative',
-    justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
-    height: '80%',
   },
   chatBubble: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     borderWidth: 2,
     borderColor: '#ccc',
-    padding: 20,
-    width: '76%',
+    padding: 12,
+    width: '64%',
     marginBottom: 0, // Remove bottom margin
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -65,16 +55,15 @@ const styles = StyleSheet.create({
     // Slightly overlap with the chat bubble to hide the gap
   },
   big_yu_question_onboarding: {
-    width: 180,
-    height: 180,
+    width: 80,
+    height: 80,
     alignItems: 'center',
-    justifyContent: 'center',
   },
   big_yu_text: {
     fontWeight: 'bold',
     textAlign: 'center',
     color: '#42ade2',
-    fontSize: 18,
+    fontSize: 14,
   },
   chatBubbleArrowInner: {
     width: 0,

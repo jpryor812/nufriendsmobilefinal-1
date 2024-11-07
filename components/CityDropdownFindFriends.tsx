@@ -1,3 +1,4 @@
+//When we launch, only show countries/states/cities where we have active users
 import React, { useState, useRef } from 'react';
 import {
   View,
@@ -6,26 +7,26 @@ import {
   Modal,
   FlatList,
   StyleSheet,
+  ScrollView,
 } from 'react-native';
+import { citiesByState } from './CitiesByState';
 
-interface GenderDropdownProps {
-  onGendersChange?: (gender: string) => void;  // Changed to single string
-}
+interface CityDropdownProps {
+    onCitiesChange?: (cities: string[]) => void;
+    selectedState?: string;  // Add this prop to know which state is selected
+  }
 
-const GenderDropdown = ({ onGendersChange }: GenderDropdownProps) => {
-  const [visible, setVisible] = useState(false);
-  const [selectedGender, setSelectedGender] = useState<string>('');  // Changed to single string
+  const CityDropdown = ({ onCitiesChange, selectedState }: CityDropdownProps) => {
+    const [visible, setVisible] = useState(false);
+  const [selectedCities, setSelectedCities] = useState<string[]>([]);
   const [dropdownTop, setDropdownTop] = useState(0);
   const [dropdownLeft, setDropdownLeft] = useState(0);
   const buttonRef = useRef<TouchableOpacity>(null);
 
-  const genders = [
-    "Female",
-    "Male",
-    "Non-binary",
-    "Other",
-    "Prefer not to say"
-  ] as const;
+  const getAvailableCities = () => {
+    if (!selectedState) return [];
+    return citiesByState[selectedState] || [];
+  };
 
   const toggleDropdown = () => {
     if (buttonRef.current) {
@@ -37,23 +38,29 @@ const GenderDropdown = ({ onGendersChange }: GenderDropdownProps) => {
     setVisible(!visible);
   };
 
-  const handleGenderSelect = (gender: string) => {
-    setSelectedGender(gender);
-    onGendersChange?.(gender);
-    setVisible(false);
+  const handleCitySelect = (city: string) => {
+    if (!selectedCities.includes(city)) {
+      const newSelectedCities = [...selectedCities, city];
+      setSelectedCities(newSelectedCities);
+      onCitiesChange?.(newSelectedCities);
+    }
   };
 
-  const removeGender = () => {
-    setSelectedGender('');
-    onGendersChange?.('');
+  const removeCity = (cityToRemove: string) => {
+    const newSelectedCities = selectedCities.filter(city => city !== cityToRemove);
+    setSelectedCities(newSelectedCities);
+    onCitiesChange?.(newSelectedCities);
   };
 
   const renderItem = ({ item }: { item: string }) => (
     <TouchableOpacity 
       style={styles.item} 
-      onPress={() => handleGenderSelect(item)}
+      onPress={() => {
+        handleCitySelect(item);
+        setVisible(false);
+      }}
     >
-      <Text style={styles.itemText}>{item}</Text>
+      <Text>{item}</Text>
     </TouchableOpacity>
   );
 
@@ -62,13 +69,21 @@ const GenderDropdown = ({ onGendersChange }: GenderDropdownProps) => {
       <View style={styles.dropdownContainer}>
         <TouchableOpacity 
           ref={buttonRef} 
-          style={styles.button} 
+          style={[
+            styles.button,
+            !selectedState && styles.buttonDisabled // Add disabled style when no state selected
+          ]} 
           onPress={toggleDropdown}
+          disabled={!selectedState} // Disable button when no state selected
         >
-        <Text style={styles.buttonText}>
-        Select a gender  {/* Always show this text */}
-        </Text>
-        <Text style={styles.icon}>▼</Text>
+          <Text style={styles.buttonText}>
+            {!selectedState 
+              ? 'Select a state first'
+              : selectedCities.length > 0 
+                ? `${selectedCities.length} cities selected`
+                : 'Select cities'}
+          </Text>
+          <Text style={styles.icon}>▼</Text>
         </TouchableOpacity>
 
         <Modal visible={visible} transparent animationType="none">
@@ -78,7 +93,7 @@ const GenderDropdown = ({ onGendersChange }: GenderDropdownProps) => {
           >
             <View style={[styles.dropdown, { top: dropdownTop, left: dropdownLeft }]}>
               <FlatList
-                data={genders}
+                data={getAvailableCities()}
                 renderItem={renderItem}
                 keyExtractor={(item) => item}
                 style={styles.list}
@@ -88,17 +103,28 @@ const GenderDropdown = ({ onGendersChange }: GenderDropdownProps) => {
         </Modal>
       </View>
 
-      {selectedGender !== '' && (
-        <View style={styles.selectedGendersContainer}>
-          <View style={styles.genderChip}>
-            <Text style={styles.genderChipText}>{selectedGender}</Text>
-            <TouchableOpacity
-              onPress={removeGender}
-              style={styles.removeButton}
-            >
-              <Text style={styles.removeButtonText}>×</Text>
-            </TouchableOpacity>
-          </View>
+      {/* Selected cities horizontal scroll */}
+      {selectedCities.length > 0 && (
+        <View style={styles.selectedCitiesContainer}>
+          <Text style={styles.selectedCitiesSubTitle}>Side scroll to view all selections</Text>
+          <ScrollView 
+            horizontal
+            showsHorizontalScrollIndicator={true}
+            contentContainerStyle={styles.scrollViewContent}
+            style={styles.scrollView}
+          >
+            {selectedCities.map((city) => (
+              <View key={city} style={styles.cityChip}>
+                <Text style={styles.cityChipText}>{city}</Text>
+                <TouchableOpacity
+                  onPress={() => removeCity(city)}
+                  style={styles.removeButton}
+                >
+                  <Text style={styles.removeButtonText}>×</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </ScrollView>
         </View>
       )}
     </View>
@@ -106,7 +132,8 @@ const GenderDropdown = ({ onGendersChange }: GenderDropdownProps) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+
+container: {
     width: '100%',
   },
   dropdownContainer: {
@@ -153,24 +180,20 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#cccccc',
   },
-  itemText: {
-    fontSize: 14,
-  },
   list: {
     maxHeight: 300,
   },
-  selectedGendersContainer: {
+  selectedCitiesContainer: {
     width: '100%',
-    paddingHorizontal: 10,
-    paddingVertical: 10,
+    paddingHorizontal: 4,
   },
-  selectedGendersTitle: {
+  selectedCitiesTitle: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
     textAlign: 'center',
   },
-  selectedGendersSubTitle: {
+  selectedCitiesSubTitle: {
     fontSize: 10,
     marginBottom: 8,
     marginTop: -4,
@@ -185,24 +208,20 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     gap: 10,
   },
-  genderChip: {
+  cityChip: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#42ade2',
     borderRadius: 20,
     paddingVertical: 2,
     paddingHorizontal: 12,
-    alignSelf: 'center',
-    flexShrink: 1,
-    maxWidth: '90%',
+    marginRight: 8,
   },
-  genderChipText: {
+  cityChipText: {
     fontSize: 14,
     color: '#fff',
     marginRight: 4,
     fontWeight: 'bold',
-    flexShrink: 1,
-    flexWrap: 'wrap',
   },
   removeButton: {
     marginLeft: 4,
@@ -214,4 +233,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default GenderDropdown;
+export default CityDropdown;

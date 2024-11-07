@@ -73,7 +73,7 @@ useEffect(() => {
     ]);
   }, [username]);
 
-  const onSend = useCallback((messages = []) => {
+  const onSend = useCallback((messages: IMessage[] = []) => {
     setMessages((previousMessages: any[]) => GiftedChat.append(previousMessages, messages));
   }, []);
 
@@ -147,7 +147,6 @@ const renderInputToolbar = (props: any) => {
           messages={messages}
           onSend={onSend}
           user={{ _id: 1 }}
-          inverted={false}
           isKeyboardInternallyHandled={true}
           keyboardShouldPersistTaps="handled"
           listViewProps={{
@@ -196,8 +195,8 @@ const renderInputToolbar = (props: any) => {
       >
         <BigYuOnboardingSuggestionHelp 
           text={suggestionSelected 
-            ? "Great choice! Now you can edit the message if you'd like, or send it as is. I'll keep learning from our interactions to provide even better suggestions next time!"
-            : "Based on what I know about you and your new friend, I'll always be here to help you drive existing and new conversations if needed. These suggestions will always be unique based on the conversation and constantly updated. Tap a suggestion to see what happens next!"
+            ? "After you make a selection, I'll provide you an example response that you can directly edit, send as is, or make general suggestions that I'll use to write up a new message. \n\nLet's just send this message as is for now to get you closer to finding your new friends!"
+            : "Based on what I know about you and your new friend, I'll always be here to help you drive existing and new conversations if needed. These suggestions will always be unique based on the conversation and constantly updated. Tap a suggestion below to see what happens next!"
           }
         />
                 </Animated.View>

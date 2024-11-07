@@ -37,12 +37,13 @@ const ProgressBar = ({ progress }: { progress: number }) => {
 const styles = StyleSheet.create({
 
   progress_bar_container: {
-    alignItems: 'center', // Center the container content
+    alignItems: 'center',
     width: '90%',
-    marginTop: '-12%'
+    paddingTop: 10,  // Changed from marginTop to paddingTop
+    alignSelf: 'center',  // Center the container horizontally
   },
   progress_bar: {
-    height: 20,
+    height: 14,
     width: '90%',
     backgroundColor: '#FeFeFe',
     borderRadius: 10,
@@ -50,32 +51,34 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     borderColor: '#42ade2',
     borderWidth: 1,
+    marginBottom: 10,
   },
   progress: {
     height: '100%',
     backgroundColor: '#42ade2',
     borderRadius: 10,
   },
-  progress_bar_image_container:
-    {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: -50,
-      width: '90%'
-    },
+  progress_bar_image_container: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '90%'
+  },
   yu_progress_bar: {
     width: 20,
+    height: 20,  // Added fixed height
     resizeMode: 'contain',
   },
   mail_progress_bar: {
     width: 18,
+    height: 18,  // Added fixed height
     resizeMode: 'contain',
     marginRight: -40,
     marginLeft: -10
   },
   hand_progress_bar: {
     width: 20,
+    height: 20,  // Added fixed height
     resizeMode: 'contain',
     marginLeft: 50,
   },

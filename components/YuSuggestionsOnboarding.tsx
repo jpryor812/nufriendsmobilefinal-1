@@ -27,7 +27,7 @@ const quickReplies = [
   { id: '1', text: "Ask Jpp123 if he's ever played in a tournament before" },
   { id: '2', text: "Ask Jpp123 if he has any favorite cards or strategies" },
   { id: '3', text: "Talk about your past experiences with playing Magic" },
-  { id: '4', text: "Ask Jpp123 if he plays any other card or board" },
+  { id: '4', text: "Ask Jpp123 if he plays any other card or board games" },
 ];
 
 const YuSuggestionsOnboarding: React.FC<YuSuggestionsOnboardingProps> = ({ 
@@ -112,6 +112,9 @@ const handleSendMessage = (text: string) => {
   console.log('YuSuggestions received message:', text); // Debug log
   onSelectContent(text); // Pass to ChatRoomFriend
   onClose();
+  setTimeout(() => {
+    router.push('/OnboardingPreQuestions');
+    }, 1500);
 };
 
   const handleEditMessage = (text: string) => {
@@ -119,8 +122,9 @@ const handleSendMessage = (text: string) => {
     console.log('Editing message:', text);
   };
 
-  const handleSuggestChanges = () => {
-    router.push('/OnboardingQuestion1');
+  const handleSuggestChanges = (text: string) => {
+    // Handle editing the message
+    console.log('Editing message:', text);
   };
 
   return (

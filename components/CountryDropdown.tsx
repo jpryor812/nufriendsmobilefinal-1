@@ -11,18 +11,18 @@ import {
 } from 'react-native';
 
 interface CountryDropdownProps {
-  onCountriesChange?: (countries: string[]) => void;
-}
-
-const CountryDropdown = ({ onCountriesChange }: CountryDropdownProps) => {
-  const [visible, setVisible] = useState(false);
-  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
-  const [dropdownTop, setDropdownTop] = useState(0);
-  const [dropdownLeft, setDropdownLeft] = useState(0);
-  const buttonRef = useRef<TouchableOpacity>(null);
+    onCountriesChange?: (country: string) => void;  // Changed to single string
+  }
+  
+  const CountryDropdown = ({ onCountriesChange }: CountryDropdownProps) => {
+    const [visible, setVisible] = useState(false);
+    const [selectedCountry, setSelectedCountry] = useState<string>('');  // Changed to string
+    const [dropdownTop, setDropdownTop] = useState(0);
+    const [dropdownLeft, setDropdownLeft] = useState(0);
+    const buttonRef = useRef<TouchableOpacity>(null);
 
   const countries = [
-    "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", 
+    "United States of America","Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", 
     "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", 
     "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", 
     "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", 
@@ -52,7 +52,7 @@ const CountryDropdown = ({ onCountriesChange }: CountryDropdownProps) => {
     "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", 
     "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", 
     "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", 
-    "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", 
+    "United Kingdom", "Uruguay", "Uzbekistan", "Vanuatu", 
     "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
   ] as const;
 
@@ -66,29 +66,22 @@ const CountryDropdown = ({ onCountriesChange }: CountryDropdownProps) => {
     setVisible(!visible);
   };
 
+ 
   const handleCountrySelect = (country: string) => {
-    if (!selectedCountries.includes(country)) {
-      const newSelectedCountries = [...selectedCountries, country];
-      setSelectedCountries(newSelectedCountries);
-      onCountriesChange?.(newSelectedCountries);
-    }
+    setSelectedCountry(country);
+    onCountriesChange?.(country);  // Pass single string
+    setVisible(false);
   };
 
-  const removeCountry = (countryToRemove: string) => {
-    const newSelectedCountries = selectedCountries.filter(country => country !== countryToRemove);
-    setSelectedCountries(newSelectedCountries);
-    onCountriesChange?.(newSelectedCountries);
+  const removeCountry = () => {
+    setSelectedCountry('');
+    onCountriesChange?.('');  // Pass empty string
   };
-
-  const availableCountries = countries.filter(country => !selectedCountries.includes(country));
 
   const renderItem = ({ item }: { item: string }) => (
     <TouchableOpacity 
       style={styles.item} 
-      onPress={() => {
-        handleCountrySelect(item);
-        setVisible(false);
-      }}
+      onPress={() => handleCountrySelect(item)}
     >
       <Text>{item}</Text>
     </TouchableOpacity>
@@ -96,22 +89,18 @@ const CountryDropdown = ({ onCountriesChange }: CountryDropdownProps) => {
 
   return (
     <View style={styles.container}>
-      {/* Main dropdown button */}
       <View style={styles.dropdownContainer}>
         <TouchableOpacity 
           ref={buttonRef} 
           style={styles.button} 
           onPress={toggleDropdown}
         >
-          <Text style={styles.buttonText}>
-            {selectedCountries.length > 0 
-              ? `${selectedCountries.length} countries selected`
-              : 'Select countries'}
-          </Text>
-          <Text style={styles.icon}>▼</Text>
-        </TouchableOpacity>
+  <Text style={styles.buttonText}>
+    Select a Country  {/* Always show this text */}
+  </Text>
+  <Text style={styles.icon}>▼</Text>
+</TouchableOpacity>
 
-        {/* Dropdown modal */}
         <Modal visible={visible} transparent animationType="none">
           <TouchableOpacity 
             style={styles.overlay} 
@@ -119,7 +108,7 @@ const CountryDropdown = ({ onCountriesChange }: CountryDropdownProps) => {
           >
             <View style={[styles.dropdown, { top: dropdownTop, left: dropdownLeft }]}>
               <FlatList
-                data={availableCountries}
+                data={countries}
                 renderItem={renderItem}
                 keyExtractor={(item) => item}
                 style={styles.list}
@@ -129,28 +118,17 @@ const CountryDropdown = ({ onCountriesChange }: CountryDropdownProps) => {
         </Modal>
       </View>
 
-      {/* Selected countries horizontal scroll */}
-      {selectedCountries.length > 0 && (
+      {selectedCountry !== '' && (
         <View style={styles.selectedCountriesContainer}>
-          <Text style={styles.selectedCountriesSubTitle}>Side scroll to view all selections</Text>
-          <ScrollView 
-            horizontal
-            showsHorizontalScrollIndicator={true}
-            contentContainerStyle={styles.scrollViewContent}
-            style={styles.scrollView}
-          >
-            {selectedCountries.map((country) => (
-              <View key={country} style={styles.countryChip}>
-                <Text style={styles.countryChipText}>{country}</Text>
-                <TouchableOpacity
-                  onPress={() => removeCountry(country)}
-                  style={styles.removeButton}
-                >
-                  <Text style={styles.removeButtonText}>×</Text>
-                </TouchableOpacity>
-              </View>
-            ))}
-          </ScrollView>
+          <View style={styles.countryChip}>
+            <Text style={styles.countryChipText}>{selectedCountry}</Text>
+            <TouchableOpacity
+              onPress={removeCountry}
+              style={styles.removeButton}
+            >
+              <Text style={styles.removeButtonText}>×</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       )}
     </View>
@@ -209,8 +187,9 @@ const styles = StyleSheet.create({
     maxHeight: 300,
   },
   selectedCountriesContainer: {
-    width: '100%',
-    paddingHorizontal: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    alignContent: 'center',
   },
   selectedCountriesTitle: {
     fontSize: 16,
@@ -240,13 +219,17 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingVertical: 2,
     paddingHorizontal: 12,
-    marginRight: 8,
+    alignSelf: 'center',
+    flexShrink: 1,
+    maxWidth: '90%',
   },
   countryChipText: {
     fontSize: 14,
     color: '#fff',
     marginRight: 4,
     fontWeight: 'bold',
+    flexShrink: 1,
+    flexWrap: 'wrap',
   },
   removeButton: {
     marginLeft: 4,

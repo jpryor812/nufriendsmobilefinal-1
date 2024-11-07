@@ -11,15 +11,15 @@ import {
 } from 'react-native';
 
 interface StateDropdownProps {
-  onStatesChange?: (states: string[]) => void;
+  onStatesChange?: (state: string[]) => void;
 }
 
 const StateDropdown = ({ onStatesChange }: StateDropdownProps) => {
-  const [visible, setVisible] = useState(false);
-  const [selectedStates, setSelectedStates] = useState<string[]>([]);
-  const [dropdownTop, setDropdownTop] = useState(0);
-  const [dropdownLeft, setDropdownLeft] = useState(0);
-  const buttonRef = useRef<TouchableOpacity>(null);
+    const [visible, setVisible] = useState(false);
+    const [selectedState, setSelectedState] = useState<string>('');  // Changed to single string
+    const [dropdownTop, setDropdownTop] = useState(0);
+    const [dropdownLeft, setDropdownLeft] = useState(0);
+    const buttonRef = useRef<TouchableOpacity>(null);
 
   const usStatesAndTerritories = [
     "Alabama",
@@ -91,28 +91,20 @@ const StateDropdown = ({ onStatesChange }: StateDropdownProps) => {
   };
 
   const handleStateSelect = (state: string) => {
-    if (!selectedStates.includes(state)) {
-      const newSelectedStates = [...selectedStates, state];
-      setSelectedStates(newSelectedStates);
-      onStatesChange?.(newSelectedStates);
-    }
+    setSelectedState(state);
+    onStatesChange?.(state);
+    setVisible(false);
   };
 
-  const removeState = (stateToRemove: string) => {
-    const newSelectedStates = selectedStates.filter(state => state !== stateToRemove);
-    setSelectedStates(newSelectedStates);
-    onStatesChange?.(newSelectedStates);
+  const removeState = () => {
+    setSelectedState('');
+    onStatesChange?.('');
   };
-
-  const availableStates = usStatesAndTerritories.filter(state => !selectedStates.includes(state));
 
   const renderItem = ({ item }: { item: string }) => (
     <TouchableOpacity 
       style={styles.item} 
-      onPress={() => {
-        handleStateSelect(item);
-        setVisible(false);
-      }}
+      onPress={() => handleStateSelect(item)}
     >
       <Text>{item}</Text>
     </TouchableOpacity>
@@ -120,22 +112,18 @@ const StateDropdown = ({ onStatesChange }: StateDropdownProps) => {
 
   return (
     <View style={styles.container}>
-      {/* Main dropdown button */}
       <View style={styles.dropdownContainer}>
         <TouchableOpacity 
           ref={buttonRef} 
           style={styles.button} 
           onPress={toggleDropdown}
         >
-          <Text style={styles.buttonText}>
-            {selectedStates.length > 0 
-              ? `${selectedStates.length} states selected`
-              : 'Select states'}
-          </Text>
-          <Text style={styles.icon}>▼</Text>
+        <Text style={styles.buttonText}>
+            Select a State  {/* Always show this text */}
+        </Text>
+        <Text style={styles.icon}>▼</Text>
         </TouchableOpacity>
 
-        {/* Dropdown modal */}
         <Modal visible={visible} transparent animationType="none">
           <TouchableOpacity 
             style={styles.overlay} 
@@ -143,7 +131,7 @@ const StateDropdown = ({ onStatesChange }: StateDropdownProps) => {
           >
             <View style={[styles.dropdown, { top: dropdownTop, left: dropdownLeft }]}>
               <FlatList
-                data={availableStates}
+                data={usStatesAndTerritories}
                 renderItem={renderItem}
                 keyExtractor={(item) => item}
                 style={styles.list}
@@ -153,28 +141,17 @@ const StateDropdown = ({ onStatesChange }: StateDropdownProps) => {
         </Modal>
       </View>
 
-      {/* Selected states horizontal scroll */}
-      {selectedStates.length > 0 && (
+      {selectedState !== '' && (
         <View style={styles.selectedStatesContainer}>
-          <Text style={styles.selectedStatesSubTitle}>Side scroll to view all selections</Text>
-          <ScrollView 
-            horizontal
-            showsHorizontalScrollIndicator={true}
-            contentContainerStyle={styles.scrollViewContent}
-            style={styles.scrollView}
-          >
-            {selectedStates.map((state) => (
-              <View key={state} style={styles.stateChip}>
-                <Text style={styles.stateChipText}>{state}</Text>
-                <TouchableOpacity
-                  onPress={() => removeState(state)}
-                  style={styles.removeButton}
-                >
-                  <Text style={styles.removeButtonText}>×</Text>
-                </TouchableOpacity>
-              </View>
-            ))}
-          </ScrollView>
+          <View style={styles.stateChip}>
+            <Text style={styles.stateChipText}>{selectedState}</Text>
+            <TouchableOpacity
+              onPress={removeState}
+              style={styles.removeButton}
+            >
+              <Text style={styles.removeButtonText}>×</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       )}
     </View>
@@ -233,8 +210,9 @@ const styles = StyleSheet.create({
     maxHeight: 300,
   },
   selectedStatesContainer: {
-    width: '100%',
-    paddingHorizontal: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    alignContent: 'center',
   },
   selectedStatesTitle: {
     fontSize: 16,
@@ -264,13 +242,17 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingVertical: 2,
     paddingHorizontal: 12,
-    marginRight: 8,
+    alignSelf: 'center',
+    flexShrink: 1,
+    maxWidth: '90%',
   },
   stateChipText: {
     fontSize: 14,
     color: '#fff',
     marginRight: 4,
     fontWeight: 'bold',
+    flexShrink: 1,
+    flexWrap: 'wrap',
   },
   removeButton: {
     marginLeft: 4,

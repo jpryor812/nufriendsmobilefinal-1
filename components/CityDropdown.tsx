@@ -7,197 +7,118 @@ import {
   Modal,
   FlatList,
   StyleSheet,
-  ScrollView,
 } from 'react-native';
+import { citiesByState } from './CitiesByState';
 
 interface CityDropdownProps {
-  onCitiesChange?: (cities: string[]) => void;
+    onCitiesChange?: (city: string) => void;  // Changed to single string
+    selectedState?: string;
 }
 
-const CityDropdown = ({ onCitiesChange }: CityDropdownProps) => {
-  const [visible, setVisible] = useState(false);
-  const [selectedCities, setSelectedCities] = useState<string[]>([]);
-  const [dropdownTop, setDropdownTop] = useState(0);
-  const [dropdownLeft, setDropdownLeft] = useState(0);
-  const buttonRef = useRef<TouchableOpacity>(null);
+const CityDropdown = ({ onCitiesChange, selectedState }: CityDropdownProps) => {
+    const [visible, setVisible] = useState(false);
+    const [selectedCity, setSelectedCity] = useState<string>('');
+    const [dropdownTop, setDropdownTop] = useState(0);
+    const [dropdownLeft, setDropdownLeft] = useState(0);
+    const buttonRef = useRef<TouchableOpacity>(null);
 
-  const topUsCities = [
-    "Albuquerque",
-    "Anaheim",
-    "Anchorage",
-    "Arlington",
-    "Atlanta",
-    "Aurora",
-    "Austin",
-    "Bakersfield",
-    "Baltimore",
-    "Boston",
-    "Charlotte",
-    "Cincinnati",
-    "Cleveland",
-    "Colorado Springs",
-    "Columbus",
-    "Corpus Christi",
-    "Dallas",
-    "Denver",
-    "Detroit",
-    "Durham",
-    "El Paso",
-    "Fort Worth",
-    "Fresno",
-    "Greensboro",
-    "Henderson",
-    "Honolulu",
-    "Houston",
-    "Indianapolis",
-    "Irvine",
-    "Jacksonville",
-    "Jersey City",
-    "Kansas City",
-    "Las Vegas",
-    "Lexington",
-    "Lincoln",
-    "Long Beach",
-    "Los Angeles",
-    "Louisville",
-    "Memphis",
-    "Mesa",
-    "Miami",
-    "Milwaukee",
-    "Minneapolis",
-    "Nashville",
-    "New Orleans",
-    "New York",
-    "Newark",
-    "North Las Vegas",
-    "Oakland",
-    "Oklahoma City",
-    "Omaha",
-    "Orlando",
-    "Philadelphia",
-    "Phoenix",
-    "Pittsburgh",
-    "Plano",
-    "Portland",
-    "Raleigh",
-    "Riverside",
-    "Sacramento",
-    "Saint Paul",
-    "San Antonio",
-    "San Diego",
-    "San Francisco",
-    "San Jose",
-    "Santa Ana",
-    "Seattle",
-    "St. Louis",
-    "Stockton",
-    "Tampa",
-    "Tucson",
-    "Tulsa",
-    "Virginia Beach",
-    "Washington",
-    "Wichita"
-  ] as const;
+    const getAvailableCities = () => {
+        if (!selectedState) return [];
+        return citiesByState[selectedState] || [];
+    };
 
-  const toggleDropdown = () => {
-    if (buttonRef.current) {
-      buttonRef.current.measure((fx, fy, width, height, px, py) => {
-        setDropdownTop(py + height);
-        setDropdownLeft(px + width / 3 - (width * 0.65) / 2);
-      });
-    }
-    setVisible(!visible);
-  };
+    const toggleDropdown = () => {
+        if (buttonRef.current) {
+            buttonRef.current.measure((fx, fy, width, height, px, py) => {
+                setDropdownTop(py + height);
+                setDropdownLeft(px + width / 3 - (width * 0.65) / 2);
+            });
+        }
+        setVisible(!visible);
+    };
 
-  const handleCitySelect = (city: string) => {
-    if (!selectedCities.includes(city)) {
-      const newSelectedCities = [...selectedCities, city];
-      setSelectedCities(newSelectedCities);
-      onCitiesChange?.(newSelectedCities);
-    }
-  };
-
-  const removeCity = (cityToRemove: string) => {
-    const newSelectedCities = selectedCities.filter(city => city !== cityToRemove);
-    setSelectedCities(newSelectedCities);
-    onCitiesChange?.(newSelectedCities);
-  };
-
-  const availableCities = topUsCities.filter(city => !selectedCities.includes(city));
-
-  const renderItem = ({ item }: { item: string }) => (
-    <TouchableOpacity 
-      style={styles.item} 
-      onPress={() => {
-        handleCitySelect(item);
+    const handleCitySelect = (city: string) => {
+        setSelectedCity(city);
+        onCitiesChange?.(city);
         setVisible(false);
-      }}
-    >
-      <Text>{item}</Text>
-    </TouchableOpacity>
-  );
+    };
 
-  return (
-    <View style={styles.container}>
-      {/* Main dropdown button */}
-      <View style={styles.dropdownContainer}>
+    const removeCity = () => {
+        setSelectedCity('');
+        onCitiesChange?.('');
+    };
+
+    const renderItem = ({ item }: { item: string }) => (
         <TouchableOpacity 
-          ref={buttonRef} 
-          style={styles.button} 
-          onPress={toggleDropdown}
+            style={styles.item} 
+            onPress={() => handleCitySelect(item)}
         >
-          <Text style={styles.buttonText}>
-            {selectedCities.length > 0 
-              ? `${selectedCities.length} cities selected`
-              : 'Select cities'}
-          </Text>
-          <Text style={styles.icon}>▼</Text>
+            <Text>{item}</Text>
         </TouchableOpacity>
+    );
 
-        {/* Dropdown modal */}
-        <Modal visible={visible} transparent animationType="none">
-          <TouchableOpacity 
-            style={styles.overlay} 
-            onPress={() => setVisible(false)}
-          >
-            <View style={[styles.dropdown, { top: dropdownTop, left: dropdownLeft }]}>
-              <FlatList
-                data={availableCities}
-                renderItem={renderItem}
-                keyExtractor={(item) => item}
-                style={styles.list}
-              />
-            </View>
-          </TouchableOpacity>
-        </Modal>
-      </View>
-
-      {/* Selected cities horizontal scroll */}
-      {selectedCities.length > 0 && (
-        <View style={styles.selectedCitiesContainer}>
-          <Text style={styles.selectedCitiesSubTitle}>Side scroll to view all selections</Text>
-          <ScrollView 
-            horizontal
-            showsHorizontalScrollIndicator={true}
-            contentContainerStyle={styles.scrollViewContent}
-            style={styles.scrollView}
-          >
-            {selectedCities.map((city) => (
-              <View key={city} style={styles.cityChip}>
-                <Text style={styles.cityChipText}>{city}</Text>
-                <TouchableOpacity
-                  onPress={() => removeCity(city)}
-                  style={styles.removeButton}
+    return (
+        <View style={styles.container}>
+            <View style={styles.dropdownContainer}>
+                <TouchableOpacity 
+                    ref={buttonRef} 
+                    style={[
+                        styles.button,
+                        !selectedState && styles.buttonDisabled
+                    ]} 
+                    onPress={toggleDropdown}
+                    disabled={!selectedState}
                 >
-                  <Text style={styles.removeButtonText}>×</Text>
-                </TouchableOpacity>
-              </View>
-            ))}
-          </ScrollView>
+    <Text style={[
+        styles.buttonText,
+        !selectedState && styles.buttonTextDisabled
+    ]}>
+        {!selectedState 
+            ? 'Select a state first'
+            : 'Select a city'}
+    </Text>
+    <Text style={styles.icon}>▼</Text>
+</TouchableOpacity>
+
+                <Modal visible={visible} transparent animationType="none">
+                    <TouchableOpacity 
+                        style={styles.overlay} 
+                        onPress={() => setVisible(false)}
+                    >
+                        <View style={[styles.dropdown, { top: dropdownTop, left: dropdownLeft }]}>
+                            <FlatList
+                                data={getAvailableCities()}
+                                renderItem={renderItem}
+                                keyExtractor={(item) => item}
+                                style={styles.list}
+                            />
+                            
+                        </View>
+                    </TouchableOpacity>
+                </Modal>
+            </View>
+
+            {selectedState && (
+            <Text style={styles.NoCityText}>
+               If you don't see your city, please select the closest one to you, or just leave it blank. 
+            </Text>
+        )}
+
+            {selectedCity !== '' && (
+                <View style={styles.selectedCitiesContainer}>
+                    <View style={styles.cityChip}>
+                        <Text style={styles.cityChipText}>{selectedCity}</Text>
+                        <TouchableOpacity
+                            onPress={removeCity}
+                            style={styles.removeButton}
+                        >
+                            <Text style={styles.removeButtonText}>×</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            )}
         </View>
-      )}
-    </View>
-  );
+    );
 };
 
 const styles = StyleSheet.create({
@@ -252,9 +173,17 @@ container: {
   list: {
     maxHeight: 300,
   },
+  NoCityText: {
+    fontSize: 10,
+    marginBottom: 8,
+    marginTop: -10,
+    color: '#333',
+    textAlign: 'center',
+  },
   selectedCitiesContainer: {
-    width: '100%',
-    paddingHorizontal: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    alignContent: 'center',
   },
   selectedCitiesTitle: {
     fontSize: 16,
@@ -284,13 +213,21 @@ container: {
     borderRadius: 20,
     paddingVertical: 2,
     paddingHorizontal: 12,
-    marginRight: 8,
+    // Remove marginRight since we only have one chip
+    alignSelf: 'center', // Center the chip within its container
+    // Add this to ensure chip only takes up needed space:
+    flexShrink: 1,
+    maxWidth: '90%', // Optional: prevent chip from getting too wide
   },
+  
   cityChipText: {
     fontSize: 14,
     color: '#fff',
     marginRight: 4,
     fontWeight: 'bold',
+    // Add these to handle long text properly:
+    flexShrink: 1,
+    flexWrap: 'wrap',
   },
   removeButton: {
     marginLeft: 4,
