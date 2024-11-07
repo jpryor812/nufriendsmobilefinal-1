@@ -152,9 +152,11 @@ const styles = StyleSheet.create({
         color: '#808080',
     },
     title: {
-        fontSize: 1,
+        fontSize: 14,
         fontWeight: 'bold',
         color: '#808080',
+        marginBottom: 4,
+        marginTop: -4,
     },
     navigation: {
         flexDirection: 'row',

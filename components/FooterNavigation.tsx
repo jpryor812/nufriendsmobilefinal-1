@@ -85,23 +85,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginTop: 10,
+    marginTop: 8,
   },
   icon: {
     width: 30,
     height: 30,
-    marginBottom: 1,
+    marginBottom: -5,
+
   },
   profileicon: {
     width: 30,
     height: 30,
-    marginBottom: 1,
     borderRadius: 50,
+    marginBottom: -5,
+
   },
   Yuicon: {
     width: 34,
     height: 34,
-    marginBottom: 1,
+    marginBottom: -5,
   },
   indicatorContainer: {
     width: 30, // Match icon width

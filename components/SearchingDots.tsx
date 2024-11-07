@@ -78,6 +78,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
+    marginLeft: 20,
   },
   text: {
     fontSize: 12,

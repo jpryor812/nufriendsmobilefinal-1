@@ -4,13 +4,13 @@ import ProgressBar from '../components/ProgressBar';
 import BigYuOnboarding from '../components/BigYuOnboarding';
 import { Link } from 'expo-router';
 
-const OnboardingPreAvatarBuild = () => (
+const OnboardingPreProfile = () => (
   <View style={styles.appContainer}>
-    <ProgressBar progress={78} />
-    <BigYuOnboarding text="As I said, I'll always be with you if needed :)" />
+    <ProgressBar progress={92} />
+    <BigYuOnboarding text="I hope you're as eager to get started as I am, and to conclude our onboarding time together, I want to finish by showing you how exciting this experience can be for you if you use nufriends to its fullest potential." />
 
     <View style={styles.link_container}>
-      <Link href="/OnboardingPostQuestions2" style={styles.link}>
+      <Link href="/ProfilePageOnboarding" style={styles.link}>
         <View style={styles.continue_button_container}>
           <Text style={styles.continue_button_text}>Continue</Text>
         </View>
@@ -52,4 +52,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default OnboardingPreAvatarBuild;
+export default OnboardingPreProfile;

@@ -42,7 +42,7 @@ const ChatRoomFriendOnboarding = () => {
 
 
     const handleContinue = () => {
-        router.push('/OnboardingPreAvatarBuild'); // Replace with your actual route
+        router.push('/OnboardingPreProfile'); // Replace with your actual route
     };
   
     const simulateTypingAndSend = (messageToType: string) => {

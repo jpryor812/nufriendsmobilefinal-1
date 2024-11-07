@@ -73,7 +73,11 @@ export default function RootLayout() {
       options={{ headerShown: false }} />
       <Stack.Screen name="OnboardingChatRoomYu"
       options={{ headerShown: false }} />
-      <Stack.Screen name="OnboardingPreAvatarBuild"
+      <Stack.Screen name="OnboardingPreProfile"
+      options={{ headerShown: false }} />
+      <Stack.Screen name="ProfilePageOnboarding"
+      options={{ headerShown: false }} />
+      <Stack.Screen name="OnboardingPreAvatar"
       options={{ headerShown: false }} />
     </Stack>
   );
