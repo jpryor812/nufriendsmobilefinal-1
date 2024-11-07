@@ -188,7 +188,8 @@ const styles = StyleSheet.create({
   },
   selectedCountriesContainer: {
     paddingHorizontal: 10,
-    paddingVertical: 10,
+    paddingTop: 1,
+    paddingBottom: 16,
     alignContent: 'center',
   },
   selectedCountriesTitle: {

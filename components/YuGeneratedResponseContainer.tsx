@@ -1,9 +1,3 @@
-//Write pre-written statements for each bubble that types in one by one like send message part to answer the question and then have the user click Send Message
-//Oh nice, good luck defending your title! Have you played in many tournaments before? Was the last one your first win or have you wona  few?
-//"Nice, good luck at the tournament! What's your favorite deck strategy to play? I always love hearing about other players' favorite cards and combos!"
-//"That's awesome about your tournament! I haven't competed in a while, but I used to run a mono-black control deck back in the day that did pretty well at my local game store. Made it to the finals once but got absolutely crushed by this incredible angel deck! Are you playing any particular strategy for defending your title?"
-//"That's exciting about your Magic tournament! Do you compete in any other card games or board game tournaments too? I've always wondered about trying some competitive Pokémon TCG or even chess tournaments myself."
-
 import React, { useState, useEffect } from 'react';
 import {
   View,

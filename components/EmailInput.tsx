@@ -18,7 +18,7 @@ const EmailInput: React.FC = () => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} >
     <View style={styles.container}>
-      <Text style={styles.label}>Email Address</Text>
+      <Text style={styles.label}>Email Address:</Text>
       <InputToolbar
         containerStyle={styles.inputContainer}
         primaryStyle={styles.inputPrimary}
@@ -45,36 +45,38 @@ const EmailInput: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 4,
     paddingBottom: 4,
   },
   label: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 8,
     color: '#333',
   },
   inputContainer: {
     backgroundColor: 'white',
     borderRadius: 20,
     borderWidth: 2,
+    borderTopWidth: 2,
     borderColor: '#aaa',
-    minHeight: 36,
-    maxHeight: 36,
+    minHeight: 32,
+    maxHeight: 32,
+    marginTop: 4,
+    marginBottom: 6,
   },
   inputPrimary: {
+    flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   input: {
     flex: 1,
     fontSize: 14,
-    lineHeight: 16,
-    marginLeft: 10,
+    lineHeight: 18,
+    marginLeft: 16,
     marginRight: 10,
-    marginTop: 6,
-    marginBottom: 6,
   },
 });
 

@@ -8,20 +8,13 @@ import { Link } from "expo-router";
 // Add type for navigation if using TypeScript
 const HomePage = () => {
 
-
-  const handleUpgrade = () => {
-    console.log('Upgrade to Premium pressed');
-  };
-
   const handleSeeMore = () => {
     console.log("See More pressed");
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <HeaderButtons 
-        onPressUpgrade={handleUpgrade}
-      />
+      <HeaderButtons />
       <View style={styles.introContainer}>
         <Link href={"/OnboardingPage1"} style={styles.seeMoreLink}>
           <Text style={styles.seeMore}>Onboarding</Text>

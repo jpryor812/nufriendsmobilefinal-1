@@ -175,14 +175,14 @@ container: {
   },
   NoCityText: {
     fontSize: 10,
-    marginBottom: 8,
     marginTop: -10,
     color: '#333',
     textAlign: 'center',
   },
   selectedCitiesContainer: {
     paddingHorizontal: 10,
-    paddingVertical: 10,
+    paddingTop: 2,
+    paddingBottom: 2,
     alignContent: 'center',
   },
   selectedCitiesTitle: {
@@ -193,7 +193,7 @@ container: {
   },
   selectedCitiesSubTitle: {
     fontSize: 10,
-    marginBottom: 8,
+    marginBottom: 6,
     marginTop: -4,
     color: '#333',
     textAlign: 'center',
@@ -219,7 +219,13 @@ container: {
     flexShrink: 1,
     maxWidth: '90%', // Optional: prevent chip from getting too wide
   },
-  
+  buttonDisabled: {
+    backgroundColor: '#f0f0f0',
+    borderColor: '#ccc',
+},
+buttonTextDisabled: {
+    color: '#999',
+},
   cityChipText: {
     fontSize: 14,
     color: '#fff',

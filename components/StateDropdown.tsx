@@ -11,12 +11,12 @@ import {
 } from 'react-native';
 
 interface StateDropdownProps {
-  onStatesChange?: (state: string[]) => void;
-}
+    onStatesChange?: (state: string) => void;  // Changed from string[] to string
+  }
 
-const StateDropdown = ({ onStatesChange }: StateDropdownProps) => {
+const StateDropdown: React.FC<StateDropdownProps> = ({ onStatesChange }) => {
     const [visible, setVisible] = useState(false);
-    const [selectedState, setSelectedState] = useState<string>('');  // Changed to single string
+    const [selectedState, setSelectedState] = useState<string>('');  // Changed from string[] to string
     const [dropdownTop, setDropdownTop] = useState(0);
     const [dropdownLeft, setDropdownLeft] = useState(0);
     const buttonRef = useRef<TouchableOpacity>(null);
@@ -92,13 +92,13 @@ const StateDropdown = ({ onStatesChange }: StateDropdownProps) => {
 
   const handleStateSelect = (state: string) => {
     setSelectedState(state);
-    onStatesChange?.(state);
+    onStatesChange?.([state]);
     setVisible(false);
   };
 
   const removeState = () => {
     setSelectedState('');
-    onStatesChange?.('');
+    onStatesChange?.([]);
   };
 
   const renderItem = ({ item }: { item: string }) => (
@@ -211,7 +211,8 @@ const styles = StyleSheet.create({
   },
   selectedStatesContainer: {
     paddingHorizontal: 10,
-    paddingVertical: 10,
+    paddingTop: 1,
+    paddingBottom: 16,
     alignContent: 'center',
   },
   selectedStatesTitle: {
@@ -222,7 +223,7 @@ const styles = StyleSheet.create({
   },
   selectedStatesSubTitle: {
     fontSize: 10,
-    marginBottom: 8,
+    marginBottom: 6,
     marginTop: -4,
     color: '#333',
     textAlign: 'center',

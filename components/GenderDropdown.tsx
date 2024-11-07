@@ -9,8 +9,8 @@ import {
 } from 'react-native';
 
 interface GenderDropdownProps {
-  onGendersChange?: (gender: string) => void;  // Changed to single string
-}
+    onGendersChange?: (gender: string) => void;  // Changed from string[] to string
+  }  
 
 const GenderDropdown = ({ onGendersChange }: GenderDropdownProps) => {
   const [visible, setVisible] = useState(false);
@@ -162,7 +162,8 @@ const styles = StyleSheet.create({
   selectedGendersContainer: {
     width: '100%',
     paddingHorizontal: 10,
-    paddingVertical: 10,
+    paddingTop: 1,
+    paddingBottom: 16,
   },
   selectedGendersTitle: {
     fontSize: 16,

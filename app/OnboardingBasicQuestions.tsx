@@ -12,6 +12,7 @@ import FooterNavigation from '@/components/FooterNavigation';
 import EmailInput from '@/components/EmailInput';
 import SmallYuOnboarding from '@/components/SmallYuOnboarding';
 import ProgressBar from '@/components/ProgressBar';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 const OnboardingBasicQuestions = () => {
     const router = useRouter();
@@ -50,9 +51,12 @@ const OnboardingBasicQuestions = () => {
       }));
     };
   
-    const handleGendersChange = (genders: string[]) => {
-      setSelectedFilters(prev => ({ ...prev, genders }));
-    };
+    const handleGendersChange = (gender: string) => {  // Changed from (genders: string[])
+        setSelectedFilters(prev => ({ 
+          ...prev, 
+          genders: gender ? [gender] : [] 
+        }));
+      };
 
     const handleEmailSubmit = (email: string) => {
         console.log('Email submitted:', email);
@@ -61,11 +65,19 @@ const OnboardingBasicQuestions = () => {
       };
   
     return (
-      <SafeAreaView style={styles.container}>
-      <ProgressBar progress={30} />
-        <ScrollView style={styles.scrollContainer}>
-            <SmallYuOnboarding text={'Before we jump in, please fill out the following information!'} />
-            <EmailInput />
+        <SafeAreaView style={styles.container}>
+        <ProgressBar progress={30} />
+        <View style={styles.contentContainer}>  {/* Add this wrapper */}
+        <KeyboardAwareScrollView
+          style={styles.scrollContainer}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          enableOnAndroid={true}
+          enableAutomaticScroll={true}
+          extraScrollHeight={20}
+        >
+          <SmallYuOnboarding text={'Before we jump in, please fill out the following information!'} />
+          <EmailInput />
           <View style={styles.dropdownsContainer}>
             <GenderDropdown onGendersChange={handleGendersChange} />
             <CountryDropdown onCountriesChange={handleCountriesChange} />
@@ -80,13 +92,9 @@ const OnboardingBasicQuestions = () => {
                 selectedState={selectedState}  // Changed from selectedFilters.states[0]
               />
             )}
-
-
-          </View>
-          <TouchableOpacity style={styles.button} onPress={() => router.push('/OnboardingQuestion1')}>
-            <Text style={styles.buttonText}>Submit</Text>
-            </TouchableOpacity>
-        </ScrollView>
+            </View>
+            </KeyboardAwareScrollView>
+        </View>
       </SafeAreaView>
     );
   };
@@ -100,9 +108,13 @@ const styles = StyleSheet.create({
     marginTop: 0,
     backgroundColor: '#F0FCFE',
   },
+  contentContainer: {
+    flex: 1, // This ensures the content takes up all available space
+    width: '100%',
+  },
     scrollContainer: {
         width: '100%',
-        padding: 10,
+        flex: 1,
     },
   dropdownsContainer: {
     padding: 12,
@@ -115,27 +127,30 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
   },
-  Announcement: {
-    fontSize: 11,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    fontStyle: 'italic',
-    marginHorizontal: 10,
-    marginBottom: 6,
+  buttonContainer: {
+    width: '100%',
+    padding: 16,
+    paddingBottom: 20,
+    backgroundColor: '#F0FCFE',
+    // Add shadow if needed
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 5,
   },
   button: {
-    backgroundColor: '#42ade2',
+    backgroundColor: '#57C7FF',
     borderRadius: 20,
     paddingVertical: 8,
     paddingHorizontal: 16,
     alignItems: 'center',
-    marginTop: 20,
+    width: '70%',
     alignSelf: 'center',
-    width: '50%',
   },
   buttonText: {
     color: 'white',
-    fontSize: 14,
+    fontSize: 18,
     fontWeight: 'bold',
   },
 });
