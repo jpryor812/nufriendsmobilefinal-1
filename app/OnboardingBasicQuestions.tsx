@@ -1,3 +1,4 @@
+//insert a username question "What should your friends and I call you?"
 import React, {useState} from 'react';
 import { View, StyleSheet, Text, ScrollView, TouchableOpacity, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';

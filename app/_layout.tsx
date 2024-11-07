@@ -65,6 +65,16 @@ export default function RootLayout() {
       options={{ headerShown: false }} />
       <Stack.Screen name="OnboardingQuestion8"
       options={{ headerShown: false }} />
+      <Stack.Screen name="OnboardingPostQuestions"
+      options={{ headerShown: false }} />
+      <Stack.Screen name="OnboardingPostQuestions2"
+      options={{ headerShown: false }} />
+      <Stack.Screen name="OnboardingStartSearching"
+      options={{ headerShown: false }} />
+      <Stack.Screen name="OnboardingChatRoomYu"
+      options={{ headerShown: false }} />
+      <Stack.Screen name="OnboardingPreAvatarBuild"
+      options={{ headerShown: false }} />
     </Stack>
   );
 }

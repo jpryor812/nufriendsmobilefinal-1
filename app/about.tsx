@@ -5,7 +5,7 @@ export default function AboutScreen() {
   return (
     <View style={styles.container}>
             <Text>About</Text>
-    <Link href={"/OnboardingQuestion1"} style={styles.button}>
+    <Link href={"/OnboardingStartSearching"} style={styles.button}>
       Home
     </Link>
     </View>

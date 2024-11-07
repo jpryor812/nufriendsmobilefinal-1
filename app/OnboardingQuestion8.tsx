@@ -58,7 +58,7 @@ const OnboardingPage8: React.FC<OnboardingQuestion1Props> = ({ onSubmit }) => {
     Keyboard.dismiss();
 
     // Navigate to next page
-    router.push('/OnboardingQuestion8'); // Replace with your actual next route
+    router.push('/OnboardingPostQuestions'); // Replace with your actual next route
   };
 
   return (
@@ -80,6 +80,7 @@ const OnboardingPage8: React.FC<OnboardingQuestion1Props> = ({ onSubmit }) => {
             <View style={styles.inputWrapper}>
               <TextInput
                 placeholder="Type your answer here..."
+                placeholderTextColor="#A3A3A3"  
                 keyboardType="default"
                 value={text}
                 onChangeText={setText}

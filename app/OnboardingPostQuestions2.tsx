@@ -4,15 +4,14 @@ import ProgressBar from '../components/ProgressBar';
 import BigYuOnboarding from '../components/BigYuOnboarding';
 import { Link } from 'expo-router';
 
-const OnboardingPreQuestions2 = () => (
+const OnboardingPostQuestions2 = () => (
   <View style={styles.appContainer}>
-    <ProgressBar progress={32} />
-    <BigYuOnboarding text="Please give as much information as possible in the next eight questions and we'll find your five new friends in no time!" />
-
+    <ProgressBar progress={82} />
+    <BigYuOnboarding text="I'll start looking for your friends now!" />
     <View style={styles.link_container}>
-      <Link href="/OnboardingBasicQuestions" style={styles.link}>
+      <Link href="/OnboardingStartSearching" style={styles.link}>
         <View style={styles.continue_button_container}>
-          <Text style={styles.continue_button_text}>I'm ready!</Text>
+          <Text style={styles.continue_button_text}>Continue</Text>
         </View>
       </Link>
     </View>
@@ -52,4 +51,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default OnboardingPreQuestions2;
+export default OnboardingPostQuestions2;

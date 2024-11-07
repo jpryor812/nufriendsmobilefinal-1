@@ -1,0 +1,32 @@
+[
+    {
+      "id": "1",
+      "from": 0,
+      "date": "2024-11-04T11:54:10.000Z",
+      "msg": "Hi (Insert Username)! You can use this space to ask me questions about yourself. You can ask questions like:"
+    },
+    {
+      "id": "3",
+      "from": 0,
+      "date": "2024-11-04T11:54:30.000Z",
+      "msg": "1. What should I say as a fun fact for me at school?"
+    },
+    {
+        "id": "5",
+        "from": 0,
+        "date": "2024-11-04T11:54:55.000Z",
+        "msg": "2. Is there anything interesting about me that I can say at an upcoming networking event?"
+      },
+    {
+      "id": "7",
+      "from": 0,
+      "date": "2024-11-04T11:54:45.000Z",
+      "msg": "3. I sit next to this girl in class and I know she likes anime like me, but I can't get myself to start a conversation with her. How can I start a conversation with her about anime?"
+    },
+    {
+        "id": "9",
+        "from": 0,
+        "date": "2024-11-04T11:54:55.000Z",
+        "msg": "These are all just example questions. Use the text box below to ask anything you want!"
+      }
+]

@@ -80,6 +80,7 @@ const OnboardingPage3: React.FC<OnboardingQuestion1Props> = ({ onSubmit }) => {
             <View style={styles.inputWrapper}>
               <TextInput
                 placeholder="Type your answer here..."
+                placeholderTextColor="#A3A3A3"  
                 keyboardType="default"
                 value={text}
                 onChangeText={setText}
