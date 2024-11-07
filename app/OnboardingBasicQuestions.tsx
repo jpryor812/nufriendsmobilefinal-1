@@ -64,40 +64,50 @@ const OnboardingBasicQuestions = () => {
         router.push('/OnboardingQuestion1'); // Replace with your actual next page route
       };
   
-    return (
+      return (
         <SafeAreaView style={styles.container}>
-        <ProgressBar progress={30} />
-        <View style={styles.contentContainer}>  {/* Add this wrapper */}
-        <KeyboardAwareScrollView
-          style={styles.scrollContainer}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
-          enableOnAndroid={true}
-          enableAutomaticScroll={true}
-          extraScrollHeight={20}
-        >
-          <SmallYuOnboarding text={'Before we jump in, please fill out the following information!'} />
-          <EmailInput />
-          <View style={styles.dropdownsContainer}>
-            <GenderDropdown onGendersChange={handleGendersChange} />
-            <CountryDropdown onCountriesChange={handleCountriesChange} />
-            
-            {showStateDropdown && (
-              <StateDropdown onStatesChange={handleStateChange} />
-            )}
-            
-            {showCityDropdown && (
-              <CityDropdown 
-                onCitiesChange={handleCityChange}
-                selectedState={selectedState}  // Changed from selectedFilters.states[0]
-              />
-            )}
-            </View>
+          <ProgressBar progress={30} />
+          <View style={styles.contentContainer}>
+            <KeyboardAwareScrollView
+              style={styles.scrollContainer}
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode="on-drag"
+              enableOnAndroid={true}
+              enableAutomaticScroll={true}
+              extraScrollHeight={20}
+            >
+              <SmallYuOnboarding text={'Before we jump in, please fill out the following information!'} />
+              <EmailInput />
+              <View style={styles.dropdownsContainer}>
+                <GenderDropdown onGendersChange={handleGendersChange} />
+                <CountryDropdown onCountriesChange={handleCountriesChange} />
+                
+                {showStateDropdown && (
+                  <StateDropdown onStatesChange={handleStateChange} />
+                )}
+                
+                {showCityDropdown && (
+                  <CityDropdown 
+                    onCitiesChange={handleCityChange}
+                    selectedState={selectedState}
+                  />
+                )}
+              </View>
             </KeyboardAwareScrollView>
-        </View>
-      </SafeAreaView>
+            
+            {/* Fixed button at bottom */}
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity 
+                style={styles.button}
+                onPress={() => router.push('/OnboardingQuestion1')}
+              >
+                <Text style={styles.buttonText}>Continue</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </SafeAreaView>
     );
-  };
+}
 
 const styles = StyleSheet.create({
   container: {
