@@ -27,6 +27,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     flexDirection: 'column',
+    marginTop: 60,
   },
   big_yu_chat_bubble_container: {
     position: 'relative',
@@ -40,8 +41,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 2,
     borderColor: '#ccc',
-    padding: 20,
-    width: '76%',
+    padding: 14,
+    width: '74%',
     marginBottom: 0, // Remove bottom margin
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -65,8 +66,8 @@ const styles = StyleSheet.create({
     // Slightly overlap with the chat bubble to hide the gap
   },
   big_yu_question_onboarding: {
-    width: 180,
-    height: 180,
+    width: 170,
+    height: 170,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -74,7 +75,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     color: '#42ade2',
-    fontSize: 18,
+    fontSize: 17,
   },
   chatBubbleArrowInner: {
     width: 0,

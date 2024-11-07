@@ -7,7 +7,7 @@ export default function Index() {
     <View style={styles.container}>
       <MessagesChart />
             <Text>Hello all</Text>
-    <Link href={"/about"} style={styles.button}>
+    <Link href={"/OnboardingQuestion1"} style={styles.button}>
       About
     </Link>
     <Link href={"/HomePage"} style={styles.button}>

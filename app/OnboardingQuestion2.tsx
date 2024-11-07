@@ -70,7 +70,7 @@ const OboardingPage1: React.FC<OnboardingQuestion1Props> = ({ onSubmit }) => {
         <SafeAreaView style={styles.appContainer}>
           <ProgressBar progress={35} />
           <BigYuOnboarding 
-            text={`Question 1: \nWhere are you from? Was there anything you liked or disliked about your hometown?`} 
+            text={`Question 2: \nWhere are you from? Was there anything you liked or disliked about your hometown?`} 
           />
           <Text style={styles.label}>Question 1/10</Text>
           <View style={[
@@ -94,9 +94,6 @@ const OboardingPage1: React.FC<OnboardingQuestion1Props> = ({ onSubmit }) => {
                 textAlignVertical="top"
               />
               <View style={styles.iconsContainer}>
-              <TouchableOpacity>
-                  <Ionicons name="mic" color={Colors.primary} size={20} />
-                </TouchableOpacity>
                 <TouchableOpacity 
                   onPress={handleSend}
                   disabled={text.trim() === ''}
@@ -108,8 +105,11 @@ const OboardingPage1: React.FC<OnboardingQuestion1Props> = ({ onSubmit }) => {
                   <Ionicons 
                     name="send" 
                     color={text.trim() === '' ? Colors.lightGray : Colors.primary} 
-                    size={20} 
+                    size={22} 
                   />
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <Ionicons name="add" color={Colors.primary} size={22} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -166,13 +166,13 @@ const styles = StyleSheet.create({
     paddingTop: 0,
     paddingBottom: 0,
     lineHeight: 18,
-    paddingRight: 4, // Add some padding to prevent text from touching icons
+    paddingRight: 8,
   },
   iconsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingTop: 6, // Align icons with first line of text
+    paddingTop: 2,
   },
   iconButton: {
     padding: 4,
