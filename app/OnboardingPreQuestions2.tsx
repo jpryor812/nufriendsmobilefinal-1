@@ -4,15 +4,15 @@ import ProgressBar from '../components/ProgressBar';
 import BigYuOnboarding from '../components/BigYuOnboarding';
 import { Link } from 'expo-router';
 
-const OnboardingPreQuestions = () => (
+const OnboardingPreQuestions2 = () => (
   <View style={styles.appContainer}>
-    <ProgressBar progress={30} />
-    <BigYuOnboarding text="There are many more awesome features we'll show you, but first, let's conclude this onboarding process by allowing me to get to know you better to begin those conversations." />
+    <ProgressBar progress={32} />
+    <BigYuOnboarding text="Please give as much information as possible in the next eight questions and we'll find your five new friends in no time!" />
     
     {/* then type something in the text box and send the message, then after sending the message, router to the next page where we demonstrate using Yu */}
 
     <View style={styles.link_container}>
-      <Link href="/OnboardingPreQuestions2" style={styles.link}>
+      <Link href="/OnboardingBasicQuestions" style={styles.link}>
         <View style={styles.continue_button_container}>
           <Text style={styles.continue_button_text}>I'm ready!</Text>
         </View>
@@ -54,4 +54,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default OnboardingPreQuestions;
+export default OnboardingPreQuestions2;

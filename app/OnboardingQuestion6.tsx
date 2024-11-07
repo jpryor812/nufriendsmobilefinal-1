@@ -24,7 +24,7 @@ interface OnboardingQuestion1Props {
   onSubmit?: (text: string) => void;
 }
 
-const OnboardingPage2: React.FC<OnboardingQuestion1Props> = ({ onSubmit }) => {
+const OnboardingPage6: React.FC<OnboardingQuestion1Props> = ({ onSubmit }) => {
   const [text, setText] = useState<string>('');
   const [inputHeight, setInputHeight] = useState<number>(18);
   const router = useRouter();
@@ -40,8 +40,8 @@ const OnboardingPage2: React.FC<OnboardingQuestion1Props> = ({ onSubmit }) => {
     }
 
     // Log the answer
-    console.log('Question 2 Answer:', {
-      question: 'Where do you live now? Do you like it there? Why ot why not?',
+    console.log('Question 6 Answer:', {
+      question: 'Do you have any favorite TV shows, movies, or books? If so, what are they and why do you enjoy them?',
       answer: text,
       timestamp: new Date().toISOString(),
     });
@@ -58,7 +58,7 @@ const OnboardingPage2: React.FC<OnboardingQuestion1Props> = ({ onSubmit }) => {
     Keyboard.dismiss();
 
     // Navigate to next page
-    router.push('/OnboardingQuestion3'); // Replace with your actual next route
+    router.push('/OnboardingQuestion7'); // Replace with your actual next route
   };
 
   return (
@@ -68,11 +68,11 @@ const OnboardingPage2: React.FC<OnboardingQuestion1Props> = ({ onSubmit }) => {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <SafeAreaView style={styles.appContainer}>
-          <ProgressBar progress={40} />
+          <ProgressBar progress={56} />
           <BigYuOnboarding 
-            text={`Question 2: \nWhere do you live now? Do you like it there? Why ot why not?`} 
+            text={`Question 6: \nDo you have any favorite TV shows, movies, or books? If so, what are they and why do you enjoy them?`} 
           />
-          <Text style={styles.label}>Question 2/8</Text>
+          <Text style={styles.label}>Question 6/8</Text>
           <View style={[
             styles.inputContainer, 
             { minHeight: Math.max(inputHeight + 18, 45) }
@@ -182,4 +182,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default OnboardingPage2;
+export default OnboardingPage6;

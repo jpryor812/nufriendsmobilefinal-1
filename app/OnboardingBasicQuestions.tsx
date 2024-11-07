@@ -1,115 +1,168 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Dimensions, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import {
-  GiftedChat,
-  InputToolbar,
-  IMessage,
-} from 'react-native-gifted-chat';
-import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
-import Colors from '@/assets/Colors';
-import ProgressBar from '../components/ProgressBar';
-import BigYuOnboarding from '../components/BigYuOnboarding';
+import React, {useState} from 'react';
+import { View, StyleSheet, Text, ScrollView, TouchableOpacity, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import CityDropdown from '../components/CityDropdown';
+import StateDropdown from '../components/StateDropdown';
+import CountryDropdown from '../components/CountryDropdown';
+import GenderDropdown from '../components/GenderDropdown';
+import FindMoreFriendsButton from '@/components/FindMoreFriendsButton';
+import FindFriendsButton from '@/components/FindMyFriendsButton';
+import FooterNavigation from '@/components/FooterNavigation';
+import EmailInput from '@/components/EmailInput';
+import SmallYuOnboarding from '@/components/SmallYuOnboarding';
+import ProgressBar from '@/components/ProgressBar';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const OnboardingBasicQuestions = () => {
+    const router = useRouter();
+    const [selectedFilters, setSelectedFilters] = useState({
+      cities: [] as string[],
+      states: [] as string[],
+      countries: [] as string[],
+      genders: [] as string[],
+    });
+  
+    const [showStateDropdown, setShowStateDropdown] = useState(false);
+    const [showCityDropdown, setShowCityDropdown] = useState(false);
+    const [selectedState, setSelectedState] = useState('');
+  
+    const handleCountriesChange = (country: string) => {
+        const showStates = country === 'United States of America';
+        setShowStateDropdown(showStates);
+      // Reset state and city if country changes
+      if (!showStates) {
+        setSelectedState('');
+        setShowCityDropdown(false);
+      }
+    };
+  
+    const handleStateChange = (state: string) => {
+      setSelectedState(state);
+      // Show city dropdown when a state is selected
+      setShowCityDropdown(!!state);
+    };
+  
+    const handleCityChange = (city: string) => {
+      console.log('Selected city:', city);
+      setSelectedFilters(prev => ({ 
+        ...prev, 
+        cities: city ? [city] : [] 
+      }));
+    };
+  
+    const handleGendersChange = (gender: string) => {  // Changed from (genders: string[])
+        setSelectedFilters(prev => ({ 
+          ...prev, 
+          genders: gender ? [gender] : [] 
+        }));
+      };
 
-const OnboardingQuestion1 = ({ navigation }: { navigation: any }) => {
-  const insets = useSafeAreaInsets();
-  const [messages, setMessages] = useState<IMessage[]>([]);
-
-  const renderInputToolbar = (props: any) => {
-    return (
-      <InputToolbar
-        {...props}
-        containerStyle={[
-          { backgroundColor: Colors.background },
-          styles.inputToolbar
-        ]}
-        renderSend={null}
-        renderActions={null}
-        primaryStyle={styles.inputPrimaryStyle}
-      />
+    const handleEmailSubmit = (email: string) => {
+        console.log('Email submitted:', email);
+        // You can add any additional validation or data handling here
+        router.push('/OnboardingQuestion1'); // Replace with your actual next page route
+      };
+  
+      return (
+        <SafeAreaView style={styles.container}>
+          <ProgressBar progress={30} />
+          <View style={styles.contentContainer}>
+            <KeyboardAwareScrollView
+              style={styles.scrollContainer}
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode="on-drag"
+              enableOnAndroid={true}
+              enableAutomaticScroll={true}
+              extraScrollHeight={20}
+            >
+              <SmallYuOnboarding text={'Before we jump in, please fill out the following information!'} />
+              <EmailInput />
+              <View style={styles.dropdownsContainer}>
+                <GenderDropdown onGendersChange={handleGendersChange} />
+                <CountryDropdown onCountriesChange={handleCountriesChange} />
+                
+                {showStateDropdown && (
+                  <StateDropdown onStatesChange={handleStateChange} />
+                )}
+                
+                {showCityDropdown && (
+                  <CityDropdown 
+                    onCitiesChange={handleCityChange}
+                    selectedState={selectedState}
+                  />
+                )}
+              </View>
+            </KeyboardAwareScrollView>
+            
+            {/* Fixed button at bottom */}
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity 
+                style={styles.button}
+                onPress={() => router.push('/OnboardingQuestion1')}
+              >
+                <Text style={styles.buttonText}>Continue</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </SafeAreaView>
     );
-  };
-
-  const onSend = (messages: IMessage[]) => {
-    if (messages.length > 0) {
-      navigation.navigate('OnboardingPage11');
-    }
-  };
-
-  return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <SafeAreaView style={styles.container}>
-        <ProgressBar progress={10} />
-        <View style={styles.contentContainer}>
-          <BigYuOnboarding 
-            text={`Question 1: \nWhere are you from? Was there anything you liked or disliked about your hometown?`} 
-          />
-        </View>
-        <View style={styles.inputWrapper}>
-          <GiftedChat
-            messages={messages}
-            onSend={onSend}
-            user={{ _id: 1 }}
-            isKeyboardInternallyHandled={true}
-            keyboardShouldPersistTaps="handled"
-            minInputToolbarHeight={36}
-            maxInputToolbarHeight={100}
-            minComposerHeight={36}
-            bottomOffset={insets.bottom}
-            renderAvatar={null}
-            maxComposerHeight={200}
-            textInputProps={{
-              ...styles.composer,
-              placeholder: "Type your answer here...",
-              multiline: true,
-            }}
-            renderInputToolbar={renderInputToolbar}
-            renderMessages={() => null}
-          />
-        </View>
-      </SafeAreaView>
-    </TouchableWithoutFeedback>
-  );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'flex-start',
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 0,
     backgroundColor: '#F0FCFE',
   },
   contentContainer: {
-    flex: 1,
+    flex: 1, // This ensures the content takes up all available space
     width: '100%',
   },
-  inputWrapper: {
-    width: '100%',
-    paddingBottom: 20,
-    backgroundColor: '#F0FCFE',
+    scrollContainer: {
+        width: '100%',
+        flex: 1,
+    },
+  dropdownsContainer: {
+    padding: 12,
+    gap: 8,
+    marginTop: -10,
   },
-  inputToolbar: {
-    marginHorizontal: SCREEN_WIDTH * 0.05,
-    marginBottom: 20,
-    borderRadius: 18,
-    backgroundColor: 'white',
-  },
-  inputPrimaryStyle: {
+  introContainer: {
+    borderRadius: 30,
+    padding: 2,
+    flexDirection: 'column',
     alignItems: 'center',
   },
-  composer: {
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: Colors.lightGray,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    fontSize: 16,
-    marginTop: 2,
-    marginBottom: 2,
-    textAlignVertical: 'center',
-    backgroundColor: 'white',
-    maxHeight: 200,
-    width: SCREEN_WIDTH * 0.9,
+  buttonContainer: {
+    width: '100%',
+    padding: 16,
+    paddingBottom: 20,
+    backgroundColor: '#F0FCFE',
+    // Add shadow if needed
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 5,
+  },
+  button: {
+    backgroundColor: '#57C7FF',
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    width: '70%',
+    alignSelf: 'center',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 
-export default OnboardingQuestion1;
+export default OnboardingBasicQuestions;

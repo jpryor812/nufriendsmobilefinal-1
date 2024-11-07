@@ -1,3 +1,4 @@
+//when setting up voice, go to the code with beto channel 
 import ProgressBar from '@/components/ProgressBar';
 import BigYuOnboarding from '@/components/BigYuOnboarding';
 import { Ionicons } from '@expo/vector-icons';
@@ -24,13 +25,13 @@ interface OnboardingQuestion1Props {
   onSubmit?: (text: string) => void;
 }
 
-const OboardingPage1: React.FC<OnboardingQuestion1Props> = ({ onSubmit }) => {
+const OnboardingPage1: React.FC<OnboardingQuestion1Props> = ({ onSubmit }) => {
   const [text, setText] = useState<string>('');
-  const [inputHeight, setInputHeight] = useState<number>(20);
+  const [inputHeight, setInputHeight] = useState<number>(18);
   const router = useRouter();
 
   const updateSize = (height: number) => {
-    setInputHeight(Math.max(20, Math.min(height, 80)));
+    setInputHeight(Math.max(18, Math.min(height, 72)));
   };
 
   const handleSend = () => {
@@ -72,10 +73,10 @@ const OboardingPage1: React.FC<OnboardingQuestion1Props> = ({ onSubmit }) => {
           <BigYuOnboarding 
             text={`Question 1: \nWhere are you from? Was there anything you liked or disliked about your hometown?`} 
           />
-          <Text style={styles.label}>Question 1/10</Text>
+          <Text style={styles.label}>Question 1/8</Text>
           <View style={[
             styles.inputContainer, 
-            { minHeight: Math.max(inputHeight + 20, 45) }
+            { minHeight: Math.max(inputHeight + 18, 45) }
           ]}>
             <View style={styles.inputWrapper}>
               <TextInput
@@ -85,7 +86,7 @@ const OboardingPage1: React.FC<OnboardingQuestion1Props> = ({ onSubmit }) => {
                 onChangeText={setText}
                 style={[
                   styles.input,
-                  { height: Math.max(inputHeight, 20) }
+                  { height: Math.max(inputHeight, 18) }
                 ]}
                 multiline
                 onContentSizeChange={(event) => 
@@ -180,6 +181,10 @@ const styles = StyleSheet.create({
   iconButtonDisabled: {
     opacity: 0.5,
   },
+    iconButtonActive: {
+    backgroundColor: '#FFE5E5',
+    borderRadius: 12,
+  },
 });
 
-export default OboardingPage1;
+export default OnboardingPage1;
