@@ -12,7 +12,7 @@ import {
   IMessage,
 } from 'react-native-gifted-chat';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
-import messageData from '@/assets/messages.json';
+import messageData2 from '@/assets/messages2.json';
 import { useLocalSearchParams } from 'expo-router';
 import FriendProfileMessageHeader from '@/components/FriendProfileMessageHeader';
 import YuSuggestions from '@/components/YuSuggestions';
@@ -36,7 +36,7 @@ const ChatRoomFriend = () => {
 
 useEffect(() => {
     setMessages([
-      ...messageData.map((message) => {
+      ...messageData2.map((message) => {
         return {
           _id: message.id,
           text: message.msg,
@@ -126,6 +126,7 @@ useEffect(() => {
         <GiftedChat
           messages={messages}
           onSend={onSend}
+          inverted={false}
           user={{ _id: 1 }}
           isKeyboardInternallyHandled={true}
           keyboardShouldPersistTaps="handled"
@@ -158,7 +159,9 @@ useEffect(() => {
           )}
           renderInputToolbar={renderInputToolbar}
           renderMessage={(props) => (
-            <ChatMessageBox {...props} />
+            <View style={{ paddingVertical: 4, paddingHorizontal: 6 }}>
+              <ChatMessageBox {...props} />
+            </View>
           )}
         />
       </ImageBackground>

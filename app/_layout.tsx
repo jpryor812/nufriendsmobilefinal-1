@@ -85,6 +85,8 @@ export default function RootLayout() {
       options={{ headerShown: false }} />
       <Stack.Screen name="OnboardingAvatarCustomization"
       options={{ headerShown: false }} />
+      <Stack.Screen name="BadgesPage"
+      options={{ headerShown: false }} />
     </Stack>
   );
 }
