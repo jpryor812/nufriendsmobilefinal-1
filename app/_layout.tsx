@@ -77,9 +77,13 @@ export default function RootLayout() {
       options={{ headerShown: false }} />
       <Stack.Screen name="ProfilePageOnboarding"
       options={{ headerShown: false }} />
-      <Stack.Screen name="OnboardingPreAvatar"
+      <Stack.Screen name="OnboardingPreAvatarReveal"
       options={{ headerShown: false }} />
       <Stack.Screen name="OnboardingRelationshipTracker"
+      options={{ headerShown: false }} />
+      <Stack.Screen name="OnboardingAvatarReveal"
+      options={{ headerShown: false }} />
+      <Stack.Screen name="OnboardingAvatarCustomization"
       options={{ headerShown: false }} />
     </Stack>
   );

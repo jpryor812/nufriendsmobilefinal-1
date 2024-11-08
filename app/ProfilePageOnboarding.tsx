@@ -96,7 +96,7 @@ const ProfilePageOnboarding = () => {
 
         // Final position and show pointer
         await runAnimation(
-          "This page tracks all of your friendships. Let's see how you can track one specific friendships by clicking the see more button",
+          "This page tracks all of your friendships. Let's see how you can track one specific friendships by tapping the see more button",
           350,
           5000
         );

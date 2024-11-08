@@ -1,12 +1,22 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView } from 'react-native';
+import React, {useRef, useEffect} from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, Animated, Dimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { friendsData } from '../constants/FriendsData';
-import SmallYuOnboarding from '../components/SmallYuOnboarding';
+import SmallYuOnboardingAnimated from '../components/SmallYuOnboardingAnimated';
 
 const OnboardingRelationshipTracker = () => {
   const params = useLocalSearchParams();
   const router = useRouter();
+
+  useEffect(() => {
+    // Set a timeout to navigate after 5 seconds
+    const timer = setTimeout(() => {
+      router.push('/OnboardingPreAvatarReveal');  // Replace with your desired route
+    }, 9000);
+
+    // Cleanup timeout if component unmounts
+    return () => clearTimeout(timer);
+  }, []);
 
   const friend = friendsData.find(f => f.id === Number(params.id));
   if (!friend) return null;
@@ -124,13 +134,6 @@ const OnboardingRelationshipTracker = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <TouchableOpacity 
-        onPress={() => router.back()}
-        style={styles.backButton}
-      >
-        <Text style={styles.backButtonText}>← Back to Friends</Text>
-      </TouchableOpacity>
-
       <View style={styles.container}>
 
         <View style={styles.userInfo}>
@@ -145,14 +148,6 @@ const OnboardingRelationshipTracker = () => {
           {/* Send Message Button */}
           <TouchableOpacity 
     style={styles.messageButton}
-    onPress={() => router.push({
-        pathname: '/ChatRoomFriend',
-        params: {
-            userId: friend.id,
-            username: friend.name,
-            avatar: JSON.stringify(friend.avatar) // Need to stringify since we're parsing it back in ChatRoomFriend
-        }
-    })}
 >
     <Image 
         source={require('../assets/images/incoming_envelope.png')}
@@ -240,8 +235,7 @@ const OnboardingRelationshipTracker = () => {
           <Text style={styles.statText}>Mutual Friends: {friend.mutualFriends}</Text>
         </View>
       </View>
-
-      <SmallYuOnboarding text="You'll be able to see how you and your new friend's relationship develops and how it relates to all friendships " />
+      <SmallYuOnboardingAnimated text={"You can track the progress of your friendship, and see how it compares to other friendships within the nufriends platform"} />
       </View>
     </View>
     </SafeAreaView>
