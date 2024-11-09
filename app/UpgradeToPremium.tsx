@@ -20,11 +20,11 @@ const UpgradeToPremium = () => {
       icon: require('@/assets/images/Yu_excited_no_speech.png'), 
       isImage: true,
       highlight: 'Use Yu',
-      primary: '500',
+      primary: '250',
       text: 'times per week',
       primaryTwo: '',
       textTwo: '',
-      subtext: '20x more usage than free plan'
+      subtext: '10x more usage than free plan'
     },
     {
         icon: '🫂', 
