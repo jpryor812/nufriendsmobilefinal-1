@@ -8,6 +8,7 @@ import ActiveStreaks from '../components/ActiveStreaks';
 import StatsBar from '../components/UserStatsContainer';
 import AchievementsSection from '@/components/AchievementsSection';
 import FooterNavigation from '../components/FooterNavigation';
+import BadgesSection from '../components/BadgesSection';
 
 const ProfilePage = () => {
 
@@ -39,7 +40,7 @@ const ProfilePage = () => {
         </View>
         <StatsBar />
         <ActiveStreaks />
-        <AchievementsSection />
+        <BadgesSection /> 
       </ScrollView>
       <FooterNavigation />
     </SafeAreaView>

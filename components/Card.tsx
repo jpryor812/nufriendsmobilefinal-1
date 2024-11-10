@@ -10,7 +10,7 @@ export default function Card({ children, style = {} }: CardProps) {
       style={{
         padding: 10,
         borderRadius: 15,
-        backgroundColor: "white",
+        backgroundColor: "#fcfcfc",
         elevation: 8,
         shadowColor: "#000",
         shadowRadius: 8,
