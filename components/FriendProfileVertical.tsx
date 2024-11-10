@@ -34,12 +34,6 @@ const FriendProfileVertical: React.FC<FriendProfileVerticalProps> = ({
 
         <View style={styles.itemContainer}>
           <Text style={styles.profileNameText}>{name}</Text>
-          <TouchableOpacity 
-            style={styles.editIcon} 
-            onPress={onEditName}
-          >
-            <Feather name="edit-2" size={10} color="#666" />
-          </TouchableOpacity>
         </View>
           <Text>Pittsburgh, PA</Text>
       </View>

@@ -1,6 +1,7 @@
 // Achievement.tsx
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ImageSourcePropType } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 interface AchievementProps {
   title: string;
@@ -19,23 +20,26 @@ const Achievement: React.FC<AchievementProps> = ({
   size =110,
   onPress
 }) => {
-  const backgroundColor = isUnlocked ? '#FFD700' : '#D3D3D3';
+
+  const gradientColors = isUnlocked 
+  ? ['#FFE875', '#FEC417']  // Gold to Orange for unlocked
+  : ['#E3E3E3', '#A9A9A9'];  // Light gray to Dark gray for locked
   
   return (
     <TouchableOpacity onPress={onPress}>
       <View style={styles.achievementContainer}>
         <View style={[styles.badgeWrapper, { width: size }]}>
-          {/* Main badge body */}
-          <View style={[
-            styles.achievementBadgeTop,
-            { 
-              width: size,
-              height: size,
-              backgroundColor
-            }
-          ]}>
+          <LinearGradient
+            colors={gradientColors}
+            style={[
+              styles.achievementBadgeTop,
+              { 
+                width: size,
+                height: size,
+              }
+            ]}
+          >
             <View style={styles.contentContainer}>
-              {/* Conditional rendering for image or emoji */}
               {imageSource ? (
                 <Image 
                   source={imageSource}
@@ -58,7 +62,6 @@ const Achievement: React.FC<AchievementProps> = ({
                 </Text>
               )}
               
-              {/* Title text - outside the conditional rendering */}
               <Text style={[
                 styles.achievementTitle,
                 { opacity: isUnlocked ? 1 : 0.3 }
@@ -66,7 +69,7 @@ const Achievement: React.FC<AchievementProps> = ({
                 {title}
               </Text>
             </View>
-          </View>
+          </LinearGradient>
 
           {/* Softened triangle bottom */}
           <View style={[
@@ -75,7 +78,7 @@ const Achievement: React.FC<AchievementProps> = ({
               borderLeftWidth: size / 2,
               borderRightWidth: size / 2,
               borderTopWidth: size / 4,
-              borderTopColor: backgroundColor,
+              borderTopColor: isUnlocked ? '#FEC417' : '#A9A9A9',
               borderRadius: 8,
             }
           ]} />
