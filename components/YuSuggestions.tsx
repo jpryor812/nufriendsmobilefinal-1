@@ -24,8 +24,8 @@ interface YuSuggestionsProps {
 const quickReplies = [
   { id: '1', text: "Ask Jpp123 if he's ever played in a tournament before" },
   { id: '2', text: "Ask Jpp123 if he has any favorite cards or strategies" },
-  { id: '3', text: "Ask Jpp123 where the tournament is being held" },
-  { id: '4', text: "Start a new conversation/HELP!" },
+  { id: '3', text: "Talk about your past experiences with playing Magic" },
+  { id: '4', text: "Ask Jpp123 if he plays any other card or board games" },
 ];
 
 const YuSuggestions: React.FC<YuSuggestionsProps> = ({ onSelectContent, onClose }) => {
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    top: 40, // Adjust this value to position below the selected reply
+    top: 60, // Adjust this value to position below the selected reply
   },
 });
 

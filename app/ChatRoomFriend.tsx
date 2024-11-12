@@ -46,18 +46,13 @@ useEffect(() => {
             name: message.from ? 'You' : username as string,
           },
         };
-      }),
+      }).reverse(), // Add this reverse()
     ]);
   }, [username]);
 
   const onSend = useCallback((messages = []) => {
     setMessages((previousMessages: any[]) => GiftedChat.append(previousMessages, messages));
   }, []);
-
-  const handleYuSuggestionsSelect = (content: string) => {
-    setText(content);
-    setIsYuSuggestionsMode(false);
-  };
 
   // Combined handler for Yu-generated messages
   const handleYuMessage = (text: string) => {
@@ -126,7 +121,7 @@ useEffect(() => {
         <GiftedChat
           messages={messages}
           onSend={onSend}
-          inverted={false}
+          inverted={true}
           user={{ _id: 1 }}
           isKeyboardInternallyHandled={true}
           keyboardShouldPersistTaps="handled"

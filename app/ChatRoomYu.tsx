@@ -12,7 +12,7 @@ import {
   IMessage,
 } from 'react-native-gifted-chat';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
-import messageData from '@/assets/messages.json';
+import messageDataYu from '@/assets/messagesYu.json';
 import { Link } from 'expo-router';
 import FriendProfileMessageHeader from '@/components/FriendProfileMessageHeader';
 
@@ -23,7 +23,7 @@ const ChatRoomYu = () => {
 
   useEffect(() => {
     setMessages([
-      ...messageData.map((message) => {
+      ...messageDataYu.map((message) => {
         return {
           _id: message.id,
           text: message.msg,
@@ -86,6 +86,7 @@ const ChatRoomYu = () => {
         />
         <GiftedChat
           messages={messages}
+          inverted={false}
           onSend={(messages: any) => onSend(messages)}
           onInputTextChanged={setText}
           user={{ _id: 1 }}
@@ -126,7 +127,9 @@ const ChatRoomYu = () => {
           )}
           renderInputToolbar={renderInputToolbar}
           renderMessage={(props) => (
+            <View style={{ paddingVertical: 4, paddingHorizontal: 6 }}>
             <ChatMessageBox {...props} />
+            </View>
           )}
         />
       </ImageBackground>

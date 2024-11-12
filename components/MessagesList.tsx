@@ -27,15 +27,15 @@ const parseTimestamp = (timestamp: string): Date => {
 };
 
 const messages: Message[] = [
-  { id: '1', userId: 'Jpp123', text: "Yeah I really like dinosaurs. My favorite is a velociraptor but I also really like Ankylosaurus and Triceratops", timestamp: "6:45 pm", avatar: require('../assets/images/profile_picture.jpg') },
-  { id: '2', userId: 'AlexD33', text: "Yeah I really like dinosaurs. My favorite is a velociraptor but I also really like Ankylosaurus and Triceratops", timestamp: "5:45 pm", avatar: require('../assets/images/profile_icon.png') },
-  { id: '3', userId: 'PChak55', text: "Yeah I really like dinosaurs. My favorite is a velociraptor but I also really like Ankylosaurus and Triceratops", timestamp: "4:45 pm", avatar: require('../assets/images/profile-800x800.png') },
-  { id: '4', userId: 'OnDeck02', text: "Yeah I really like dinosaurs. My favorite is a velociraptor but I also really like Ankylosaurus and Triceratops", timestamp: "3:45 pm", avatar: require('../assets/images/profile2-500x500.png') },
-  { id: '5', userId: 'AJones01', text: "Yeah I really like dinosaurs. My favorite is a velociraptor but I also really like Ankylosaurus and Triceratops", timestamp: "11:45 am", avatar: require('../assets/images/profile3-500x500.png') },
-  { id: '6', userId: 'Hpp123', text: "Yeah I really like dinosaurs. My favorite is a velociraptor but I also really like Ankylosaurus and Triceratops", timestamp: "10:45 am", avatar: require('../assets/images/profile_picture.jpg') },
-  { id: '7', userId: 'Tpp123', text: "Yeah I really like dinosaurs. My favorite is a velociraptor but I also really like Ankylosaurus and Triceratops", timestamp: "9:45 am", avatar: require('../assets/images/profile_picture.jpg') },
-  { id: '8', userId: 'Qpp123', text: "Yeah I really like dinosaurs. My favorite is a velociraptor but I also really like Ankylosaurus and Triceratops", timestamp: "8:45 am", avatar: require('../assets/images/profile_picture.jpg') },
-  { id: '9', userId: 'Wpp123', text: "Yeah I really like dinosaurs. My favorite is a velociraptor but I also really like Ankylosaurus and Triceratops", timestamp: "9:35 am", avatar: require('../assets/images/profile_picture.jpg') },
+  { id: '1', userId: 'Jpp123', text: "Yeah I should really read more, but I probably play too much Magic haha. I actually have a tournament this weekend in my city to defend my title.", timestamp: "6:45 pm", avatar: require('../assets/images/profile_picture.jpg') },
+  { id: '2', userId: 'AlexD33', text: "You know what? You were right... Andor is the best Star Wars TV series, and I'd even go as far to say one of the best TV series ever!", timestamp: "5:45 pm", avatar: require('../assets/images/profile_icon.png') },
+  { id: '3', userId: 'PChak55', text: "Been experimenting with new recipes lately. Made this incredible Thai curry last night with fresh lemongrass and coconut milk. The kitchen smelled amazing!", timestamp: "4:45 pm", avatar: require('../assets/images/profile-800x800.png') },
+  { id: '4', userId: 'OnDeck02', text: "Finally finished that sci-fi series I was telling you about. The plot twists in the final episode were mind-blowing. We should definitely discuss it sometime!", timestamp: "3:45 pm", avatar: require('../assets/images/profile2-500x500.png') },
+  { id: '5', userId: 'AJones01', text: "Just adopted a rescue puppy! She's a golden retriever mix and absolutely loves playing in the yard. Still working on house training though.", timestamp: "11:45 am", avatar: require('../assets/images/profile3-500x500.png') },
+  { id: '6', userId: 'Hpp123', text: "Started learning guitar last month. My fingers are still getting used to the strings, but I can finally play through my first complete song!", timestamp: "10:45 am", avatar: require('../assets/images/profile_picture.jpg') },
+  { id: '7', userId: 'Tpp123', text: "Visited this amazing art gallery downtown yesterday. The contemporary exhibition was fascinating, especially the interactive installations. You'd love it.", timestamp: "9:45 am", avatar: require('../assets/images/profile_picture.jpg') },
+  { id: '8', userId: 'Qpp123', text: "Just finished planting my summer garden. Got tomatoes, peppers, and lots of herbs. Can't wait to start cooking with fresh ingredients!", timestamp: "8:45 am", avatar: require('../assets/images/profile_picture.jpg') },
+  { id: '9', userId: 'Wpp123', text: "Been getting into photography lately. Got this great shot of the sunset at the beach yesterday. The colors were absolutely incredible.", timestamp: "9:35 am", avatar: require('../assets/images/profile_picture.jpg') },
 ];
 
 interface MessageItemProps {

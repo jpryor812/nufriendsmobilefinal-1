@@ -180,7 +180,6 @@ const OnboardingRelationshipTracker = () => {
         <Text style={styles.detailText}>{friend.age} years-old</Text>
     </View>
 </View>
-        <Text style={styles.detailText}>Is open to dating</Text>
                 {/* Will askusers directly for their city, gender, and age for this data and for filtering */}
         {/* Friends Since */}
 

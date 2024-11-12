@@ -122,8 +122,8 @@ export const friendsData: Friend[] = [
     },
     { 
         id: 8, 
-        initials: 'QP', 
-        name: 'Qpp123', 
+        initials: 'MP', 
+        name: 'Mike123', 
         messages: 712, 
         daysAsFriends: 118, 
         streak: 0, 

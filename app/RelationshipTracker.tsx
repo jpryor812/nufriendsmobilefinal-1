@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { friendsData } from '../constants/FriendsData';
+import FriendBadgeSection from '../components/FriendBadgeSection';
 
 const RelationshipTracker = () => {
   const params = useLocalSearchParams();
@@ -184,10 +185,8 @@ const RelationshipTracker = () => {
         <Text style={styles.detailText}>{friend.age} years-old</Text>
     </View>
 </View>
-        <Text style={styles.detailText}>Is open to dating</Text>
                 {/* Will askusers directly for their city, gender, and age for this data and for filtering */}
         {/* Friends Since */}
-
         <View style={styles.statsSection}>
         <Text style={styles.statsHeader}>Stats</Text>
         <View style={styles.friendsSince}>
@@ -241,7 +240,10 @@ const RelationshipTracker = () => {
       </View>
 
       <Text style={styles.badgesHeader}>Badges</Text>
-      </View>
+      <ScrollView style={styles.scrollContainer}>
+      <FriendBadgeSection />
+      </ScrollView>
+              </View>
     </View>
     </SafeAreaView>
   );
@@ -253,6 +255,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f0f8ff',
   },
+
   backButton: {
     padding: 10,
   },

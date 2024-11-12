@@ -13,7 +13,7 @@ export interface Achievement {
       {
         id: 1,
         title: 'Taking the First Step',
-        emoji: '🎯',
+        emoji: '🧗',
         isUnlocked: true,
         level: 1,
         howToEarn: 'Send One Message'
@@ -30,7 +30,7 @@ export interface Achievement {
       {
         id: 3,
         title: 'The start of something special',
-        emoji: '✨',
+        emoji: '🏋️',
         isUnlocked: true,
         level: 1,
         howToEarn: 'Message One Friend'
@@ -58,7 +58,7 @@ export interface Achievement {
       id: 6,
       title: 'Social Butterfly',
       emoji: '🦋',
-      isUnlocked: false,
+      isUnlocked: true,
       level: 2,
       howToEarn: 'Send 25 Messages'
     },
@@ -88,9 +88,9 @@ export interface Achievement {
       },
       {
         id: 10,
-        title: 'Conversation Master',
+        title: 'Popularity Contest',
         emoji: '💭',
-        isUnlocked: false,
+        isUnlocked: true,
         level: 2,
         howToEarn: 'Have Two Different Streaks'
       },
