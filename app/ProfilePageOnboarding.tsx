@@ -7,10 +7,12 @@ import MessagesChart from '../components/MessagesChart';
 import ActiveStreaks from '../components/ActiveStreaks';
 import StatsBar from '../components/UserStatsContainer';
 import AchievementsSection from '@/components/AchievementsSection';
-import FooterNavigation from '../components/FooterNavigation';
+import FooterNavigation from '../components/FooterNavigationIOS';
 import SearchingDots from '@/components/SearchingDots';
 import MiniYuOnboarding from '@/components/MiniYuOnboarding';
 import { router } from 'expo-router';
+import SafeLayout from '@/components/SafeLayout';
+import ScrollSafeLayout from '@/components/ScrollSafeLayout';
 
 const { height, width } = Dimensions.get('window');
 
@@ -115,8 +117,8 @@ const ProfilePageOnboarding = () => {
     }, []);
 
     return (
-      <SafeAreaView style={styles.container}>
-        <ScrollView contentContainerStyle={styles.scrollViewContent}>
+      <SafeLayout style={styles.container}>
+        <ScrollSafeLayout contentContainerStyle={styles.scrollViewContent}>
           <SearchingDots />
           <Animated.View
             style={[
@@ -142,7 +144,7 @@ const ProfilePageOnboarding = () => {
           </View>
           <StatsBar currentWeek={0} />
           <ActiveStreaks />
-        </ScrollView>
+        </ScrollSafeLayout>
         <FooterNavigation />
         
         {showPointer && (
@@ -157,7 +159,7 @@ const ProfilePageOnboarding = () => {
             <Text style={styles.pointerText}>👇</Text>
           </Animated.View>
         )}
-      </SafeAreaView>
+      </SafeLayout>
     );
 };
 

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, Animated
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { friendsData } from '../constants/FriendsData';
 import SmallYuOnboardingAnimated from '../components/SmallYuOnboardingAnimated';
+import SafeLayout from '@/components/SafeLayout';
 
 const OnboardingRelationshipTracker = () => {
   const params = useLocalSearchParams();
@@ -133,7 +134,7 @@ const OnboardingRelationshipTracker = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeLayout style={styles.safeArea}>
       <View style={styles.container}>
 
         <View style={styles.userInfo}>
@@ -237,7 +238,7 @@ const OnboardingRelationshipTracker = () => {
       <SmallYuOnboardingAnimated text={"You can track the progress of your friendship, and see how it compares to other friendships within the nufriends platform"} />
       </View>
     </View>
-    </SafeAreaView>
+    </SafeLayout>
   );
 };
 

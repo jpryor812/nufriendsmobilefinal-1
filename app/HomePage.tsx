@@ -4,6 +4,7 @@ import HeaderButtons from '../components/HeaderButtons';
 import MessageList from '../components/MessagesList';
 import FooterNavigation from '../components/FooterNavigation';
 import { Link } from "expo-router";
+import SafeLayout from '@/components/SafeLayout';
 
 // Add type for navigation if using TypeScript
 const HomePage = () => {
@@ -13,8 +14,10 @@ const HomePage = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <HeaderButtons />
+    <SafeLayout style={styles.container}>
+      <HeaderButtons onPressUpgrade={function (): void {
+        throw new Error('Function not implemented.');
+      } } />
       <View style={styles.introContainer}>
         <Link href={"/OnboardingPage1"} style={styles.seeMoreLink}>
           <Text style={styles.seeMore}>Onboarding</Text>
@@ -30,7 +33,7 @@ const HomePage = () => {
         <MessageList />
       </View>
       <FooterNavigation />
-    </SafeAreaView>
+    </SafeLayout>
   );
 };
 

@@ -4,6 +4,7 @@ import Achievement from './Achievement';
 import Card from './Card';
 import BadgeModal from './BadgeModal';
 import { badges, Achievement as AchievementType } from '../constants/FriendBadges'; // Update this path
+import ScrollSafeLayout from './ScrollSafeLayout';
 
 
 const BadgesSection = () => {
@@ -40,9 +41,9 @@ const BadgesSection = () => {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollContainer}>
+      <ScrollSafeLayout style={styles.scrollContainer}>
         {renderBadgeRows()}
-      </ScrollView>
+      </ScrollSafeLayout>
       <BadgeModal
         visible={isModalVisible}
         badge={selectedBadge}

@@ -4,7 +4,8 @@ import ProgressBar from '../components/ProgressBar';
 import BigYuOnboarding from '../components/BigYuOnboarding';
 import { Link } from 'expo-router';
 import SearchingDots from '../components/SearchingDots';
-import FooterNavigation from '@/components/FooterNavigation';
+import FooterNavigation from '@/components/FooterNavigationIOS';
+import SafeLayout from '@/components/SafeLayout';
 
 const OnboardingStartSearching = () => {
     const [fadeAnim] = useState(new Animated.Value(0));
@@ -38,7 +39,7 @@ const OnboardingStartSearching = () => {
     };
 
     return (
-        <SafeAreaView style={styles.appContainer}>
+        <SafeLayout style={styles.appContainer}>
           <ProgressBar progress={86} />
           <View style={styles.searchingContainer}>
             <SearchingDots 
@@ -86,7 +87,7 @@ const OnboardingStartSearching = () => {
               </View>
             </View>
           </View>
-        </SafeAreaView>
+        </SafeLayout>
       );
     };
 

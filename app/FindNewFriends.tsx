@@ -8,7 +8,8 @@ import CountryDropdown from '../components/CountryDropdown';
 import GenderDropdown from '../components/GenderDropdown';
 import FindMoreFriendsButton from '@/components/FindMoreFriendsButton';
 import FindFriendsButton from '@/components/FindMyFriendsButton';
-import FooterNavigation from '@/components/FooterNavigation';
+import FooterNavigation from '@/components/FooterNavigationIOS';
+import SafeLayout from '@/components/SafeLayout';
 
 const FindNewFriends = () => {
   const router = useRouter();
@@ -53,7 +54,7 @@ const FindNewFriends = () => {
 
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeLayout style={styles.container}>
       <ScrollView style={styles.scrollContainer}>
       <Text style={styles.PageTitle}>Find Your New Friend!!</Text>
       <Text style={styles.PageSubTitle}>Feel free to use the filters to look for specific friends or just search anywhere!</Text>
@@ -73,7 +74,7 @@ const FindNewFriends = () => {
       <View style={styles.footerContainer}>
       <FooterNavigation />
       </View>
-    </SafeAreaView>
+    </SafeLayout>
   );
 };
 

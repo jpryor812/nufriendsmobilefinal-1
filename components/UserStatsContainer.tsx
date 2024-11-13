@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
 import { messageData } from './MessageData';
+import SafeLayout from './SafeLayout';
+import Card from './Card';
 
 interface StatsBarProps {
   currentWeek: number;
@@ -28,7 +30,7 @@ const StatsBar: React.FC<StatsBarProps> = ({ currentWeek }) => {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <Card style={styles.container}>
       {stats.map((stat, index) => (
         <React.Fragment key={stat.label}>
           {index > 0 && <View style={styles.separator} />}
@@ -38,7 +40,7 @@ const StatsBar: React.FC<StatsBarProps> = ({ currentWeek }) => {
           </View>
         </React.Fragment>
       ))}
-    </SafeAreaView>
+    </Card>
   );
 };
 
@@ -51,7 +53,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
     backgroundColor: 'white',
     borderRadius: 10,
-    padding: 15,
+    padding: 5,
     marginHorizontal: 10,
     shadowColor: "#000",
     shadowOffset: {
@@ -64,15 +66,15 @@ const styles = StyleSheet.create({
   },
   statBlock: {
     alignItems: 'center',
-    marginRight: 5,
-    marginLeft: 5,
+    marginRight: 3,
+    marginLeft: 3,
   },
   statNumber: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
-    marginRight: 4,
-    marginLeft: 4,
+    marginRight: 3,
+    marginLeft: 3,
     marginTop: 10,
   },
   statLabel: {

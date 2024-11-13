@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, SafeAreaView, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import MessageContainer from '../components/MessageContainer';
 import InputContainer from '../components/InputContainer';
-import FooterNavigation from '../components/FooterNavigation';
+import FooterNavigation from '../components/FooterNavigationIOS';
 import FriendProfile from '../components/FriendProfile';
+import SafeLayout from '@/components/SafeLayout';
 
 // Define our message interface
 interface Message {
@@ -32,7 +33,7 @@ const MessagingFriend = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeLayout style={styles.container}>
         <FriendProfile imageSource={0} name={''} />
       <TouchableWithoutFeedback onPress={dismissKeyboard}>
         <View style={{ flex: 1 }}>
@@ -47,7 +48,7 @@ const MessagingFriend = () => {
         onHeightChange={setInputHeight}
       />
       <FooterNavigation />
-    </SafeAreaView>
+    </SafeLayout>
   );
 };
 

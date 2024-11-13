@@ -18,6 +18,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import SafeLayout from '@/components/SafeLayout';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -68,7 +69,7 @@ const OnboardingPage1: React.FC<OnboardingQuestion1Props> = ({ onSubmit }) => {
       style={styles.container}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <SafeAreaView style={styles.appContainer}>
+        <SafeLayout style={styles.appContainer}>
           <ProgressBar progress={35} />
           <BigYuOnboarding 
             text={`Question 1: \nWhere are you from? Was there anything you liked or disliked about your hometown?`} 
@@ -116,7 +117,7 @@ const OnboardingPage1: React.FC<OnboardingQuestion1Props> = ({ onSubmit }) => {
               </View>
             </View>
           </View>
-        </SafeAreaView>
+        </SafeLayout>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );

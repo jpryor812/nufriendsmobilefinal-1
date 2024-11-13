@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Image, ImageSourcePropType } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { friendsData, Friend } from '../constants/FriendsData'; // Update this path
+import { friendsData, Friend } from '../constants/FriendsData'; // Update this path'
+import SafeLayout from './SafeLayout';
 
 interface FriendItemProps {
   initials: string;
@@ -12,7 +13,7 @@ interface FriendItemProps {
 }
 
 const FriendItem: React.FC<FriendItemProps> = ({ initials, name, messages, hasStreak, avatar }) => (
-  <SafeAreaView style={styles.friendItem}>
+  <SafeLayout style={styles.friendItem}>
     <View style={styles.avatarContainer}>
       {hasStreak && <Text style={styles.fireEmoji}>🔥</Text>}
       {avatar ? (
@@ -27,7 +28,7 @@ const FriendItem: React.FC<FriendItemProps> = ({ initials, name, messages, hasSt
       <Text style={styles.name}>{name}</Text>
       <Text style={styles.messageCount}>{messages} messages</Text>
     </View>
-  </SafeAreaView>
+  </SafeLayout>
 );
 
 const FriendsList: React.FC = () => {

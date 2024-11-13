@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, StyleSheet, SafeAreaView, Image } from 'react-native';
+import SafeLayout from './SafeLayout';
 
 const ProgressBar = ({ progress }: { progress: number }) => {
   return (
-    <SafeAreaView style={styles.progress_bar_container}>
+    <SafeLayout style={styles.progress_bar_container}>
       <View style={styles.progress_bar_image_container}>
         <Image
           source={require('../assets/images/yu_progress_bar.png')}
@@ -29,7 +30,7 @@ const ProgressBar = ({ progress }: { progress: number }) => {
       <View style={styles.progress_bar}>
         <View style={[styles.progress, { width: `${progress}%` }]} />
       </View>
-    </SafeAreaView>   
+    </SafeLayout>   
   );
 };
 

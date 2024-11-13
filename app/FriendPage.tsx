@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, Image, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
 import Dropdown from '../components/DropdownMenu';
-import FooterNavigation from '../components/FooterNavigation';
+import FooterNavigation from '../components/FooterNavigationIOS';
 import HeaderButtons from '@/components/HeaderButtons';
 import { Link } from "expo-router";
 import { friendsData } from '../constants/FriendsData'; // Update this path
+import SafeLayout from '@/components/SafeLayout';
+import ScrollSafeLayout from '@/components/ScrollSafeLayout';
 
 
 interface Friend {
@@ -137,7 +139,7 @@ const FriendPage: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeLayout style={styles.container}>
       <HeaderButtons 
         onPressFindFriends={() => console.log('Find Friends pressed')}
         onPressUpgrade={() => console.log('Upgrade pressed')}
@@ -155,7 +157,7 @@ const FriendPage: React.FC = () => {
             sortFriends(value);
           }}
         />
-        <ScrollView style={styles.scrollView}>
+        <ScrollSafeLayout style={styles.scrollView}>
           {friends.map((friend) => (
             <FriendItem
               key={friend.id}
@@ -163,10 +165,10 @@ const FriendPage: React.FC = () => {
               primaryLabel={primaryDataLabel}
             />
           ))}
-        </ScrollView>
+        </ScrollSafeLayout>
       </View>
       <FooterNavigation />
-    </SafeAreaView>
+    </SafeLayout>
   );
 };
 

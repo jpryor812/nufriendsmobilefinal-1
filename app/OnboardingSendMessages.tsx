@@ -20,6 +20,7 @@ import AnimatedYuButton from '@/components/AnimatedYuButton';
 import MessageContainer from '@/components/MessageContainer';
 import BigYuOnboardingPlusContinue from '@/components/BigYuOnboardingPlusContinue';
 import {router} from 'expo-router';
+import SafeLayout from '@/components/SafeLayout';
 
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -225,7 +226,7 @@ const renderInputToolbar = (props: any) => {
 };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeLayout style={styles.container}>
       <ImageBackground
         style={styles.background}
       >
@@ -303,7 +304,7 @@ const renderInputToolbar = (props: any) => {
             )}
 
       </ImageBackground>
-    </SafeAreaView>
+    </SafeLayout>
   );
 };
 

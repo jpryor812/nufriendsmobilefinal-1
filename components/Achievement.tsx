@@ -1,15 +1,14 @@
-// Achievement.tsx
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ImageSourcePropType } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ImageSourcePropType, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 interface AchievementProps {
   title: string;
-  emoji?: string;  // Make emoji optional
+  emoji?: string;
   imageSource?: ImageSourcePropType;
   isUnlocked: boolean;
   size?: number;
-  onPress?: () => void;  // Add thisß
+  onPress?: () => void;
 }
 
 const Achievement: React.FC<AchievementProps> = ({ 
@@ -17,13 +16,12 @@ const Achievement: React.FC<AchievementProps> = ({
   emoji, 
   imageSource,
   isUnlocked, 
-  size =110,
+  size = 110,
   onPress
 }) => {
-
   const gradientColors = isUnlocked 
-  ? ['#FFE875', '#FEC417']  // Gold to Orange for unlocked
-  : ['#E3E3E3', '#A9A9A9'];  // Light gray to Dark gray for locked
+    ? ['#FFE875', '#FEC417']
+    : ['#E3E3E3', '#A9A9A9'];
   
   return (
     <TouchableOpacity onPress={onPress}>
@@ -71,17 +69,18 @@ const Achievement: React.FC<AchievementProps> = ({
             </View>
           </LinearGradient>
 
-          {/* Softened triangle bottom */}
-          <View style={[
-            styles.triangleBottom,
-            { 
-              borderLeftWidth: size / 2,
-              borderRightWidth: size / 2,
-              borderTopWidth: size / 4,
-              borderTopColor: isUnlocked ? '#FEC417' : '#A9A9A9',
-              borderRadius: 8,
-            }
-          ]} />
+          {/* New triangle implementation */}
+          <View style={[styles.triangleContainer, { width: size }]}>
+            <View style={[
+              styles.triangle,
+              { 
+                borderTopColor: isUnlocked ? '#FEC417' : '#A9A9A9',
+                borderLeftWidth: size / 2,
+                borderRightWidth: size / 2,
+                borderTopWidth: size / 4,
+              }
+            ]} />
+          </View>
         </View>
       </View>
     </TouchableOpacity>
@@ -91,56 +90,71 @@ const Achievement: React.FC<AchievementProps> = ({
 const styles = StyleSheet.create({
   achievementContainer: {
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 30,
+    marginHorizontal: 10,
   },
   badgeWrapper: {
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+      },
+      android: {
+        elevation: 5,
+      },
+    }),
   },
   achievementBadgeTop: {
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15,
-    borderBottomLeftRadius: 5,
-    borderBottomRightRadius: 5,
+    borderBottomLeftRadius: 1,
+    borderBottomRightRadius: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 2,
   },
   contentContainer: {
     flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 15, // Add some padding to push emoji up and text down
+    paddingVertical: 12,
   },
-  triangleBottom: {
+  triangleContainer: {
+    height: 0,
+    alignItems: 'center',
+    marginTop: -1,
+    ...Platform.select({
+      android: {
+        paddingTop: 1, // Fix for Android rendering
+      }
+    }),
+  },
+  triangle: {
     width: 0,
     height: 0,
     backgroundColor: 'transparent',
-    borderStyle: 'solid',
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
-    marginTop: -1,
-    overflow: 'hidden',
+    borderTopColor: '#FEC417',
   },
   emoji: {
     fontSize: 40,
-    marginBottom: 10, // Space between emoji and text
+    marginBottom: 10,
   },
   achievementTitle: {
     textAlign: 'center',
-    fontSize: 16, // Made slightly smaller to fit better
+    fontSize: 16,
     color: '#fff',
     fontWeight: '700',
-    paddingHorizontal: 5, // Added padding for text wrapping
+    paddingHorizontal: 5,
   },
-  badgeImage: {
-  },
+  badgeImage: {},
 });
 
 export default Achievement;

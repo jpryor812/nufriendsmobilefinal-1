@@ -3,10 +3,11 @@ import { View, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import BigYuSearching from "@/components/BigYuSearching";
-import FooterNavigation from "@/components/FooterNavigation";
+import FooterNavigation from "@/components/FooterNavigationIOS";
 import SearchingBubble from "@/components/SearchingBubble";
 import {friendsData} from '../constants/FriendsData';
 import FoundFriendProfile from "@/components/FoundFriendProfile";
+import SafeLayout from "@/components/SafeLayout";
 
 interface Friend {
     id: number;
@@ -128,14 +129,14 @@ interface Friend {
   
     if (searching) {
       return (
-        <SafeAreaView style={styles.container}>
+        <SafeLayout style={styles.container}>
           <View style={styles.contentContainer}>
             <BigYuSearching text="Hang tight! I'll find your new friend as soon as possible!" />
             <SearchingBubble />
             <Text style={styles.WaitTime}>Estimated Wait Time: 10 seconds</Text>
           </View>
           <FooterNavigation />
-        </SafeAreaView>
+        </SafeLayout>
       );
     }
   
@@ -153,7 +154,7 @@ interface Friend {
     }
   
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeLayout style={styles.container}>
           <View style={styles.contentContainer}>
           {selectedFriend ? (
         <>
@@ -164,7 +165,7 @@ interface Friend {
       )}
           </View>
           <FooterNavigation />
-        </SafeAreaView>
+        </SafeLayout>
       );
   };
 

@@ -7,8 +7,11 @@ import MessagesChart from '../components/MessagesChart';
 import ActiveStreaks from '../components/ActiveStreaks';
 import StatsBar from '../components/UserStatsContainer';
 import AchievementsSection from '@/components/AchievementsSection';
-import FooterNavigation from '../components/FooterNavigation';
+import FooterNavigation from '../components/FooterNavigationIOS';
+import FooterNavigationAndroid from '@/components/FooterNavigationAndroid';
 import BadgesSection from '../components/BadgesSection';
+import SafeLayout from '@/components/SafeLayout';
+import ScrollSafeLayout from '@/components/ScrollSafeLayout';
 
 const ProfilePage = () => {
 
@@ -20,8 +23,12 @@ const ProfilePage = () => {
     console.log('Upgrade');
   };
 
+  const FooterNavigation = () => {
+    return Platform.OS === 'ios' ? <FooterNavigation /> : <FooterNavigationAndroid />;
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeLayout style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <HeaderButtons 
           onPressFindFriends={handleFindFriends}
@@ -37,12 +44,12 @@ const ProfilePage = () => {
         <View style={styles.chartContainer}>
           <MessagesChart />
         </View>
-        <StatsBar />
+        <StatsBar currentWeek={0} />
         <ActiveStreaks />
         <BadgesSection /> 
       </ScrollView>
       <FooterNavigation />
-    </SafeAreaView>
+    </SafeLayout>
   );
 };
 
@@ -53,6 +60,7 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     flexGrow: 1,
+    backgroundColor: '#F0FCFE', // Match your app's background color
   },
   friendProfileContainer: {
     marginTop: 5,

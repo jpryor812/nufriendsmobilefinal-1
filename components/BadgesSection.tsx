@@ -3,11 +3,12 @@ import React, {useMemo, useState} from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
 import Achievement from './Achievement';
 import CurvedConnector from './CurvedConnector';
-import FooterNavigation from '@/components/FooterNavigation';
+import FooterNavigation from '@/components/FooterNavigationIOS';
 import { Achievement as AchievementType, getBadgesByLevel } from '../constants/Badges';
 import CloudOverlay from './CloudOverlay';
 import BadgeModal from './BadgeModal';
 import Card from './Card';
+import ScrollSafeLayout from './ScrollSafeLayout';
 
 
 
@@ -139,7 +140,7 @@ const BadgesSection = () => {
 
   return (
     <Card style={styles.container}>
-      <ScrollView style={styles.scrollContainer}>
+      <ScrollSafeLayout style={styles.scrollContainer}>
         <Text style={styles.header}>Badges</Text>
         <Text style={styles.levelHeader}>Onboarding</Text>
         <View style={styles.headerBadgeContainer}>
@@ -155,7 +156,7 @@ const BadgesSection = () => {
         {renderBadgeLevel(levelTwoBadges, 2)}
         {renderBadgeLevel(levelThreeBadges, 3)}
         {renderBadgeLevel(levelFourBadges, 4)}
-      </ScrollView>
+      </ScrollSafeLayout>
       <BadgeModal
         visible={isModalVisible}
         badge={selectedBadge}

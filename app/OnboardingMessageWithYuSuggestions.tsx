@@ -18,6 +18,7 @@ import FriendProfileMessageHeaderOnboarding from '@/components/FriendProfileMess
 import YuSuggestionsOnboarding from '@/components/YuSuggestionsOnboarding';
 import AnimatedYuButtonOnboarding from '@/components/AnimatedYuButtonOnboarding';
 import BigYuOnboardingSuggestionHelp from '@/components/BigYuOnboardingSuggestionHelp';
+import SafeLayout from '@/components/SafeLayout';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
@@ -134,7 +135,7 @@ const renderInputToolbar = (props: any) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeLayout style={styles.container}>
       <ImageBackground
         style={styles.background}
       >
@@ -202,7 +203,7 @@ const renderInputToolbar = (props: any) => {
                 </Animated.View>
                 )}
       </ImageBackground>
-    </SafeAreaView>
+    </SafeLayout>
   );
 };
 

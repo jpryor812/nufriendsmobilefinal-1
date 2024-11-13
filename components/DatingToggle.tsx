@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import SafeLayout from './SafeLayout';
 
 const DatingToggle = () => {
   const [isOpenToDating, setIsOpenToDating] = useState(false);
@@ -9,7 +10,7 @@ const DatingToggle = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeLayout style={styles.container}>
       <Text style={styles.label}>Open to Dating:</Text>
       <TouchableOpacity 
         style={styles.toggleContainer} 
@@ -28,7 +29,7 @@ const DatingToggle = () => {
           No
         </Text>
       </TouchableOpacity>
-    </SafeAreaView>
+    </SafeLayout>
   );
 };
 

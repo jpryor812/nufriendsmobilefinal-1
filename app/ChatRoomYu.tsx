@@ -15,6 +15,7 @@ import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context'
 import messageDataYu from '@/assets/messagesYu.json';
 import { Link } from 'expo-router';
 import FriendProfileMessageHeader from '@/components/FriendProfileMessageHeader';
+import SafeLayout from '@/components/SafeLayout';
 
 const ChatRoomYu = () => {
   const [messages, setMessages] = useState<IMessage[]>([]);
@@ -73,13 +74,7 @@ const ChatRoomYu = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }}>
-      <ImageBackground
-        style={{
-          flex: 1,
-          backgroundColor: Colors.background,
-        }}
-      >
+    <SafeLayout style={{ flex: 1, backgroundColor: Colors.background }}>
         <FriendProfileMessageHeader 
           imageSource={require('../assets/images/yu_progress_bar.png')} // or whatever your image path is
           name="Yu :)" // or whatever name you want to display
@@ -132,8 +127,7 @@ const ChatRoomYu = () => {
             </View>
           )}
         />
-      </ImageBackground>
-    </SafeAreaView>
+    </SafeLayout>
   );
 };
 

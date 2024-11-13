@@ -19,6 +19,7 @@ export default function Card({ children, style = {} }: CardProps) {
         width: '94%',
         alignSelf: 'center',
         marginTop: 10,
+        marginBottom: 5,
         ...style,
       }}
     >

@@ -9,11 +9,12 @@ import CountryDropdown from '../components/CountryDropdown';
 import GenderDropdown from '../components/GenderDropdown';
 import FindMoreFriendsButton from '@/components/FindMoreFriendsButton';
 import FindFriendsButton from '@/components/FindMyFriendsButton';
-import FooterNavigation from '@/components/FooterNavigation';
+import FooterNavigation from '@/components/FooterNavigationIOS';
 import EmailInput from '@/components/EmailInput';
 import SmallYuOnboarding from '@/components/SmallYuOnboarding';
 import ProgressBar from '@/components/ProgressBar';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import SafeLayout from '@/components/SafeLayout';
 
 const OnboardingBasicQuestions = () => {
     const router = useRouter();
@@ -66,7 +67,7 @@ const OnboardingBasicQuestions = () => {
       };
   
       return (
-        <SafeAreaView style={styles.container}>
+        <SafeLayout style={styles.container}>
           <ProgressBar progress={30} />
           <View style={styles.contentContainer}>
             <KeyboardAwareScrollView
@@ -106,7 +107,7 @@ const OnboardingBasicQuestions = () => {
               </TouchableOpacity>
             </View>
           </View>
-        </SafeAreaView>
+        </SafeLayout>
     );
 }
 

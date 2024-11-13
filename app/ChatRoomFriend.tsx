@@ -17,6 +17,7 @@ import { useLocalSearchParams } from 'expo-router';
 import FriendProfileMessageHeader from '@/components/FriendProfileMessageHeader';
 import YuSuggestions from '@/components/YuSuggestions';
 import AnimatedYuButton from '@/components/AnimatedYuButton';
+import SafeLayout from '@/components/SafeLayout';
 
 const ChatRoomFriend = () => {
   const [text, setText] = useState('');
@@ -109,10 +110,7 @@ useEffect(() => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ImageBackground
-        style={styles.background}
-      >
+    <SafeLayout style={styles.container}>
         <FriendProfileMessageHeader 
           imageSource={getAvatarImage()}
           name={username as string}
@@ -159,8 +157,7 @@ useEffect(() => {
             </View>
           )}
         />
-      </ImageBackground>
-    </SafeAreaView>
+    </SafeLayout>
   );
 };
 

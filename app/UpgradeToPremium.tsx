@@ -9,6 +9,7 @@ import UpgradeToPremiumButton from '@/components/UpgradeToPremiumButton';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../assets/Colors'; // Ensure this path is correct
 import { useRouter } from 'expo-router';
+import SafeLayout from '@/components/SafeLayout';
 
 const UpgradeToPremium = () => {
   const router = useRouter();
@@ -70,7 +71,7 @@ const UpgradeToPremium = () => {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>  
+    <SafeLayout style={styles.container}>  
           <View style={styles.headerContainer}>
       <TouchableOpacity 
         style={styles.backButton}
@@ -106,7 +107,7 @@ const UpgradeToPremium = () => {
       </View>
       <PremiumPrice billingPeriod={billingPeriod} />
       <UpgradeToPremiumButton />
-    </SafeAreaView>
+    </SafeLayout>
   );
 };
 

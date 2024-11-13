@@ -109,13 +109,13 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.nufriendsmobilefinal1"
+    namespace 'com.jpryor812.nufriendsmobilefinal1'
     defaultConfig {
-        applicationId "com.nufriendsmobilefinal1"
+        applicationId 'com.jpryor812.nufriendsmobilefinal1'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
     }
     signingConfigs {
         debug {

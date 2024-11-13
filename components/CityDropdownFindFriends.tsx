@@ -10,6 +10,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { citiesByState } from './CitiesByState';
+import ScrollSafeLayout from './ScrollSafeLayout';
 
 interface CityDropdownProps {
     onCitiesChange?: (cities: string[]) => void;
@@ -107,7 +108,7 @@ interface CityDropdownProps {
       {selectedCities.length > 0 && (
         <View style={styles.selectedCitiesContainer}>
           <Text style={styles.selectedCitiesSubTitle}>Side scroll to view all selections</Text>
-          <ScrollView 
+          <ScrollSafeLayout 
             horizontal
             showsHorizontalScrollIndicator={true}
             contentContainerStyle={styles.scrollViewContent}
@@ -124,7 +125,7 @@ interface CityDropdownProps {
                 </TouchableOpacity>
               </View>
             ))}
-          </ScrollView>
+          </ScrollSafeLayout>
         </View>
       )}
     </View>

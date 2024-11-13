@@ -3,6 +3,9 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, ScrollVi
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { friendsData } from '../constants/FriendsData';
 import FriendBadgeSection from '../components/FriendBadgeSection';
+import SafeLayout from '@/components/SafeLayout';
+import ScrollSafeLayout from '@/components/ScrollSafeLayout';
+import { Ionicons } from '@expo/vector-icons';
 
 const RelationshipTracker = () => {
   const params = useLocalSearchParams();
@@ -123,12 +126,17 @@ const RelationshipTracker = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeLayout style={styles.safeArea}>
       <TouchableOpacity 
         onPress={() => router.back()}
         style={styles.backButton}
       >
-        <Text style={styles.backButtonText}>← Back to Friends</Text>
+        <Ionicons 
+  name="chevron-back" 
+  size={24} 
+  color="#42ade2" 
+  style={styles.backButton}
+/>
       </TouchableOpacity>
 
       <View style={styles.container}>
@@ -240,12 +248,12 @@ const RelationshipTracker = () => {
       </View>
 
       <Text style={styles.badgesHeader}>Badges</Text>
-      <ScrollView style={styles.scrollContainer}>
+      <ScrollView>
       <FriendBadgeSection />
       </ScrollView>
               </View>
     </View>
-    </SafeAreaView>
+    </SafeLayout>
   );
 };
 
@@ -255,9 +263,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f0f8ff',
   },
-
   backButton: {
-    padding: 10,
+    marginLeft: 10,
   },
   backButtonText: {
     color: '#3498db',
@@ -286,6 +293,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
+    marginTop: -35,
   },
   pcText: {
     color: '#3498db',

@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { View, ScrollView, Text, StyleSheet, Animated, Keyboard, Platform, Dimensions } from 'react-native';
+import ScrollSafeLayout from './ScrollSafeLayout';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const DEFAULT_HEIGHT = SCREEN_HEIGHT * 0.7; // 70% of screen height
@@ -87,7 +88,7 @@ const MessageContainer: React.FC<MessageContainerProps> = ({ messages = [], styl
 
   return (
     <Animated.View style={[styles.container, style, { height: containerHeight }]}>
-      <ScrollView 
+      <ScrollSafeLayout 
         ref={scrollViewRef}
         contentContainerStyle={styles.scrollContent}
         onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
@@ -103,7 +104,7 @@ const MessageContainer: React.FC<MessageContainerProps> = ({ messages = [], styl
             <Text style={styles.emptyText}>No messages yet</Text>
           </View>
         )}
-      </ScrollView>
+      </ScrollSafeLayout>
     </Animated.View>
   );
 };

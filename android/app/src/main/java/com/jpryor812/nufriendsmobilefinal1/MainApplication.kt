@@ -1,4 +1,4 @@
-package com.nufriendsmobilefinal1
+package com.jpryor812.nufriendsmobilefinal1
 
 import android.app.Application
 import android.content.res.Configuration
