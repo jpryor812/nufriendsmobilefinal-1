@@ -1,6 +1,5 @@
-// FooterNavigationAndroid.tsx
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, Dimensions } from 'react-native';
 import { Link, usePathname } from "expo-router";
 
 const FooterNavigationAndroid = () => {
@@ -10,10 +9,12 @@ const FooterNavigationAndroid = () => {
     <View style={styles.footer}>
       <View style={styles.navItem}>
         <Link href={"/HomePage"} style={styles.footerItem}>
-          <Image 
-            source={require('../assets/images/house_emoji.png')} 
-            style={styles.icon} 
-          />
+          <View style={styles.iconContainer}>
+            <Image 
+              source={require('../assets/images/house_emoji.png')} 
+              style={styles.icon} 
+            />
+          </View>
         </Link>
         <View style={[
           styles.indicatorContainer,
@@ -28,10 +29,12 @@ const FooterNavigationAndroid = () => {
 
       <View style={styles.navItem}>
         <Link href={"/ProfilePage"} style={styles.footerItem}>
-          <Image 
-            source={require('../assets/images/profile_picture.jpg')} 
-            style={styles.profileicon} 
-          />
+          <View style={styles.iconContainer}>
+            <Image 
+              source={require('../assets/images/profile_picture.jpg')} 
+              style={styles.profileicon} 
+            />
+          </View>
         </Link>
         <View style={[
           styles.indicatorContainer,
@@ -46,10 +49,12 @@ const FooterNavigationAndroid = () => {
 
       <View style={styles.navItem}>
         <Link href={"/FriendPage"} style={styles.footerItem}>
-          <Image 
-            source={require('../assets/images/hand_progress_bar.png')} 
-            style={styles.icon} 
-          />
+          <View style={styles.iconContainer}>
+            <Image 
+              source={require('../assets/images/hand_progress_bar.png')} 
+              style={styles.icon} 
+            />
+          </View>
         </Link>
         <View style={[
           styles.indicatorContainer,
@@ -64,10 +69,12 @@ const FooterNavigationAndroid = () => {
 
       <View style={styles.navItem}>
         <Link href={"/ChatRoomYu"} style={styles.footerItem}>
-          <Image 
-            source={require('../assets/images/yu_progress_bar.png')} 
-            style={styles.icon} 
-          />
+          <View style={styles.iconContainer}>
+            <Image 
+              source={require('../assets/images/yu_progress_bar.png')} 
+              style={styles.icon} 
+            />
+          </View>
         </Link>
         <View style={[
           styles.indicatorContainer,
@@ -83,46 +90,53 @@ const FooterNavigationAndroid = () => {
   );
 };
 
+const ICON_SIZE = 36; // Base icon size
 const styles = StyleSheet.create({
-  footer: {
+footer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-evenly', // Changed from space-around to space-evenly
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(235, 247, 254, 0.8)',
-    paddingVertical: 12,
-    height: 80,
-  },
-  navItem: {
+    backgroundColor: '#F0FCFE',
+    borderTopWidth: 2,
+    borderTopColor: '#e9e9e9',
+    paddingBottom: 16,
+    paddingTop: 18,
+    height: 60,
+    },
+    navItem: {
+    alignItems: 'center', // Centers children horizontally
+    justifyContent: 'center',
+    height: '100%',
+    width: '25%', // Each item takes exactly 1/4 of the space
+    },
+    footerItem: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 65,
-  },
-  footerItem: {
+    },
+    iconContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 8,
-  },
+    marginBottom: 4,
+    },
   icon: {
-    width: 40,  // Larger size for Android
-    height: 40,
+    width: ICON_SIZE,
+    height: ICON_SIZE,
     resizeMode: 'contain',
   },
   profileicon: {
-    width: 40,  // Larger size for Android
-    height: 40,
-    borderRadius: 20,
-    resizeMode: 'contain',
+    width: ICON_SIZE,
+    height: ICON_SIZE,
+    borderRadius: ICON_SIZE / 2,
+    resizeMode: 'cover', // Changed from 'contain' for profile picture
   },
   indicatorContainer: {
     width: 30,
     height: 3,
-    marginTop: 4,
-    overflow: 'hidden',
+    marginTop: 20,
+    marginBottom: -10,
   },
   activeIndicatorContainer: {
-    elevation: 2,
+    elevation: 1,
     backgroundColor: 'rgba(33, 150, 243, 0.7)',
   },
   indicator: {

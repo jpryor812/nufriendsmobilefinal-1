@@ -47,7 +47,6 @@ const MessagingFriend = () => {
         onSendMessage={handleSendMessage}
         onHeightChange={setInputHeight}
       />
-      <FooterNavigation />
     </SafeLayout>
   );
 };

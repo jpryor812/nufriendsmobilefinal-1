@@ -17,6 +17,7 @@ import { Link } from 'expo-router';
 import FriendProfileMessageHeader from '@/components/FriendProfileMessageHeader';
 import SafeLayout from '@/components/SafeLayout';
 
+
 const ChatRoomYu = () => {
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [text, setText] = useState('');

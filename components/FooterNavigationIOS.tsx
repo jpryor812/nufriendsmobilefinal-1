@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Link, usePathname } from "expo-router";
 
 const FooterNavigationIOS = () => {
@@ -75,21 +75,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    borderTopWidth: Platform.select({
-      ios: 2,
-      android: 2,
-    }),
-    borderTopColor: Platform.select({
-      ios: '#EBF7FE',
-      android: 'rgba(235, 247, 254, 0.8)', // Slightly more transparent for Android
-    }),
-    backgroundColor: '#F0FCFE',
-    ...Platform.select({
-      android: {
-        paddingBottom: 8, // Add some padding at the bottom for Android
-        paddingTop: 4,    // Slightly less padding at top for Android
-      }
-    }),
+    borderTopWidth: 2,
+    borderTopColor: '#EBF7FE',
   },
   navItem: {
     alignItems: 'center',
@@ -103,45 +90,33 @@ const styles = StyleSheet.create({
   icon: {
     width: 30,
     height: 30,
-    marginBottom: Platform.select({
-      ios: -5,
-      android: 0, // Remove negative margin for Android
-    }),
+
+
   },
   profileicon: {
     width: 30,
     height: 30,
     borderRadius: 50,
-    marginBottom: Platform.select({
-      ios: -5,
-      android: 0, // Remove negative margin for Android
-    }),
+
+
   },
   Yuicon: {
     width: 34,
     height: 34,
-    marginBottom: Platform.select({
-      ios: -5,
-      android: 0, // Remove negative margin for Android
-    }),
+
   },
   indicatorContainer: {
-    width: 30,
-    height: 3,
+    width: 30, // Match icon width
+    height: 3,  // Height of the line
     marginTop: 5,
-    shadowColor: 'transparent',
+    shadowColor: 'transparent', // No shadow when inactive
     shadowOffset: {
       width: 0,
       height: 0,
     },
     shadowOpacity: 0,
     shadowRadius: 0,
-    ...Platform.select({
-      android: {
-        elevation: 0,
-        overflow: 'hidden', // Prevent shadow bleeding on Android
-      }
-    }),
+    elevation: 0,
   },
   activeIndicatorContainer: {
     shadowColor: '#2196F3',
@@ -151,21 +126,16 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.3,
     shadowRadius: 2,
-    ...Platform.select({
-      android: {
-        elevation: 2,
-        backgroundColor: 'rgba(33, 150, 243, 0.7)', // Match the indicator color
-      }
-    }),
+    elevation: 3, // for Android
   },
   indicator: {
     width: '100%',
     height: '100%',
     borderRadius: 1.5,
-    backgroundColor: '#F0FCFE',
+    backgroundColor: '#F0FCFE', // Same as background when inactive
   },
   activeIndicator: {
-    backgroundColor: 'rgba(33, 150, 243, 0.7)',
+    backgroundColor: 'rgba(33, 150, 243, 0.7)', // Softer blue with opacity
   },
 });
 

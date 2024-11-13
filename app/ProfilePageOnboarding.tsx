@@ -11,8 +11,8 @@ import FooterNavigation from '../components/FooterNavigationIOS';
 import SearchingDots from '@/components/SearchingDots';
 import MiniYuOnboarding from '@/components/MiniYuOnboarding';
 import { router } from 'expo-router';
-import SafeLayout from '@/components/SafeLayout';
 import ScrollSafeLayout from '@/components/ScrollSafeLayout';
+import SafeLayout from '@/components/SafeLayout';
 
 const { height, width } = Dimensions.get('window');
 
@@ -145,7 +145,7 @@ const ProfilePageOnboarding = () => {
           <StatsBar currentWeek={0} />
           <ActiveStreaks />
         </ScrollSafeLayout>
-        <FooterNavigation />
+        
         
         {showPointer && (
           <Animated.View

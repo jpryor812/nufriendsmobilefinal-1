@@ -32,7 +32,6 @@ const HomePage = () => {
       <View style={styles.messageContainer}>
         <MessageList />
       </View>
-      <FooterNavigation />
     </SafeLayout>
   );
 };

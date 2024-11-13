@@ -3,9 +3,10 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, ScrollVi
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { friendsData } from '../constants/FriendsData';
 import FriendBadgeSection from '../components/FriendBadgeSection';
-import SafeLayout from '@/components/SafeLayout';
 import ScrollSafeLayout from '@/components/ScrollSafeLayout';
 import { Ionicons } from '@expo/vector-icons';
+import Colors from '@/assets/Colors';
+import SafeLayout from '@/components/SafeLayout';
 
 const RelationshipTracker = () => {
   const params = useLocalSearchParams();
@@ -131,12 +132,7 @@ const RelationshipTracker = () => {
         onPress={() => router.back()}
         style={styles.backButton}
       >
-        <Ionicons 
-  name="chevron-back" 
-  size={24} 
-  color="#42ade2" 
-  style={styles.backButton}
-/>
+        <Ionicons name="arrow-back" size={24} color={Colors.primary} />
       </TouchableOpacity>
 
       <View style={styles.container}>

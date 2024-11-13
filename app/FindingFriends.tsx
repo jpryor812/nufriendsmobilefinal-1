@@ -3,11 +3,12 @@ import { View, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import BigYuSearching from "@/components/BigYuSearching";
-import FooterNavigation from "@/components/FooterNavigationIOS";
+import FooterNavigation from "@/components/FooterNavigation";
 import SearchingBubble from "@/components/SearchingBubble";
 import {friendsData} from '../constants/FriendsData';
 import FoundFriendProfile from "@/components/FoundFriendProfile";
-import SafeLayout from "@/components/SafeLayout";
+import SafeLayout from '@/components/SafeLayout';
+
 
 interface Friend {
     id: number;
@@ -135,21 +136,19 @@ interface Friend {
             <SearchingBubble />
             <Text style={styles.WaitTime}>Estimated Wait Time: 10 seconds</Text>
           </View>
-          <FooterNavigation />
         </SafeLayout>
       );
     }
   
     if (!selectedFriend) {
       return (
-        <SafeAreaView style={styles.container}>
+        <SafeLayout style={styles.container}>
           <View style={styles.contentContainer}>
             <Text style={styles.noMatchText}>
               No friends found matching your criteria. Try broadening your search!
             </Text>
           </View>
-          <FooterNavigation />
-        </SafeAreaView>
+        </SafeLayout>
       );
     }
   
@@ -164,7 +163,6 @@ interface Friend {
         <Text>Debug: No friend selected</Text>
       )}
           </View>
-          <FooterNavigation />
         </SafeLayout>
       );
   };

@@ -76,7 +76,6 @@ const MessagingYu = () => {
         onSendMessage={handleSendMessage}
         onHeightChange={setInputHeight}
       />
-      <FooterNavigation />
     </SafeLayout>
   );
 };

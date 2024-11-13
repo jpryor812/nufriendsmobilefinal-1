@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
+import { View, StyleSheet, SafeAreaView, ScrollView, Platform } from 'react-native';
 import HeaderButtons from '../components/HeaderButtons';
 import FriendProfileVertical from '../components/FriendProfileVertical';
 import DatingToggle from '../components/DatingToggle';
@@ -7,11 +7,11 @@ import MessagesChart from '../components/MessagesChart';
 import ActiveStreaks from '../components/ActiveStreaks';
 import StatsBar from '../components/UserStatsContainer';
 import AchievementsSection from '@/components/AchievementsSection';
-import FooterNavigation from '../components/FooterNavigationIOS';
+import FooterNavigation from '../components/FooterNavigation';
 import FooterNavigationAndroid from '@/components/FooterNavigationAndroid';
 import BadgesSection from '../components/BadgesSection';
-import SafeLayout from '@/components/SafeLayout';
 import ScrollSafeLayout from '@/components/ScrollSafeLayout';
+import SafeLayout from '@/components/SafeLayout';
 
 const ProfilePage = () => {
 
@@ -23,9 +23,6 @@ const ProfilePage = () => {
     console.log('Upgrade');
   };
 
-  const FooterNavigation = () => {
-    return Platform.OS === 'ios' ? <FooterNavigation /> : <FooterNavigationAndroid />;
-  };
 
   return (
     <SafeLayout style={styles.container}>
@@ -48,7 +45,6 @@ const ProfilePage = () => {
         <ActiveStreaks />
         <BadgesSection /> 
       </ScrollView>
-      <FooterNavigation />
     </SafeLayout>
   );
 };

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, Image, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
 import Dropdown from '../components/DropdownMenu';
-import FooterNavigation from '../components/FooterNavigationIOS';
+import FooterNavigation from '../components/FooterNavigation';
 import HeaderButtons from '@/components/HeaderButtons';
 import { Link } from "expo-router";
 import { friendsData } from '../constants/FriendsData'; // Update this path
-import SafeLayout from '@/components/SafeLayout';
 import ScrollSafeLayout from '@/components/ScrollSafeLayout';
+import SafeLayout from '@/components/SafeLayout';
 
 
 interface Friend {
@@ -167,7 +167,6 @@ const FriendPage: React.FC = () => {
           ))}
         </ScrollSafeLayout>
       </View>
-      <FooterNavigation />
     </SafeLayout>
   );
 };

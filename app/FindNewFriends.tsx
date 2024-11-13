@@ -8,7 +8,7 @@ import CountryDropdown from '../components/CountryDropdown';
 import GenderDropdown from '../components/GenderDropdown';
 import FindMoreFriendsButton from '@/components/FindMoreFriendsButton';
 import FindFriendsButton from '@/components/FindMyFriendsButton';
-import FooterNavigation from '@/components/FooterNavigationIOS';
+import FooterNavigation from '@/components/FooterNavigation';
 import SafeLayout from '@/components/SafeLayout';
 
 const FindNewFriends = () => {
@@ -71,9 +71,6 @@ const FindNewFriends = () => {
         </View>
       </View>
       </ScrollView>
-      <View style={styles.footerContainer}>
-      <FooterNavigation />
-      </View>
     </SafeLayout>
   );
 };
@@ -134,10 +131,6 @@ const styles = StyleSheet.create({
   backButtonText: {
     color: '#3498db',
     fontSize: 16,
-  },
-  footerContainer: {
-    width: '100%',
-    marginTop: 'auto',
   },
 });
 

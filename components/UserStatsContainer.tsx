@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
 import { messageData } from './MessageData';
-import SafeLayout from './SafeLayout';
 import Card from './Card';
 
 interface StatsBarProps {

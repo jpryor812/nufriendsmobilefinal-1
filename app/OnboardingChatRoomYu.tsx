@@ -22,7 +22,6 @@ import BigYuOnboardingPlusContinue from '@/components/BigYuOnboardingPlusContinu
 import {router} from 'expo-router';
 import SafeLayout from '@/components/SafeLayout';
 
-
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 const ChatRoomFriendOnboarding = () => {
