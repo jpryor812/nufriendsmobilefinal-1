@@ -175,13 +175,14 @@ container: {
   },
   NoCityText: {
     fontSize: 10,
-    marginTop: -10,
+    marginTop: -8,
     color: '#333',
     textAlign: 'center',
+    marginHorizontal: 22,
   },
   selectedCitiesContainer: {
     paddingHorizontal: 10,
-    paddingTop: 2,
+    paddingTop: 4,
     paddingBottom: 2,
     alignContent: 'center',
   },

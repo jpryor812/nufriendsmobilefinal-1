@@ -3,19 +3,20 @@ import { View, StyleSheet, Text } from 'react-native';
 import ProgressBar from '../components/ProgressBar';
 import BigYuOnboarding from '../components/BigYuOnboarding';
 import { Link } from 'expo-router';
+import SafeLayout from '@/components/SafeLayout';
 
 const OnboardingPostQuestions2 = () => (
-  <View style={styles.appContainer}>
+  <SafeLayout style={styles.appContainer}>
     <ProgressBar progress={82} />
     <BigYuOnboarding text="I'll start looking for your friends now!" />
     <View style={styles.link_container}>
       <Link href="/OnboardingStartSearching" style={styles.link}>
         <View style={styles.continue_button_container}>
-          <Text style={styles.continue_button_text}>Continue</Text>
+          <Text style={styles.continue_button_text}>Awesome!!</Text>
         </View>
       </Link>
     </View>
-  </View>
+  </SafeLayout>
 );
 
 const styles = StyleSheet.create({

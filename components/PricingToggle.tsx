@@ -50,7 +50,7 @@ const PricingToggle: React.FC<PricingToggleProps> = ({
         <Text style={styles.foundingMemberBonus}>*Founding Member Bonus!</Text>
         {billingPeriod === 'annual' && (
           <Text style={styles.promoText}>
-            *The first 1,000 annual premium users get TWO years of premium membership for the price of One!!
+            *The first 500 annual premium users get TWO years of premium membership for the price of one!!
           </Text>
         )}
       </View>

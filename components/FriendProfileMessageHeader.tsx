@@ -1,32 +1,47 @@
 import React from 'react';
 import { View, StyleSheet, Image, Text, TouchableOpacity, ImageSourcePropType } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/assets/Colors';
 
 interface FriendProfileMessageHeaderProps {
-  imageSource: ImageSourcePropType;
+  id: number;
   name: string;
+  avatar: any;
   onPress?: () => void;
 }
 
-const FriendProfileMessageHeader: React.FC<FriendProfileMessageHeaderProps> = ({ imageSource, name, onPress }) => {
+const FriendProfileMessageHeader: React.FC<FriendProfileMessageHeaderProps> = ({ 
+  id,
+  name, 
+  avatar,
+  onPress 
+}) => {
+  const router = useRouter();
+
+  const handleFriendPress = () => {
+      if (onPress) {
+          onPress();
+          return;
+      }
+
+      router.push({
+          pathname: '/RelationshipTracker',
+          params: { 
+              id: id
+          }
+      });
+  };
+
   return (
     <View style={styles.friend_profile_container}>
       <Link href="/HomePage" style={styles.backButton}>
         <Ionicons name="arrow-back" size={24} color={Colors.primary} />
       </Link>
-      {onPress ? (
-        <TouchableOpacity onPress={onPress} style={styles.friendContainer}>
-          <Image source={imageSource} style={styles.profilePicture} resizeMode="contain" />
-          <Text style={styles.profileNameText}>{name}</Text>
-        </TouchableOpacity>
-      ) : (
-        <View style={styles.friendContainer}>
-          <Image source={imageSource} style={styles.profilePicture} resizeMode="contain" />
-          <Text style={styles.profileNameText}>{name}</Text>
-        </View>
-      )}
+      <TouchableOpacity onPress={handleFriendPress} style={styles.friendContainer}>
+        <Image source={avatar} style={styles.profilePicture} resizeMode="contain" />
+        <Text style={styles.profileNameText}>{name}</Text>
+      </TouchableOpacity>
     </View>
   );
 };

@@ -1,13 +1,19 @@
 import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import ProgressBar from '../components/ProgressBar';
-import BigYuOnboarding from '../components/BigYuOnboarding';
+import BigYuOnboardingStatic from '../components/BigYuOnboardingStatic';
 import { Link } from 'expo-router';
+import SafeLayout from '@/components/SafeLayout';
 
 const OnboardingPage4 = () => (
-  <View style={styles.appContainer}>
-    <ProgressBar progress={20} />
-    <BigYuOnboarding text="I'm excited to help you find five new friends in just a few minutes, but first, let me explain how you can have the best experience possible in this community!" />
+  <SafeLayout style={styles.appContainer}>
+    <View style={styles.progressContainer}>
+      <ProgressBar progress={20} />
+    </View>
+    
+    <View style={styles.contentContainer}>
+    <BigYuOnboardingStatic text="I'm excited to help you find five new friends in just a few minutes, but first, let me explain how you can have the best experience possible in this community!" />
+    </View>
 
     <View style={styles.link_container}>
       <Link href="/OnboardingPage5" style={styles.link}>
@@ -16,28 +22,36 @@ const OnboardingPage4 = () => (
         </View>
       </Link>
     </View>
-  </View>
+  </SafeLayout>
 );
 
 const styles = StyleSheet.create({
   appContainer: {
     flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    marginTop: 0,
     backgroundColor: '#F0FCFE',
   },
+  progressContainer: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   link_container: {
+    width: '100%',
+    alignItems: 'center',
     marginBottom: '10%',
   },
   link: {
-    width: '100%',
+    width: 300,
     alignItems: 'center',
     justifyContent: 'center',
   },
   continue_button_container: {
     width: 300,
-    height: 50, // Fixed height for the button
+    height: 50,
     backgroundColor: '#6ECFFF',
     borderRadius: 20,
     alignItems: 'center',
@@ -48,7 +62,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFFFFF',
     textAlign: 'center',
-    textAlignVertical: 'center', // For Android
+    textAlignVertical: 'center',
   },
 });
 

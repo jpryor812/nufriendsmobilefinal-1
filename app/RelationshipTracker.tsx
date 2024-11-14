@@ -133,6 +133,7 @@ const RelationshipTracker = () => {
         style={styles.backButton}
       >
         <Ionicons name="arrow-back" size={24} color={Colors.primary} />
+        <Text style={styles.backButtonText}>Go Back</Text>
       </TouchableOpacity>
 
       <View style={styles.container}>
@@ -152,9 +153,7 @@ const RelationshipTracker = () => {
     onPress={() => router.push({
         pathname: '/ChatRoomFriend',
         params: {
-            userId: friend.id,
-            username: friend.name,
-            avatar: JSON.stringify(friend.avatar) // Need to stringify since we're parsing it back in ChatRoomFriend
+            id: friend.id.toString()  // Just pass the id, matching our pattern
         }
     })}
 >
@@ -242,11 +241,7 @@ const RelationshipTracker = () => {
           <Text style={styles.statText}>Mutual Friends: {friend.mutualFriends}</Text>
         </View>
       </View>
-
-      <Text style={styles.badgesHeader}>Badges ^</Text>
-      <ScrollView>
       <FriendBadgeSection />
-      </ScrollView>
               </View>
     </View>
     </SafeLayout>
@@ -260,18 +255,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f8ff',
   },
   backButton: {
+    flexDirection: 'row', // Add this to align icon and text horizontally
+    alignItems: 'center', // Add this to center items vertically
     marginLeft: 10,
+    marginTop: 4,
+    marginBottom: -4,
+    padding: 4, // Add some padding to increase touch area
   },
   backButtonText: {
-    color: '#3498db',
+    color: Colors.primary,
+    marginLeft: 4, // Add some space between icon and text
     fontSize: 16,
+    fontWeight: '500',
   },
   container: {
     backgroundColor: '#f0f8ff',
     borderRadius: 15,
-    padding: 15,
+    padding: 10,
     width: '100%',
-    maxWidth: 400,
+    maxWidth: 420,
   },
   header: {
     alignItems: 'flex-start',
@@ -413,13 +415,6 @@ const styles = StyleSheet.create({
   },
   trophyBronze: {
     tintColor: '#CD7F32',
-  },
-  badgesHeader: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    textAlign: 'center',
-    textDecorationLine: 'underline',
   },
 });
 

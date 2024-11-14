@@ -3,9 +3,10 @@ import { View, StyleSheet, Text } from 'react-native';
 import ProgressBar from '../components/ProgressBar';
 import BigYuOnboarding from '../components/BigYuOnboarding';
 import { Link } from 'expo-router';
+import SafeLayout from '@/components/SafeLayout';
 
 const OnboardingPreProfile = () => (
-  <View style={styles.appContainer}>
+  <SafeLayout style={styles.appContainer}>
     <ProgressBar progress={92} />
     <BigYuOnboarding text="I hope you're as eager to get started as I am, and to conclude our onboarding time together, I want to finish by showing you how exciting this experience can be for you if you use nufriends to its fullest potential." />
 
@@ -16,7 +17,7 @@ const OnboardingPreProfile = () => (
         </View>
       </Link>
     </View>
-  </View>
+  </SafeLayout>
 );
 
 const styles = StyleSheet.create({

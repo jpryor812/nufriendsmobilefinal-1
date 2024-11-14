@@ -12,13 +12,13 @@ import {
 } from 'react-native-gifted-chat';
 import Colors from '@/assets/Colors';
 
-const EmailInput: React.FC = () => {
-  const [email, setEmail] = useState('');
+const UsernameInput: React.FC = () => {
+  const [UserName, setUserName] = useState('');
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} >
     <View style={styles.container}>
-      <Text style={styles.label}>Email Address:</Text>
+      <Text style={styles.label}>What Should Everyone Call You?</Text>
       <InputToolbar
         containerStyle={styles.inputContainer}
         primaryStyle={styles.inputPrimary}
@@ -26,9 +26,9 @@ const EmailInput: React.FC = () => {
           <Composer
             {...props}
             textInputStyle={styles.input}
-            text={email}
-            onTextChanged={setEmail}
-            placeholder="Enter your email"
+            text={UserName}
+            onTextChanged={setUserName}
+            placeholder="Enter your username"
             keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
@@ -46,13 +46,20 @@ const EmailInput: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 30,
-    paddingTop: 4,
+    paddingTop: 16,
     paddingBottom: 4,
   },
   label: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
+  },
+  Sublabel: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#333',
+    marginTop: -2,
+    marginLeft: 12,
   },
   inputContainer: {
     backgroundColor: 'white',
@@ -80,4 +87,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EmailInput;
+export default UsernameInput;

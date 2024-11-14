@@ -18,24 +18,24 @@ import FriendProfileMessageHeader from '@/components/FriendProfileMessageHeader'
 import YuSuggestions from '@/components/YuSuggestions';
 import AnimatedYuButton from '@/components/AnimatedYuButton';
 import SafeLayout from '@/components/SafeLayout';
+import { friendsData } from '@/constants/FriendsData';
 
 const ChatRoomFriend = () => {
   const [text, setText] = useState('');
   const insets = useSafeAreaInsets();
   const [messages, setMessages] = useState<IMessage[]>([]);
-  const { userId, username, avatar } = useLocalSearchParams();
   const [isYuSuggestionsMode, setIsYuSuggestionsMode] = useState(false);
+  const params = useLocalSearchParams();
+  const friend = friendsData.find(f => f.id === Number(params.id));
 
-  const getAvatarImage = () => {
-    if (avatar) {
-        return JSON.parse(avatar as string);
-      }};
-  
+
+  if (!friend) return null;
+
   useEffect(() => {
-    console.log('Received params:', { userId, username });
-}, [userId, username]);
+    console.log('Received params:', { id: params.id, name: friend.name });
+  }, [params.id, friend.name]);
 
-useEffect(() => {
+  useEffect(() => {
     setMessages([
       ...messageData2.map((message) => {
         return {
@@ -44,12 +44,12 @@ useEffect(() => {
           createdAt: new Date(message.date),
           user: {
             _id: message.from,
-            name: message.from ? 'You' : username as string,
+            name: message.from ? 'You' : friend.name,  // Use friend.name directly
           },
         };
-      }).reverse(), // Add this reverse()
+      }).reverse(),
     ]);
-  }, [username]);
+  }, [friend.name]);
 
   const onSend = useCallback((messages = []) => {
     setMessages((previousMessages: any[]) => GiftedChat.append(previousMessages, messages));
@@ -111,10 +111,11 @@ useEffect(() => {
 
   return (
     <SafeLayout style={styles.container}>
-        <FriendProfileMessageHeader 
-          imageSource={getAvatarImage()}
-          name={username as string}
-        />
+            <FriendProfileMessageHeader
+                id={friend.id}
+                name={friend.name}
+                avatar={friend.avatar}
+            />
         
         <GiftedChat
           messages={messages}

@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    top: 40, // Adjust this value to position below the selected reply
+    top: 60, // Adjust this value to position below the selected reply
   },
 });
 

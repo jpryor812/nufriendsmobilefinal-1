@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, ImageSourcePropType, Pressable } from 'react-native';
 import { Link } from "expo-router";
+import {friendsData} from '../constants/FriendsData';
 
 interface Message {
   id: string;
@@ -34,7 +35,7 @@ const messages: Message[] = [
   { id: '5', userId: 'AJones01', text: "Just adopted a rescue puppy! She's a golden retriever mix and absolutely loves playing in the yard. Still working on house training though.", timestamp: "11:45 am", avatar: require('../assets/images/profile3-500x500.png') },
   { id: '6', userId: 'Hpp123', text: "Started learning guitar last month. My fingers are still getting used to the strings, but I can finally play through my first complete song!", timestamp: "10:45 am", avatar: require('../assets/images/profile_picture.jpg') },
   { id: '7', userId: 'Tpp123', text: "Visited this amazing art gallery downtown yesterday. The contemporary exhibition was fascinating, especially the interactive installations. You'd love it.", timestamp: "9:45 am", avatar: require('../assets/images/profile_picture.jpg') },
-  { id: '8', userId: 'Qpp123', text: "Just finished planting my summer garden. Got tomatoes, peppers, and lots of herbs. Can't wait to start cooking with fresh ingredients!", timestamp: "8:45 am", avatar: require('../assets/images/profile_picture.jpg') },
+  { id: '8', userId: 'Mike123', text: "Just finished planting my summer garden. Got tomatoes, peppers, and lots of herbs. Can't wait to start cooking with fresh ingredients!", timestamp: "8:45 am", avatar: require('../assets/images/profile_picture.jpg') },
   { id: '9', userId: 'Wpp123', text: "Been getting into photography lately. Got this great shot of the sunset at the beach yesterday. The colors were absolutely incredible.", timestamp: "9:35 am", avatar: require('../assets/images/profile_picture.jpg') },
 ];
 
@@ -45,19 +46,19 @@ interface MessageItemProps {
 }
 
 const MessageItem: React.FC<MessageItemProps> = ({ item, isRead, onMessageClick }) => {
+  const friend = friendsData.find(f => f.name === item.userId);
+  console.log('Looking for friend:', item.userId);
+  console.log('Found friend:', friend);  // item.userId is actually the name
+    
   const handlePress = () => {
-    onMessageClick(item.id);
+      onMessageClick(item.id);
   };
-
+  
   return (
     <Link 
       href={{
         pathname: "/ChatRoomFriend",
-        params: { 
-          userId: item.userId,
-          username: item.userId,
-          avatar: JSON.stringify(item.avatar)
-        }
+        params: { id: friend.id.toString() }  // Just pass the id
       }} 
       asChild
     >

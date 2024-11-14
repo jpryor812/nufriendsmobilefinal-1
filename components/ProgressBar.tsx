@@ -4,7 +4,7 @@ import SafeLayout from './SafeLayout';
 
 const ProgressBar = ({ progress }: { progress: number }) => {
   return (
-    <SafeLayout style={styles.progress_bar_container}>
+    <View style={styles.progress_bar_container}>
       <View style={styles.progress_bar_image_container}>
         <Image
           source={require('../assets/images/yu_progress_bar.png')}
@@ -30,7 +30,7 @@ const ProgressBar = ({ progress }: { progress: number }) => {
       <View style={styles.progress_bar}>
         <View style={[styles.progress, { width: `${progress}%` }]} />
       </View>
-    </SafeLayout>   
+    </View>   
   );
 };
 
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
   progress_bar_container: {
     alignItems: 'center',
     width: '90%',
-    paddingTop: 10,  // Changed from marginTop to paddingTop
+    paddingTop: 2,  // Changed from marginTop to paddingTop
     alignSelf: 'center',  // Center the container horizontally
   },
   progress_bar: {

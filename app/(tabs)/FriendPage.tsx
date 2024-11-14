@@ -4,26 +4,9 @@ import Dropdown from '../../components/DropdownMenu';
 import FooterNavigation from '../../components/FooterNavigation';
 import HeaderButtons from '@/components/HeaderButtons';
 import { Link } from "expo-router";
-import { friendsData } from '../../constants/FriendsData'; // Update this path
+import { friendsData, Friend } from '../../constants/FriendsData'; // Update this path
 import ScrollSafeLayout from '@/components/ScrollSafeLayout';
 import SafeLayout from '@/components/SafeLayout';
-
-
-interface Friend {
-  id: number;
-  initials: string;
-  name: string;
-  messages: number;
-  daysAsFriends: number;
-  streak: number;
-  mutualFriends: number;
-  avatar: any;
-  city?: string;
-  state?: string;
-  country?: string;
-  age?: number;
-  gender?: string;
-}
 
 interface FriendItemProps {
   friend: Friend;
@@ -43,21 +26,12 @@ const FriendItem: React.FC<FriendItemProps> = ({ friend, primaryLabel }) => {
 
   return (
     <Link
-    href={{
-      pathname: "/RelationshipTracker",
-      params: {
-        id: friend.id.toString(),  // Convert to string to ensure safe passing
-        initials: friend.initials,
-        name: friend.name,
-        messages: friend.messages.toString(),
-        daysAsFriends: friend.daysAsFriends.toString(),
-        streak: friend.streak.toString(),
-        mutualFriends: friend.mutualFriends.toString(),
-        avatar: friend.avatar
-      }
-    }}
-    asChild
-  >
+      href={{
+        pathname: "/RelationshipTracker",
+        params: { id: friend.id.toString() }  // Simplified to just pass id
+      }}
+      asChild
+    >
     <TouchableOpacity style={styles.friendItem}>
       <View style={styles.avatarContainer}>
         {friend.streak > 0 && <Text style={styles.fireEmoji}>🔥</Text>}

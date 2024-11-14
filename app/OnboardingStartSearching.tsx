@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Text, Image, SafeAreaView, Animated, Easing } from 'react-native';
+import { View, StyleSheet, Text, Image, SafeAreaView, Animated, Easing, TouchableOpacity } from 'react-native';
 import ProgressBar from '../components/ProgressBar';
 import BigYuOnboarding from '../components/BigYuOnboarding';
 import { Link } from 'expo-router';
@@ -60,33 +60,28 @@ const OnboardingStartSearching = () => {
               👇
             </Animated.Text>
           </View>
-          <View style={styles.link_container}>
             <View style={styles.footer}>
-              <View style={styles.navItem}>
                 <View style={styles.footerItem}>
                   <Image source={require('../assets/images/house_emoji.png')} style={styles.icon} />
-                </View>
               </View>
     
-              <View style={styles.navItem}>
                 <View style={styles.footerItem}>
                   <Image source={require('../assets/images/profile_picture.jpg')} style={styles.profileicon} />
                 </View>
-              </View>
     
-              <View style={styles.navItem}>
                 <View style={styles.footerItem}>
                   <Image source={require('../assets/images/hand_progress_bar.png')} style={styles.icon} />
                 </View>
-              </View>
     
-              <View style={styles.navItem}>
-                <Link href={"/OnboardingChatRoomYu"} style={styles.footerItem}>
-                  <Image source={require('../assets/images/yu_progress_bar.png')} style={styles.Yuicon} />
-                </Link>
+
+                <View style={styles.footerItem}>
+                    <Link href="/OnboardingChatRoomYu" asChild>
+                        <TouchableOpacity>
+                            <Image source={require('../assets/images/yu_progress_bar.png')} style={styles.Yuicon} />
+                        </TouchableOpacity>
+                    </Link>
+                </View>
               </View>
-            </View>
-          </View>
         </SafeLayout>
       );
     };
@@ -99,14 +94,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 0,
     backgroundColor: '#F0FCFE',
-  },
-  link_container: {
-        width: '100%',
-  },
-  link: {
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   continue_button_container: {
     width: 300,
@@ -129,20 +116,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40, // Adjust this value as needed
   },
   footer: {
-    flexDirection: 'row',
     justifyContent: 'space-around',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     borderTopWidth: 2,
     borderTopColor: '#EBF7FE',
     width: '100%',
-  },
-  navItem: {
-    alignItems: 'center',
+    flexDirection: 'row',
   },
   footerItem: {
     alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'center',
     marginTop: 10,
   },
   icon: {
@@ -162,39 +145,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     marginBottom: 1,
-  },
-  indicatorContainer: {
-    width: 30,
-    height: 3,
-    marginTop: 5,
-    shadowColor: 'transparent',
-    shadowOffset: {
-      width: 0,
-      height: 0,
     },
-    shadowOpacity: 0,
-    shadowRadius: 0,
-    elevation: 0,
-  },
-  activeIndicatorContainer: {
-    shadowColor: '#2196F3',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 2,
-    elevation: 3,
-  },
-  indicator: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 1.5,
-    backgroundColor: '#F0FCFE',
-  },
-  activeIndicator: {
-    backgroundColor: 'rgba(33, 150, 243, 0.7)',
-  },
   arrow_container: {
     width: '100%',
     alignItems: 'flex-end',

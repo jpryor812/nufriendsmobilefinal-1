@@ -31,17 +31,19 @@ const OnboardingMessageWithYuSuggestions = () => {
   const [showCenterImage, setShowCenterImage] = useState(false);
   const centerImageAnimation = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   const [suggestionSelected, setSuggestionSelected] = useState(false);
+  const emojiOpacity = useRef(new Animated.Value(0)).current;
   
   const getAvatarImage = () => {
     if (avatar) {
-        return JSON.parse(avatar as string);
-      }};
+      return JSON.parse(avatar as string);
+    }
+  };
   
   useEffect(() => {
     console.log('Received params:', { userId, username });
-}, [userId, username]);
+  }, [userId, username]);
 
-useEffect(() => {
+  useEffect(() => {
     if (isYuSuggestionsMode) {
       setTimeout(() => {
         setShowCenterImage(true);
@@ -58,7 +60,47 @@ useEffect(() => {
     }
   }, [isYuSuggestionsMode]);
 
-useEffect(() => {
+  // Add this useEffect for delayed emoji appearance
+  const startEmojiAnimation = () => {
+    Animated.loop(
+      Animated.sequence([
+        // Fade in
+        Animated.timing(emojiOpacity, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        // Fade out
+        Animated.timing(emojiOpacity, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  };
+
+  useEffect(() => {
+    if (suggestionSelected) {
+      // Reset opacity to 0 first
+      emojiOpacity.setValue(0);
+      
+      // Start the animation after 5 seconds
+      setTimeout(() => {
+        startEmojiAnimation();
+      }, 5000);
+    } else {
+      // Reset animation when suggestion is deselected
+      emojiOpacity.stopAnimation();
+      emojiOpacity.setValue(0);
+    }
+  
+    return () => {
+      emojiOpacity.stopAnimation();
+    };
+  }, [suggestionSelected]);
+
+  useEffect(() => {
     setMessages([
       ...messageData2.map((message) => {
         return {
@@ -70,7 +112,7 @@ useEffect(() => {
             name: message.from ? 'You' : username as string,
           },
         };
-      }),
+      }).reverse(),
     ]);
   }, [username]);
 
@@ -94,7 +136,7 @@ useEffect(() => {
 
     setMessages(previousMessages => GiftedChat.append(previousMessages, [newMessage]));
     setIsYuSuggestionsMode(false);
-};
+  };
 
 
 const renderInputToolbar = (props: any) => {
@@ -147,6 +189,7 @@ const renderInputToolbar = (props: any) => {
         <GiftedChat
           messages={messages}
           onSend={onSend}
+          inverted={true}
           user={{ _id: 1 }}
           isKeyboardInternallyHandled={true}
           keyboardShouldPersistTaps="handled"
@@ -200,8 +243,22 @@ const renderInputToolbar = (props: any) => {
             : "Based on what I know about you and your new friend, I'll always be here to help you drive existing and new conversations if needed. These suggestions will always be unique based on the conversation and constantly updated. Tap a suggestion below to see what happens next!"
           }
         />
-                </Animated.View>
-                )}
+                 {suggestionSelected && (
+        <Animated.Text 
+          style={[{
+            fontSize: 40,
+            position: 'absolute',
+            alignSelf: 'center',
+            bottom: -230,
+            right: 80,
+            opacity: emojiOpacity,
+          }]}
+        >
+          👆
+        </Animated.Text>
+      )}
+    </Animated.View>
+  )}
       </ImageBackground>
     </SafeLayout>
   );

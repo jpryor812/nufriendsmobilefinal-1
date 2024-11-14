@@ -137,7 +137,6 @@ const ProfilePageOnboarding = () => {
               name="Jpp123" 
               onPress={() => console.log('Friend profile pressed')}
             />
-            <DatingToggle />
           </View>
           <View style={styles.chartContainer}>
             <MessagesChart />

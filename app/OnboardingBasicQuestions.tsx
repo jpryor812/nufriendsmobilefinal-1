@@ -1,11 +1,9 @@
-//insert a username question "What should your friends and I call you?"
 import React, {useState} from 'react';
 import { View, StyleSheet, Text, ScrollView, TouchableOpacity, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import CityDropdown from '../components/CityDropdown';
 import StateDropdown from '../components/StateDropdown';
-import CountryDropdown from '../components/CountryDropdown';
 import GenderDropdown from '../components/GenderDropdown';
 import FindMoreFriendsButton from '@/components/FindMoreFriendsButton';
 import FindFriendsButton from '@/components/FindMyFriendsButton';
@@ -15,99 +13,80 @@ import SmallYuOnboarding from '@/components/SmallYuOnboarding';
 import ProgressBar from '@/components/ProgressBar';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import SafeLayout from '@/components/SafeLayout';
+import UsernameInput from '@/components/UsernameInput';
 
 const OnboardingBasicQuestions = () => {
     const router = useRouter();
     const [selectedFilters, setSelectedFilters] = useState({
       cities: [] as string[],
       states: [] as string[],
-      countries: [] as string[],
       genders: [] as string[],
     });
   
-    const [showStateDropdown, setShowStateDropdown] = useState(false);
-    const [showCityDropdown, setShowCityDropdown] = useState(false);
     const [selectedState, setSelectedState] = useState('');
-  
-    const handleCountriesChange = (country: string) => {
-        const showStates = country === 'United States of America';
-        setShowStateDropdown(showStates);
-      // Reset state and city if country changes
-      if (!showStates) {
-        setSelectedState('');
-        setShowCityDropdown(false);
-      }
-    };
   
     const handleStateChange = (state: string) => {
       setSelectedState(state);
-      // Show city dropdown when a state is selected
-      setShowCityDropdown(!!state);
+      setSelectedFilters(prev => ({
+        ...prev,
+        states: state ? [state] : []
+      }));
     };
   
     const handleCityChange = (city: string) => {
-      console.log('Selected city:', city);
       setSelectedFilters(prev => ({ 
         ...prev, 
         cities: city ? [city] : [] 
       }));
     };
   
-    const handleGendersChange = (gender: string) => {  // Changed from (genders: string[])
-        setSelectedFilters(prev => ({ 
-          ...prev, 
-          genders: gender ? [gender] : [] 
-        }));
-      };
+    const handleGendersChange = (gender: string) => {
+      setSelectedFilters(prev => ({ 
+        ...prev, 
+        genders: gender ? [gender] : [] 
+      }));
+    };
 
     const handleEmailSubmit = (email: string) => {
-        console.log('Email submitted:', email);
-        // You can add any additional validation or data handling here
-        router.push('/OnboardingQuestion1'); // Replace with your actual next page route
-      };
+      console.log('Email submitted:', email);
+      router.push('/OnboardingQuestion1');
+    };
   
-      return (
-        <SafeLayout style={styles.container}>
-          <ProgressBar progress={30} />
-          <View style={styles.contentContainer}>
-            <KeyboardAwareScrollView
-              style={styles.scrollContainer}
-              keyboardShouldPersistTaps="handled"
-              keyboardDismissMode="on-drag"
-              enableOnAndroid={true}
-              enableAutomaticScroll={true}
-              extraScrollHeight={20}
-            >
-              <SmallYuOnboarding text={'Before we jump in, please fill out the following information!'} />
-              <EmailInput />
-              <View style={styles.dropdownsContainer}>
-                <GenderDropdown onGendersChange={handleGendersChange} />
-                <CountryDropdown onCountriesChange={handleCountriesChange} />
-                
-                {showStateDropdown && (
-                  <StateDropdown onStatesChange={handleStateChange} />
-                )}
-                
-                {showCityDropdown && (
-                  <CityDropdown 
-                    onCitiesChange={handleCityChange}
-                    selectedState={selectedState}
-                  />
-                )}
-              </View>
-            </KeyboardAwareScrollView>
-            
-            {/* Fixed button at bottom */}
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity 
-                style={styles.button}
-                onPress={() => router.push('/OnboardingQuestion1')}
-              >
-                <Text style={styles.buttonText}>Continue</Text>
-              </TouchableOpacity>
+    return (
+      <SafeLayout style={styles.container}>
+        <ProgressBar progress={30} />
+        <View style={styles.contentContainer}>
+          <KeyboardAwareScrollView
+            style={styles.scrollContainer}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
+            enableOnAndroid={true}
+            enableAutomaticScroll={true}
+            extraScrollHeight={20}
+          >
+            <SmallYuOnboarding text={'Before we jump in, please fill out the following information!'} />
+            <EmailInput />
+            <View style={styles.dropdownsContainer}>
+              <GenderDropdown onGendersChange={handleGendersChange} />
+              <StateDropdown onStatesChange={handleStateChange} />
+              <CityDropdown 
+                onCitiesChange={handleCityChange}
+                selectedState={selectedState}
+              />
             </View>
+            <UsernameInput />
+          </KeyboardAwareScrollView>
+          
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity 
+              style={styles.button}
+              onPress={() => router.push('/OnboardingQuestion1')}
+            >
+              <Text style={styles.buttonText}>Continue</Text>
+            </TouchableOpacity>
           </View>
-        </SafeLayout>
+        </View>
+      </SafeLayout>
     );
 }
 

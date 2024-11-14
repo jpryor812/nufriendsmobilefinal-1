@@ -3,6 +3,7 @@ import { View, StyleSheet, Text, Animated, Vibration, Image } from 'react-native
 import ProgressBar from '../components/ProgressBar';
 import BigYuOnboarding from '../components/BigYuOnboarding';
 import { Link, useRouter } from 'expo-router';
+import SafeLayout from '@/components/SafeLayout';
 
 const OnboardingAvatarReveal = () => {
     const [currentText, setCurrentText] = useState("Now, let's go ahead and...");
@@ -26,8 +27,7 @@ const OnboardingAvatarReveal = () => {
   
       // Slide out Yu and slide in avatar
       const timer3 = setTimeout(() => {
-        Vibration.vibrate(200);
-        
+                
         // Slide Yu out bottom
         Animated.timing(yuSlideAnim, {
           toValue: 1000,
@@ -63,7 +63,7 @@ const OnboardingAvatarReveal = () => {
   
 
   return (
-    <View style={styles.appContainer}>
+    <SafeLayout style={styles.appContainer}>
       <ProgressBar progress={100} />
       
       {/* Yu Component that slides down */}
@@ -89,7 +89,7 @@ const OnboardingAvatarReveal = () => {
 
       {/* Confetti overlay */}
       {showConfetti && <ConfettiEffect />}
-    </View>
+    </SafeLayout>
   );
 };
 

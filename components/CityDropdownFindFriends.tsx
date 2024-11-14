@@ -10,24 +10,25 @@ import {
   ScrollView,
 } from 'react-native';
 import { citiesByState } from './CitiesByState';
-import ScrollSafeLayout from './ScrollSafeLayout';
 
 interface CityDropdownProps {
     onCitiesChange?: (cities: string[]) => void;
-    selectedState?: string;  // Add this prop to know which state is selected
   }
 
-  const CityDropdown = ({ onCitiesChange, selectedState }: CityDropdownProps) => {
+  const CityDropdownFindFriends = ({ onCitiesChange }: CityDropdownProps) => {
     const [visible, setVisible] = useState(false);
   const [selectedCities, setSelectedCities] = useState<string[]>([]);
   const [dropdownTop, setDropdownTop] = useState(0);
   const [dropdownLeft, setDropdownLeft] = useState(0);
   const buttonRef = useRef<TouchableOpacity>(null);
 
-  const getAvailableCities = () => {
-    if (!selectedState) return [];
-    return citiesByState[selectedState] || [];
-  };
+  const allCities = [
+    "New York City", "Los Angeles", "Chicago", "Houston", "Phoenix",
+    "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose",
+    "Austin", "Jacksonville", "Fort Worth", "Columbus", "San Francisco",
+    "Charlotte", "Indianapolis", "Seattle", "Denver", "Boston"
+    // Add more cities as needed
+];
 
   const toggleDropdown = () => {
     if (buttonRef.current) {
@@ -65,50 +66,45 @@ interface CityDropdownProps {
     </TouchableOpacity>
   );
 
+
   return (
     <View style={styles.container}>
-      <View style={styles.dropdownContainer}>
-        <TouchableOpacity 
-          ref={buttonRef} 
-          style={[
-            styles.button,
-            !selectedState && styles.buttonDisabled // Add disabled style when no state selected
-          ]} 
-          onPress={toggleDropdown}
-          disabled={!selectedState} // Disable button when no state selected
-        >
-          <Text style={styles.buttonText}>
-            {!selectedState 
-              ? 'Select a state first'
-              : selectedCities.length > 0 
-                ? `${selectedCities.length} cities selected`
-                : 'Select cities'}
-          </Text>
-          <Text style={styles.icon}>▼</Text>
-        </TouchableOpacity>
+        <View style={styles.dropdownContainer}>
+            <TouchableOpacity 
+                ref={buttonRef} 
+                style={styles.button}
+                onPress={toggleDropdown}
+            >
+                <Text style={styles.buttonText}>
+                    {selectedCities.length > 0 
+                        ? `${selectedCities.length} cities selected`
+                        : 'Select cities'}
+                </Text>
+                <Text style={styles.icon}>▼</Text>
+            </TouchableOpacity>
 
-        <Modal visible={visible} transparent animationType="none">
-          <TouchableOpacity 
-            style={styles.overlay} 
-            onPress={() => setVisible(false)}
-          >
-            <View style={[styles.dropdown, { top: dropdownTop, left: dropdownLeft }]}>
-              <FlatList
-                data={getAvailableCities()}
-                renderItem={renderItem}
-                keyExtractor={(item) => item}
-                style={styles.list}
-              />
-            </View>
-          </TouchableOpacity>
-        </Modal>
-      </View>
+            <Modal visible={visible} transparent animationType="none">
+                <TouchableOpacity 
+                    style={styles.overlay} 
+                    onPress={() => setVisible(false)}
+                >
+                    <View style={[styles.dropdown, { top: dropdownTop, left: dropdownLeft }]}>
+                        <FlatList
+                            data={allCities}
+                            renderItem={renderItem}
+                            keyExtractor={(item) => item}
+                            style={styles.list}
+                        />
+                    </View>
+                </TouchableOpacity>
+            </Modal>
+        </View>
 
       {/* Selected cities horizontal scroll */}
       {selectedCities.length > 0 && (
         <View style={styles.selectedCitiesContainer}>
           <Text style={styles.selectedCitiesSubTitle}>Side scroll to view all selections</Text>
-          <ScrollSafeLayout 
+          <ScrollView
             horizontal
             showsHorizontalScrollIndicator={true}
             contentContainerStyle={styles.scrollViewContent}
@@ -125,7 +121,7 @@ interface CityDropdownProps {
                 </TouchableOpacity>
               </View>
             ))}
-          </ScrollSafeLayout>
+          </ScrollView>
         </View>
       )}
     </View>
@@ -234,4 +230,4 @@ container: {
   },
 });
 
-export default CityDropdown;
+export default CityDropdownFindFriends;

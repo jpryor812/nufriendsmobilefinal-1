@@ -3,9 +3,10 @@ import { View, StyleSheet, Text } from 'react-native';
 import ProgressBar from '../components/ProgressBar';
 import BigYuOnboarding from '../components/BigYuOnboarding';
 import { Link } from 'expo-router';
+import SafeLayout from '@/components/SafeLayout';
 
 const OnboardingPostQuestions = () => (
-  <View style={styles.appContainer}>
+  <SafeLayout style={styles.appContainer}>
     <ProgressBar progress={78} />
     <BigYuOnboarding text="Thank you for sharing all of that information!! I'll be able to help start and continue conversations with every friend you make :)" />
 
@@ -16,7 +17,7 @@ const OnboardingPostQuestions = () => (
         </View>
       </Link>
     </View>
-  </View>
+  </SafeLayout>
 );
 
 const styles = StyleSheet.create({

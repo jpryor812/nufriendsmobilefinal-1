@@ -4,9 +4,11 @@ import { View, StyleSheet, Text } from 'react-native';
 import ProgressBar from '../components/ProgressBar';
 import BigYuOnboarding from '../components/BigYuOnboarding';
 import { Link } from 'expo-router';
+import SafeLayout from '@/components/SafeLayout';
+
 
 const OnboardingPreAvatarReveal = () => (
-  <View style={styles.appContainer}>
+  <SafeLayout style={styles.appContainer}>
     <ProgressBar progress={100} />
     <BigYuOnboarding text="We finally made it to the end of our onboarding journey!" />
 
@@ -17,7 +19,7 @@ const OnboardingPreAvatarReveal = () => (
         </View>
       </Link>
     </View>
-  </View>
+  </SafeLayout>
 );
 
 const styles = StyleSheet.create({

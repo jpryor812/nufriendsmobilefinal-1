@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     color: '#42ade2',
-    fontSize: 14,
+    fontSize: 15,
   },
   chatBubbleArrowInner: {
     width: 0,

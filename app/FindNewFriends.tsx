@@ -2,10 +2,9 @@ import React, {useState} from 'react';
 import { View, StyleSheet, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import CityDropdown from '../components/CityDropdown';
-import StateDropdown from '../components/StateDropdown';
+import StateDropdownFindFriends from '../components/StateDropdownFindFriends';
 import CountryDropdown from '../components/CountryDropdown';
-import GenderDropdown from '../components/GenderDropdown';
+import GenderDropdownFindFriends from '../components/GenderDropdownFindFriends';
 import FindMoreFriendsButton from '@/components/FindMoreFriendsButton';
 import FindFriendsButton from '@/components/FindMyFriendsButton';
 import FooterNavigation from '@/components/FooterNavigation';
@@ -13,6 +12,7 @@ import SafeLayout from '@/components/SafeLayout';
 import { Link } from 'expo-router';
 import Colors from '@/assets/Colors';
 import { Ionicons } from '@expo/vector-icons';
+import CityDropdownFindFriends from '@/components/CityDropdownFindFriends';
 
 const FindNewFriends = () => {
   const router = useRouter();
@@ -63,13 +63,12 @@ const FindNewFriends = () => {
       </Link>
       <ScrollView style={styles.scrollContainer}>
       <Text style={styles.PageTitle}>Find Your New Friend!!</Text>
-      <Text style={styles.PageSubTitle}>Feel free to use the filters to look for specific friends or just search anywhere!</Text>
+      <Text style={styles.PageSubTitle}>Feel free to use the filters to look for specific friends or just search for anyone anywhere by leaving everything blank!!</Text>
       <Text style={styles.PageSubSubTitle}>Note: The broader your search, the quicker you'll find friends! Also, We only show options as they relate to our active users so you may not see every possible option. We update this weekly.</Text>
       <View style={styles.dropdownsContainer}>
-        <CityDropdown onCitiesChange={handleCitiesChange} />
-        <StateDropdown onStatesChange={handleStatesChange} />
-        <CountryDropdown onCountriesChange={handleCountriesChange} />
-        <GenderDropdown onGendersChange={handleGendersChange} />
+      <GenderDropdownFindFriends onGendersChange={handleGendersChange} />
+      <StateDropdownFindFriends onStatesChange={handleStatesChange} />
+        <CityDropdownFindFriends onCitiesChange={handleCitiesChange} />
         <FindFriendsButton onPress={handleFindFriends} />
         <View style={styles.introContainer}>
           <Text style={styles.Announcement}>As a FREE user, you can find one new friend every 24 hours. Upgrade to get 4x as many friends!!</Text>

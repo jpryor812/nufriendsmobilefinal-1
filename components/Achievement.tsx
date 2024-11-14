@@ -131,11 +131,11 @@ const styles = StyleSheet.create({
   },
   emoji: {
     fontSize: 40,
-    marginBottom: 10,
+    marginBottom: 2,
   },
   achievementTitle: {
     textAlign: 'center',
-    fontSize: 16,
+    fontSize: 15,
     color: '#fff',
     fontWeight: '700',
     paddingHorizontal: 5,

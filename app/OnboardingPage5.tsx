@@ -7,6 +7,7 @@ import BigYuSearchingOnboarding from '../components/BigYuSearchingOnboarding';
 import SearchingBubble from '../components/SearchingBubble';
 import OnboardingFriendListAnimation from '../components/OnboardingFriendListAnimation';
 import { router } from 'expo-router';
+import SafeLayout from '@/components/SafeLayout';
 
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -138,7 +139,7 @@ const OnboardingPage5 = () => {
   const AnimatedChatBubble = Animated.createAnimatedComponent(ChatBubble);
 
   return (
-    <View style={styles.appContainer}>
+    <SafeLayout style={styles.appContainer}>
       <ProgressBar progress={25} />
       
       <View style={styles.newContentContainer}>
@@ -206,7 +207,7 @@ const OnboardingPage5 = () => {
           </View>
         )}
       </View>
-    </View>
+    </SafeLayout>
   );
 }; // <-- Closing brace and parenthesis for the component function
 
@@ -235,7 +236,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
     alignItems: 'center',
-    bottom: '42%', 
+    bottom: '35%', 
   },
   bubble: {
     backgroundColor: '#6ECFFF',
@@ -259,7 +260,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '60%',
     alignItems: 'center',
-    marginTop: '99%',
+    marginTop: '98%',
   },
   countText: {
     fontSize: 14,
@@ -269,7 +270,7 @@ const styles = StyleSheet.create({
   },
   countContainer: {
     position: 'absolute',
-    bottom: '36%', // Adjust this value to position between search bubble and friend list
+    bottom: '30%', // Adjust this value to position between search bubble and friend list
     width: '100%',
     alignItems: 'center',
   },

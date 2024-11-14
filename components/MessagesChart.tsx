@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { BarChart, barDataItem } from 'react-native-gifted-charts';
 import Card from './Card';
 import { messageData } from './MessageData';
+import { Ionicons } from '@expo/vector-icons';
 
 enum Period {
   week = "week",
@@ -87,22 +88,45 @@ export default function MessagesChart() {
         <Card style={styles.container}>
             <Text style={styles.title}>Messages Sent</Text>
             <View style={styles.header}>
-                <Text style={styles.weekText}>{getWeekDateRange(currentWeek)}</Text>
-                <View style={styles.navigation}>
-                    <Text 
-                        style={[styles.navButton, currentWeek === 1 && styles.disabled]}
-                        onPress={handlePreviousWeek}
-                    >
-                        ← Previous
-                    </Text>
-                    <Text 
-                        style={[styles.navButton, currentWeek === 5 && styles.disabled]}
-                        onPress={handleNextWeek}
-                    >
-                        Next →
-                    </Text>
-                </View>
-            </View>
+    <Text style={styles.weekText}>{getWeekDateRange(currentWeek)}</Text>
+    <View style={styles.navigation}>
+        <TouchableOpacity 
+            style={[styles.navButton, currentWeek === 1 && styles.disabled]}
+            onPress={handlePreviousWeek}
+            disabled={currentWeek === 1}
+        >
+            <Ionicons 
+                name="arrow-back" 
+                size={14} 
+                color={currentWeek === 1 ? '#ccc' : '#3498db'} 
+            />
+            <Text style={[
+                styles.navButtonText, 
+                currentWeek === 1 && styles.disabledText
+            ]}>
+                Previous
+            </Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+            style={[styles.navButton, currentWeek === 5 && styles.disabled]}
+            onPress={handleNextWeek}
+            disabled={currentWeek === 5}
+        >
+            <Text style={[
+                styles.navButtonText, 
+                currentWeek === 5 && styles.disabledText
+            ]}>
+                Next
+            </Text>
+            <Ionicons 
+                name="arrow-forward" 
+                size={14} 
+                color={currentWeek === 5 ? '#ccc' : '#3498db'} 
+            />
+        </TouchableOpacity>
+    </View>
+</View>
+
             
             <View style={styles.chartContainer}>
                 <View style={styles.chartWrapper}>
@@ -158,16 +182,27 @@ const styles = StyleSheet.create({
         marginBottom: 4,
         marginTop: -4,
     },
-    navigation: {
-        flexDirection: 'row',
-        gap: 15,
-    },
     navButton: {
-        color: '#4A90E2',
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginHorizontal: 3,
+    },
+    navButtonText: {
+        color: '#3498db',
         fontSize: 14,
+        marginHorizontal: 3,
     },
     disabled: {
         opacity: 0.5,
+    },
+    disabledText: {
+        color: '#ccc',
+    },
+    navigation: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 8,
     },
     topLabel: {
         color: 'gray',

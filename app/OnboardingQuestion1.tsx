@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     color: '#333',
     paddingTop: 0,
     paddingBottom: 0,
-    lineHeight: 18,
+    lineHeight: 22,
     paddingRight: 4, // Add some padding to prevent text from touching icons
   },
   iconsContainer: {

@@ -1,18 +1,9 @@
 import React from 'react';
-import { View, StyleSheet, Text, Image, TouchableOpacity } from 'react-native';
-import SafeLayout from './SafeLayout';
+import { View, StyleSheet, Text, Image, } from 'react-native';
 
-interface BigYuOnboardingPlusContinueProps {
-  text: string;
-  onContinue: () => void; // Add this prop
-}
-
-const BigYuOnboardingPlusContinue: React.FC<BigYuOnboardingPlusContinueProps> = ({ 
-  text, 
-  onContinue 
-}) => {
+const BigYuOnboardingStatic = ({ text }: { text: string }) => {
   return (
-    <SafeLayout style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.big_yu_chat_bubble_container}>
         <View style={styles.chatBubble}>
           <Text style={styles.big_yu_text}>{text}</Text>
@@ -25,38 +16,28 @@ const BigYuOnboardingPlusContinue: React.FC<BigYuOnboardingPlusContinueProps> = 
           resizeMode='contain'
         />
       </View>
-      <TouchableOpacity 
-        style={styles.continue_button_container}
-        onPress={onContinue}
-      >
-        <Text style={styles.continue_button_text}>Let's do it!</Text>
-      </TouchableOpacity>
-    </SafeLayout>
+    </View>
   );
 };
-
+//Just add the continue button to the BigYuOnboarding component
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: '90%',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexDirection: 'column',
   },
   big_yu_chat_bubble_container: {
-    position: 'relative',
-    justifyContent: 'center',
+    flex: 1,
+    justifyContent: 'center', // This centers the content vertically
     alignItems: 'center',
-    width: '100%',
-    height: '80%',
+    position: 'relative',
   },
   chatBubble: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     borderWidth: 2,
     borderColor: '#ccc',
-    padding: 20,
-    width: '76%',
+    padding: 14,
+    width: '80%',
     marginBottom: 0, // Remove bottom margin
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -80,8 +61,8 @@ const styles = StyleSheet.create({
     // Slightly overlap with the chat bubble to hide the gap
   },
   big_yu_question_onboarding: {
-    width: 180,
-    height: 180,
+    width: 170,
+    height: 170,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -89,7 +70,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     color: '#42ade2',
-    fontSize: 20,
+    fontSize: 17,
   },
   chatBubbleArrowInner: {
     width: 0,
@@ -105,22 +86,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: -17, // Adjust this to position it correctly over the border arrow
   },
-  continue_button_container: {
-    width: 300,
-    height: 50, // Fixed height for the button
-    backgroundColor: '#6ECFFF',
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  continue_button_text: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    textAlignVertical: 'center', // For Android
-  },
 });
 
-export default BigYuOnboardingPlusContinue;
+export default BigYuOnboardingStatic;
