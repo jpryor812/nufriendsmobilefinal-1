@@ -10,6 +10,9 @@ import FindMoreFriendsButton from '@/components/FindMoreFriendsButton';
 import FindFriendsButton from '@/components/FindMyFriendsButton';
 import FooterNavigation from '@/components/FooterNavigation';
 import SafeLayout from '@/components/SafeLayout';
+import { Link } from 'expo-router';
+import Colors from '@/assets/Colors';
+import { Ionicons } from '@expo/vector-icons';
 
 const FindNewFriends = () => {
   const router = useRouter();
@@ -55,6 +58,9 @@ const FindNewFriends = () => {
 
   return (
     <SafeLayout style={styles.container}>
+        <Link href="/HomePage" style={styles.backButton}>
+        <Ionicons name="arrow-back" size={24} color={Colors.primary} />
+      </Link>
       <ScrollView style={styles.scrollContainer}>
       <Text style={styles.PageTitle}>Find Your New Friend!!</Text>
       <Text style={styles.PageSubTitle}>Feel free to use the filters to look for specific friends or just search anywhere!</Text>

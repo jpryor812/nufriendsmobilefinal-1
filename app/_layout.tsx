@@ -1,23 +1,31 @@
 import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 
 export default function RootLayout() {
   return (
-    <Stack>
+    <>
+      <StatusBar style="dark" />
+      <Stack
+        screenOptions={{
+          headerShown: false // Global setting for all screens
+        }}
+      >
+        {/* Add the tabs group first */}
+        <Stack.Screen 
+          name="(tabs)" 
+          options={{ 
+            headerShown: false,
+            // Prevent header from showing in the tabs group
+            header: () => null,
+          }} 
+        />
       <Stack.Screen name="index" 
       options={{ headerShown: false }} />
       <Stack.Screen name="about" 
       options={{ headerShown: false }} />
-      <Stack.Screen name="HomePage"
-      options={{ headerShown: false }} />
-      <Stack.Screen name="ProfilePage"
-      options={{ headerShown: false }} />
-      <Stack.Screen name="FriendPage"
-      options={{ headerShown: false }} />
       <Stack.Screen name="RelationshipTracker"
       options={{ headerShown: false }} />
       <Stack.Screen name="MessagingYu"
-      options={{ headerShown: false }} />
-      <Stack.Screen name="ChatRoomYu"
       options={{ headerShown: false }} />
       <Stack.Screen name="ChatRoomFriend"
       options={{ headerShown: false }} />
@@ -86,5 +94,6 @@ export default function RootLayout() {
       <Stack.Screen name="OnboardingAvatarCustomization"
       options={{ headerShown: false }} />
     </Stack>
+    </>
   );
 }

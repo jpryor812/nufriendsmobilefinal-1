@@ -95,20 +95,6 @@ const styles = StyleSheet.create({
   },
   badgeWrapper: {
     alignItems: 'center',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: {
-          width: 0,
-          height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-      },
-      android: {
-        elevation: 5,
-      },
-    }),
   },
   achievementBadgeTop: {
     borderTopLeftRadius: 15,
@@ -131,7 +117,7 @@ const styles = StyleSheet.create({
     marginTop: -1,
     ...Platform.select({
       android: {
-        paddingTop: 1, // Fix for Android rendering
+        paddingTop: 0, // Fix for Android rendering
       }
     }),
   },

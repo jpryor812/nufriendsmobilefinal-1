@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, Image, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
-import Dropdown from '../components/DropdownMenu';
-import FooterNavigation from '../components/FooterNavigation';
+import Dropdown from '../../components/DropdownMenu';
+import FooterNavigation from '../../components/FooterNavigation';
 import HeaderButtons from '@/components/HeaderButtons';
 import { Link } from "expo-router";
-import { friendsData } from '../constants/FriendsData'; // Update this path
+import { friendsData } from '../../constants/FriendsData'; // Update this path
 import ScrollSafeLayout from '@/components/ScrollSafeLayout';
 import SafeLayout from '@/components/SafeLayout';
 
@@ -139,34 +139,39 @@ const FriendPage: React.FC = () => {
   };
 
   return (
-    <SafeLayout style={styles.container}>
+    <SafeLayout style={styles.container} hasTabBar>
       <HeaderButtons 
         onPressFindFriends={() => console.log('Find Friends pressed')}
         onPressUpgrade={() => console.log('Upgrade pressed')}
       />
-      <View style={styles.contentContainer}>
-        <View style={styles.titleContainer}>
+      <View style={styles.titleContainer}>
         <Text style={styles.title}>Friends</Text>
-        <Image source={require('../assets/images/hand_progress_bar.png')} style={styles.titleImage} />
-        </View>
-        <Dropdown
-          options={sortOptions}
-          selectedValue={sortOption}
-          onSelect={(value) => {
-            setSortOption(value);
-            sortFriends(value);
-          }}
+        <Image 
+          source={require('../../assets/images/hand_progress_bar.png')} 
+          style={styles.titleImage} 
         />
-        <ScrollSafeLayout style={styles.scrollView}>
-          {friends.map((friend) => (
-            <FriendItem
-              key={friend.id}
-              friend={friend}
-              primaryLabel={primaryDataLabel}
-            />
-          ))}
-        </ScrollSafeLayout>
       </View>
+      <Dropdown
+        options={sortOptions}
+        selectedValue={sortOption}
+        onSelect={(value) => {
+          setSortOption(value);
+          sortFriends(value);
+        }}
+      />
+      <ScrollSafeLayout 
+        hasTabBar
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollViewContent}
+      >
+        {friends.map((friend) => (
+          <FriendItem
+            key={friend.id}
+            friend={friend}
+            primaryLabel={primaryDataLabel}
+          />
+        ))}
+      </ScrollSafeLayout>
     </SafeLayout>
   );
 };
@@ -196,9 +201,11 @@ const styles = StyleSheet.create({
         textAlign: 'center',
       },
       scrollView: {
-        marginTop: 10,
         flex: 1,
+      },
+      scrollViewContent: {
         padding: 6,
+        paddingBottom: 10, // Add some padding at the bottom for the last item
       },
       friendItem: {
         flexDirection: 'row',

@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
     },
     topLabel: {
         color: 'gray',
-        fontSize: 12,
+        fontSize: 11,
         marginBottom: 1,
     },
     xAxisLabel: {

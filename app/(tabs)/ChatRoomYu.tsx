@@ -75,9 +75,12 @@ const ChatRoomYu = () => {
   };
 
   return (
-    <SafeLayout style={{ flex: 1, backgroundColor: Colors.background }}>
+    <SafeLayout 
+    style={styles.container} 
+    hasTabBar // Add this since it's a tabbed screen
+  >
         <FriendProfileMessageHeader 
-          imageSource={require('../assets/images/yu_progress_bar.png')} // or whatever your image path is
+          imageSource={require('../../assets/images/yu_progress_bar.png')} // or whatever your image path is
           name="Yu :)" // or whatever name you want to display
         />
         <GiftedChat
@@ -133,6 +136,18 @@ const ChatRoomYu = () => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+  chatContainer: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+  messageContainer: {
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+  },
   composer: {
     borderRadius: 18,
     borderWidth: 1,
@@ -142,7 +157,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 2,
     marginBottom: 2,
-    textAlignVertical: 'center', // Center text vertically
+    textAlignVertical: 'center',
   },
 });
 

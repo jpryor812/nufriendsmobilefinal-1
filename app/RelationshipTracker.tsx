@@ -243,7 +243,7 @@ const RelationshipTracker = () => {
         </View>
       </View>
 
-      <Text style={styles.badgesHeader}>Badges</Text>
+      <Text style={styles.badgesHeader}>Badges ^</Text>
       <ScrollView>
       <FriendBadgeSection />
       </ScrollView>
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
-    marginTop: -35,
+    marginTop: -10,
   },
   pcText: {
     color: '#3498db',

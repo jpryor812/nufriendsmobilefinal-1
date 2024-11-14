@@ -5,19 +5,24 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 interface SafeLayoutProps {
   children: ReactNode;
   style?: ViewStyle;
+  hasTabBar?: boolean; // Add this prop to handle tab bar screens
 }
 
-export default function SafeLayout({ children, style }: SafeLayoutProps) {
+export default function SafeLayout({ 
+  children, 
+  style,
+  hasTabBar = false // Default to false
+}: SafeLayoutProps) {
   const insets = useSafeAreaInsets();
 
   return (
     <View style={[
       {
         flex: 1,
-        // Always apply top padding for iOS and Android
+        // Keep top padding
         paddingTop: insets.top,
-        // Only add extra bottom padding for Android
-        paddingBottom: Platform.OS === 'android' ? Math.max(insets.bottom, 20) : insets.bottom
+        // Only add bottom padding if there's no tab bar
+        paddingBottom: hasTabBar ? 0 : (Platform.OS === 'android' ? Math.max(insets.bottom, 20) : insets.bottom)
       },
       style
     ]}>

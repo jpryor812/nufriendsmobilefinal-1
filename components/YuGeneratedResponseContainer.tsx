@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
   messageContainer: {
     backgroundColor: '#F9F9F9',
     borderRadius: 15,
-    marginVertical: 8,
+    marginVertical: 6,
     paddingHorizontal: 12,
     borderWidth: 1,
     borderColor: '#E0E0E0',
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
     borderRadius: 20,
-    paddingVertical: 10,
+    paddingVertical: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
   suggestionContainer: {
     backgroundColor: '#F9F9F9',
     borderRadius: 15,
-    marginVertical: 8,
+    marginVertical: 6,
     paddingHorizontal: 12,
     borderWidth: 1,
     borderColor: '#E0E0E0',

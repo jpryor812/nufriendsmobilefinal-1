@@ -143,7 +143,7 @@ const handleSendMessage = (text: string) => {
         </TouchableOpacity>
       </View>
       <View style={styles.lowerHeader}>
-                <Text style={styles.YuUseCounter}>0/25 used this week</Text>
+                <Text style={styles.YuUseCounter}>0/20 used this week</Text>
         <Link href="/UpgradeToPremium">
         <Text style={styles.MoreYu}>Want more?</Text>
         </Link>

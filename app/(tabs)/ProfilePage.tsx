@@ -1,20 +1,16 @@
 import React from 'react';
-import { View, StyleSheet, SafeAreaView, ScrollView, Platform } from 'react-native';
-import HeaderButtons from '../components/HeaderButtons';
-import FriendProfileVertical from '../components/FriendProfileVertical';
-import DatingToggle from '../components/DatingToggle';
-import MessagesChart from '../components/MessagesChart';
-import ActiveStreaks from '../components/ActiveStreaks';
-import StatsBar from '../components/UserStatsContainer';
+import { View, StyleSheet } from 'react-native';
+import HeaderButtons from '../../components/HeaderButtons';
+import FriendProfileVertical from '../../components/FriendProfileVertical';
+import MessagesChart from '../../components/MessagesChart';
+import ActiveStreaks from '../../components/ActiveStreaks';
+import StatsBar from '../../components/UserStatsContainer';
 import AchievementsSection from '@/components/AchievementsSection';
-import FooterNavigation from '../components/FooterNavigation';
-import FooterNavigationAndroid from '@/components/FooterNavigationAndroid';
-import BadgesSection from '../components/BadgesSection';
+import BadgesSection from '../../components/BadgesSection';
 import ScrollSafeLayout from '@/components/ScrollSafeLayout';
 import SafeLayout from '@/components/SafeLayout';
 
 const ProfilePage = () => {
-
   const handleFindFriends = () => {
     console.log('Find friends');
   };
@@ -23,17 +19,20 @@ const ProfilePage = () => {
     console.log('Upgrade');
   };
 
-
   return (
-    <SafeLayout style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+    <SafeLayout style={styles.container} hasTabBar>
+      <ScrollSafeLayout 
+        hasTabBar
+        style={styles.scrollContainer}
+        contentContainerStyle={styles.scrollViewContent}
+      >
         <HeaderButtons 
           onPressFindFriends={handleFindFriends}
           onPressUpgrade={handleUpgrade}
         />
         <View style={styles.friendProfileContainer}>
           <FriendProfileVertical 
-            imageSource={require('../assets/images/profile_picture.jpg')} 
+            imageSource={require('../../assets/images/profile_picture.jpg')} 
             name="Jpp123" 
             onPress={() => console.log('Friend profile pressed')}
           />
@@ -44,7 +43,7 @@ const ProfilePage = () => {
         <StatsBar currentWeek={0} />
         <ActiveStreaks />
         <BadgesSection /> 
-      </ScrollView>
+      </ScrollSafeLayout>
     </SafeLayout>
   );
 };
@@ -52,11 +51,14 @@ const ProfilePage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F0FCFE', // Match your app's background color
+    backgroundColor: '#F0FCFE',
+  },
+  scrollContainer: {
+    flex: 1,
   },
   scrollViewContent: {
     flexGrow: 1,
-    backgroundColor: '#F0FCFE', // Match your app's background color
+    backgroundColor: '#F0FCFE',
   },
   friendProfileContainer: {
     marginTop: 5,
