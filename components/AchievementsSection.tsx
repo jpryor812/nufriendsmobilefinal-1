@@ -11,12 +11,13 @@ import FriendsMessagedInADayAchievement from './FriendsMessagedInADayAchievement
 import GroupChatsJoined from './GroupChatsJoinedAchievement';
 import MysteryAchievements from './MysteryAchievements';
 import TotalBadgesEarned from './TotalBadgesEarned';
+import ScrollSafeLayout from './ScrollSafeLayout';
 
 const AchievementsSection = () => {
   return (
     <View>
       <Text style={styles.header}>Achievements</Text>
-      <ScrollView 
+      <ScrollSafeLayout 
         horizontal={true}
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContainer}

@@ -8,7 +8,6 @@ import ScrollSafeLayout from '@/components/ScrollSafeLayout';
 
 const HomePage = () => {
   const handleSeeMore = () => {
-    console.log("See More pressed");
   };
 
   return (

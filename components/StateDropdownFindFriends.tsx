@@ -1,5 +1,4 @@
-//When we launch, only show countries/states/cities where we have active users
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,31 +8,22 @@ import {
   StyleSheet,
   ScrollView,
 } from 'react-native';
+import { friendsData } from '../constants/FriendsData';
 
 interface StateDropdownProps {
-    onStatesChange?: (states: string[]) => void;  // Changed to handle multiple states
+    onStatesChange?: (states: string[]) => void;
+    availableStates?: string[];
 }
 
-const StateDropdown = ({ onStatesChange }: StateDropdownProps) => {
+const StateDropdown = ({ onStatesChange, availableStates }: StateDropdownProps) => {
     const [visible, setVisible] = useState(false);
-    const [selectedStates, setSelectedStates] = useState<string[]>([]);  // Changed to array
+    const [selectedStates, setSelectedStates] = useState<string[]>([]);
     const [dropdownTop, setDropdownTop] = useState(0);
     const [dropdownLeft, setDropdownLeft] = useState(0);
     const buttonRef = useRef<TouchableOpacity>(null);
 
-    const usStatesAndTerritories = [
-        "Alabama", "Alaska", "American Samoa", "Arizona", "Arkansas",
-        "California", "Colorado", "Connecticut", "Delaware", "District of Columbia",
-        "Florida", "Georgia", "Guam", "Hawaii", "Idaho", "Illinois", "Indiana",
-        "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland",
-        "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri",
-        "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey",
-        "New Mexico", "New York", "North Carolina", "North Dakota",
-        "Northern Mariana Islands", "Ohio", "Oklahoma", "Oregon", "Pennsylvania",
-        "Puerto Rico", "Rhode Island", "South Carolina", "South Dakota",
-        "Tennessee", "Texas", "U.S. Virgin Islands", "Utah", "Vermont",
-        "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
-    ] as const;
+    // Get unique states from friendsData if availableStates prop is not provided
+    const states = availableStates || [...new Set(friendsData.map(friend => friend.state))].sort();
 
     const toggleDropdown = () => {
         if (buttonRef.current) {
@@ -65,16 +55,21 @@ const StateDropdown = ({ onStatesChange }: StateDropdownProps) => {
             style={styles.item} 
             onPress={() => handleStateSelect(item)}
         >
-            <Text>{item}</Text>
+            <Text style={styles.itemText}>{item}</Text>
         </TouchableOpacity>
     );
+
+    useEffect(() => {
+        // Update selected states based on available states
+        setSelectedStates(prev => prev.filter(state => availableStates?.includes(state) ?? true));
+      }, [availableStates]);
 
     return (
         <View style={styles.container}>
             <View style={styles.dropdownContainer}>
                 <TouchableOpacity 
                     ref={buttonRef} 
-                    style={styles.button} 
+                    style={[styles.button, selectedStates.length > 0 && styles.buttonActive]} 
                     onPress={toggleDropdown}
                 >
                     <Text style={styles.buttonText}>
@@ -91,12 +86,18 @@ const StateDropdown = ({ onStatesChange }: StateDropdownProps) => {
                         onPress={() => setVisible(false)}
                     >
                         <View style={[styles.dropdown, { top: dropdownTop, left: dropdownLeft }]}>
-                            <FlatList
-                                data={usStatesAndTerritories}
-                                renderItem={renderItem}
-                                keyExtractor={(item) => item}
-                                style={styles.list}
-                            />
+                            {states.length > 0 ? (
+                                <FlatList
+                                    data={states}
+                                    renderItem={renderItem}
+                                    keyExtractor={(item) => item}
+                                    style={styles.list}
+                                />
+                            ) : (
+                                <View style={styles.noDataContainer}>
+                                    <Text style={styles.noDataText}>No states available with current filters</Text>
+                                </View>
+                            )}
                         </View>
                     </TouchableOpacity>
                 </Modal>
@@ -177,6 +178,9 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#cccccc',
     },
+    itemText: {
+        fontSize: 14,
+    },
     list: {
         maxHeight: 300,
     },
@@ -221,6 +225,18 @@ const styles = StyleSheet.create({
     removeButtonText: {
         fontSize: 18,
         color: '#666',
+    },
+    buttonActive: {
+        borderColor: '#42ade2',
+        borderWidth: 2,
+    },
+    noDataContainer: {
+        padding: 20,
+        alignItems: 'center',
+    },
+    noDataText: {
+        color: '#666',
+        fontSize: 14,
     },
 });
 

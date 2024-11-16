@@ -8,26 +8,22 @@ import {
   StyleSheet,
   ScrollView,
 } from 'react-native';
-import ScrollSafeLayout from './ScrollSafeLayout';
+import { friendsData } from '../constants/FriendsData';
 
 interface GenderDropdownProps {
-    onGendersChange?: (genders: string[]) => void;  // Changed to handle array
+    onGendersChange?: (genders: string[]) => void;
+    availableGenders?: string[]; // New prop to receive available genders
 }  
 
-const GenderDropdown = ({ onGendersChange }: GenderDropdownProps) => {
+const GenderDropdown = ({ onGendersChange, availableGenders }: GenderDropdownProps) => {
   const [visible, setVisible] = useState(false);
-  const [selectedGenders, setSelectedGenders] = useState<string[]>([]);  // Changed to array
+  const [selectedGenders, setSelectedGenders] = useState<string[]>([]);
   const [dropdownTop, setDropdownTop] = useState(0);
   const [dropdownLeft, setDropdownLeft] = useState(0);
   const buttonRef = useRef<TouchableOpacity>(null);
 
-  const genders = [
-    "Female",
-    "Male",
-    "Non-binary",
-    "Other",
-    "Prefer not to say"
-  ] as const;
+  // Get unique genders from friendsData if availableGenders prop is not provided
+  const genders = availableGenders || [...new Set(friendsData.map(friend => friend.gender))];
 
   const toggleDropdown = () => {
     if (buttonRef.current) {
@@ -85,12 +81,18 @@ const GenderDropdown = ({ onGendersChange }: GenderDropdownProps) => {
             onPress={() => setVisible(false)}
           >
             <View style={[styles.dropdown, { top: dropdownTop, left: dropdownLeft }]}>
-              <FlatList
-                data={genders}
-                renderItem={renderItem}
-                keyExtractor={(item) => item}
-                style={styles.list}
-              />
+              {genders.length > 0 ? (
+                <FlatList
+                  data={genders}
+                  renderItem={renderItem}
+                  keyExtractor={(item) => item}
+                  style={styles.list}
+                />
+              ) : (
+                <View style={styles.noDataContainer}>
+                  <Text style={styles.noDataText}>No options available</Text>
+                </View>
+              )}
             </View>
           </TouchableOpacity>
         </Modal>
@@ -218,6 +220,25 @@ const styles = StyleSheet.create({
   removeButtonText: {
     fontSize: 18,
     color: '#666',
+  },
+  itemContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+  },
+  countText: {
+    fontSize: 12,
+    color: '#666',
+    marginLeft: 8,
+  },
+  noDataContainer: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  noDataText: {
+    color: '#666',
+    fontSize: 14,
   },
 });
 
