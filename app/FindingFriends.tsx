@@ -1,11 +1,12 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useState, useRef } from "react";
+import { View, Text, StyleSheet, Animated, Dimensions, Vibration } from "react-native";
+import { useLocalSearchParams } from 'expo-router';
 import BigYuSearching from "@/components/BigYuSearching";
 import SearchingBubble from "@/components/SearchingBubble";
 import { friendsData } from '../constants/FriendsData';
 import FoundFriendProfile from "@/components/FoundFriendProfile";
 import SafeLayout from '@/components/SafeLayout';
+import ConfettiEffect from '@/components/ConfettiEffect';
 
 interface Friend {
   id: number;
@@ -23,108 +24,123 @@ interface Friend {
   gender: string;
 }
 
-interface Filters {
-  cities: string[];
-  states: string[];
-  countries: string[];
-  genders: string[];
-}
-
-type ScreenState = 'checking' | 'searching' | 'found' | 'no-matches';
+const { height } = Dimensions.get('window');
 
 const FindingFriends: React.FC = () => {
   const params = useLocalSearchParams();
-  const [screenState, setScreenState] = useState<ScreenState>('checking');
   const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [searchingText, setSearchingText] = useState("Hang tight! I'll find your new friend in just a few seconds...");
+  
+  // Animation values
+  const searchingSlideAnim = useRef(new Animated.Value(0)).current;
+  const profileSlideAnim = useRef(new Animated.Value(height)).current;
 
-  const filterFriends = (filters: Filters) => {
-    let filteredFriends = [...friendsData];
+  const runAnimationSequence = (friend: Friend) => {
+    setSelectedFriend(friend);
 
-    if (filters.cities.length > 0) {
-      filteredFriends = filteredFriends.filter(friend => 
-        filters.cities.includes(friend.city)
-      );
-    }
-    if (filters.states.length > 0) {
-      filteredFriends = filteredFriends.filter(friend => 
-        filters.states.includes(friend.state)
-      );
-    }
-    if (filters.countries.length > 0) {
-      filteredFriends = filteredFriends.filter(friend => 
-        filters.countries.includes(friend.country)
-      );
-    }
+    // Vibrate when starting slide-out animation
+    Vibration.vibrate(200);
+
+    // Sequence of animations
+    Animated.sequence([
+      // Slide searching content down
+      Animated.timing(searchingSlideAnim, {
+        toValue: height,
+        duration: 500,
+        useNativeDriver: true,
+      })
+    ]).start(() => {
+      // Start the profile reveal sequence after slide-down
+      setTimeout(() => {
+        setShowConfetti(true);
+        Animated.timing(profileSlideAnim, {
+          toValue: 0,
+          duration: 500,
+          useNativeDriver: true,
+        }).start();
+      }, 500);
+    });
+  };
+
+  React.useEffect(() => {
+    const filters = JSON.parse(params.filters as string);
+    let matchingFriends = [...friendsData];
+
     if (filters.genders.length > 0) {
-      filteredFriends = filteredFriends.filter(friend => 
+      matchingFriends = matchingFriends.filter(friend => 
         filters.genders.includes(friend.gender)
       );
     }
+    if (filters.states.length > 0) {
+      matchingFriends = matchingFriends.filter(friend => 
+        filters.states.includes(friend.state)
+      );
+    }
+    if (filters.cities.length > 0) {
+      matchingFriends = matchingFriends.filter(friend => 
+        filters.cities.includes(friend.city)
+      );
+    }
 
-    return filteredFriends;
-  };
+    // Change text and vibrate after 3 seconds
+    const textTimer = setTimeout(() => {
+      Vibration.vibrate(200);
+      setSearchingText("Starting the conversation...");
+    }, 4000);
 
-  // Initial check for matches
-  React.useEffect(() => {
-    const filters: Filters = params.filters ? JSON.parse(params.filters as string) : {
-      cities: [],
-      states: [],
-      countries: [],
-      genders: []
+    // Run animation sequence after 6 seconds
+    const animationTimer = setTimeout(() => {
+      const randomIndex = Math.floor(Math.random() * matchingFriends.length);
+      runAnimationSequence(matchingFriends[randomIndex]);
+    }, 7000);
+
+    return () => {
+      clearTimeout(textTimer);
+      clearTimeout(animationTimer);
+      Vibration.cancel();
     };
-
-    const matchingFriends = filterFriends(filters);
-
-    if (matchingFriends.length === 0) {
-      setScreenState('no-matches');
-    } else {
-      setScreenState('searching');
-      // Only start the search timer if we have matches
-      const timer = setTimeout(() => {
-        const randomIndex = Math.floor(Math.random() * matchingFriends.length);
-        setSelectedFriend(matchingFriends[randomIndex]);
-        setScreenState('found');
-      }, 6000);
-
-      return () => clearTimeout(timer);
-    }
   }, [params.filters]);
-
-  const renderContent = () => {
-    switch (screenState) {
-      case 'checking':
-        return null;
-      
-      case 'searching':
-        return (
-          <>
-            <BigYuSearching text="Hang tight! I'll find your new friend as soon as possible!" />
-            <SearchingBubble />
-            <Text style={styles.WaitTime}>Estimated Wait Time: 10 seconds</Text>
-          </>
-        );
-      
-      case 'no-matches':
-        return (
-          <Text style={styles.noMatchText}>
-            No friends found matching your criteria. Try broadening your search!
-          </Text>
-        );
-      
-      case 'found':
-        return selectedFriend ? (
-          <FoundFriendProfile friend={selectedFriend} />
-        ) : (
-          <Text>Debug: No friend selected</Text>
-        );
-    }
-  };
 
   return (
     <SafeLayout style={styles.container}>
-      <View style={styles.contentContainer}>
-        {renderContent()}
-      </View>
+      {/* Searching Content */}
+      <Animated.View 
+        style={[
+          styles.contentContainer,
+          {
+            transform: [{ translateY: searchingSlideAnim }]
+          }
+        ]}
+      >
+        <BigYuSearching text={searchingText} />
+        <SearchingBubble />
+      </Animated.View>
+
+      {/* Profile Content */}
+      {selectedFriend && (
+        <Animated.View 
+          style={[
+            styles.contentContainer,
+            {
+              transform: [{ translateY: profileSlideAnim }],
+              justifyContent: 'center',
+              marginTop: -1200,
+            }
+          ]}
+        >
+          <FoundFriendProfile friend={selectedFriend} />
+        </Animated.View>
+      )}
+
+      {/* Confetti Effect */}
+      {showConfetti && (
+        <ConfettiEffect 
+          count={250}
+          duration={2000}
+          colors={['#FFD700', '#FF69B4', '#7FFFD4', '#FF4500', '#42ade2']}
+        />
+      )}
     </SafeLayout>
   );
 };
@@ -137,30 +153,8 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     alignItems: 'center',
-  },
-  Yu: {
-    width: 120,
-    marginTop: 80,
-    marginBottom: 12,
-  },
-  WaitTime: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#9d9d9d',
-    marginTop: 10,
-  },
-  matchText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    color: '#42ade2',
-  },
-  noMatchText: {
-    fontSize: 16,
-    color: '#9d9d9d',
-    textAlign: 'center',
-    marginTop: 20,
-  },
+    backgroundColor: '#F0FCFE',
+  }
 });
 
 export default FindingFriends;

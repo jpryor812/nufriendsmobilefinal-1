@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { View, StyleSheet, Text, ScrollView } from 'react-native';
+import { View, StyleSheet, Text, ScrollView, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import StateDropdownFindFriends from '../components/StateDropdownFindFriends';
 import GenderDropdownFindFriends from '../components/GenderDropdownFindFriends';
@@ -212,9 +212,10 @@ const FindNewFriends = () => {
         <Ionicons name="arrow-back" size={24} color={Colors.primary} />
       </Link>
       <ScrollView style={styles.scrollContainer}>
+        <Image source={require('@/assets/images/Yu_excited_no_speech.png')} style={styles.yuImage} />
         <Text style={styles.PageTitle}>Find Your New Friend!!</Text>
         <Text style={styles.PageSubTitle}>Feel free to use the filters to look for specific friends or just search for anyone anywhere by leaving everything blank!!</Text>
-        <Text style={styles.PageSubSubTitle}>Note: The broader your search, the quicker you'll find friends! Also, We only show options as they relate to our active users so you may not see every possible option. We update this weekly.</Text>
+        <Text style={styles.PageSubSubTitle}>Note: We only show genders, states, and cities of active users on our app.</Text>
         <View style={styles.dropdownsContainer}>
           <GenderDropdownFindFriends 
             onGendersChange={handleGendersChange}
@@ -272,7 +273,7 @@ const styles = StyleSheet.create({
   PageTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginTop: 20,
+    marginTop: 10,
     textAlign: 'center',
   },
   PageSubTitle: {
@@ -284,7 +285,7 @@ const styles = StyleSheet.create({
   },
   PageSubSubTitle: {
     fontSize: 10,
-    marginTop: 6,
+    marginTop: 2,
     textAlign: 'center',
     fontStyle: 'italic',
     color: '#9d9d9d',
@@ -292,7 +293,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     marginLeft: 10,
-    marginTop: 4,
+    marginTop: 2,
     marginBottom: -4,
   },
   errorText: {
@@ -301,6 +302,11 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     fontSize: 14,
     fontWeight: 'bold',
+  },
+  yuImage: {
+    width: 60,
+    height: 60,
+    alignSelf: 'center',
   },
 });
 

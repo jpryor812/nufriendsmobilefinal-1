@@ -1,23 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, StyleSheet, Text, Image, Animated, Easing } from 'react-native';
 
 const BigYuSearching = ({ text }: { text: string }) => {
-  const [displayText, setDisplayText] = useState(text);
+  // Remove the displayText state and use the text prop directly
   
-  // Create an animated value for the bouncing motion
-  const bounceAnim = new Animated.Value(0);
+  // Use useRef for the animated value to prevent recreation on rerenders
+  const bounceAnim = useRef(new Animated.Value(0)).current;
 
-  // Text change effect - changes once after 6 seconds
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDisplayText("I'm sure I'll find your new friend soon, but if you're getting bored, feel free to explore the app. I'll let you know when I find your new friend!");
-    }, 8000);
-
-    // Cleanup timeout when component unmounts
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Bounce animation effect
+  // Only handle bounce animation
   useEffect(() => {
     const bounce = Animated.sequence([
       Animated.timing(bounceAnim, {
@@ -44,7 +34,7 @@ const BigYuSearching = ({ text }: { text: string }) => {
   return (
       <View style={styles.big_yu_chat_bubble_container}>
         <View style={styles.chatBubble}>
-          <Text style={styles.big_yu_text}>{displayText}</Text>
+          <Text style={styles.big_yu_text}>{text}</Text>
         </View>
         <View style={styles.chatBubbleArrow} />
         <View style={styles.chatBubbleArrowInner} />
@@ -61,6 +51,7 @@ const BigYuSearching = ({ text }: { text: string }) => {
       </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   big_yu_chat_bubble_container: {
