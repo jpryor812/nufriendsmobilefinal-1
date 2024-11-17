@@ -19,6 +19,12 @@ import YuSuggestions from '@/components/YuSuggestions';
 import AnimatedYuButton from '@/components/AnimatedYuButton';
 import SafeLayout from '@/components/SafeLayout';
 import { friendsData } from '@/constants/FriendsData';
+import ActionMenu from '@/components/ActionMenu';
+
+const generateMessageId = (() => {
+  let counter = 1;
+  return () => `m_${Date.now()}_${counter++}`;
+})();
 
 const ChatRoomFriend = () => {
   const [text, setText] = useState('');
@@ -36,31 +42,44 @@ const ChatRoomFriend = () => {
   }, [params.id, friend.name]);
 
   useEffect(() => {
-    setMessages([
-      ...messageData2.map((message) => {
-        return {
-          _id: message.id,
-          text: message.msg,
-          createdAt: new Date(message.date),
-          user: {
-            _id: message.from,
-            name: message.from ? 'You' : friend.name,  // Use friend.name directly
-          },
-        };
-      }).reverse(),
-    ]);
+    const formattedMessages = messageData2.map((message) => ({
+      _id: generateMessageId(),
+      text: message.msg,
+      createdAt: new Date(message.date),
+      user: {
+        _id: message.from,
+        name: message.from ? 'You' : friend.name,
+      },
+    }));
+    setMessages(formattedMessages.reverse());
   }, [friend.name]);
 
-  const onSend = useCallback((messages = []) => {
-    setMessages((previousMessages: any[]) => GiftedChat.append(previousMessages, messages));
-  }, []);
+const onSend = useCallback((newMessages: IMessage[] = []) => {
+  console.log('Regular send triggered:', newMessages);
+  
+  try {
+    // Create a properly structured message similar to Yu messages
+    const formattedMessages = newMessages.map(msg => ({
+      _id: generateMessageId(),
+      text: msg.text,
+      createdAt: new Date(),
+      user: {
+        _id: 1,
+        name: 'You'
+      }
+    }));
+
+    console.log('Formatted messages:', formattedMessages);
+    setMessages(previousMessages => GiftedChat.append(previousMessages, formattedMessages));
+  } catch (error) {
+    console.error('Error in onSend:', error);
+  }
+}, []);
 
   // Combined handler for Yu-generated messages
   const handleYuMessage = (text: string) => {
-    console.log('ChatRoomFriend received message:', text);
-    
     const newMessage: IMessage = {
-      _id: Math.random().toString(),
+      _id: generateMessageId(),
       text: text,
       createdAt: new Date(),
       user: {
@@ -68,7 +87,6 @@ const ChatRoomFriend = () => {
         name: 'You',
       },
     };
-
     setMessages(previousMessages => GiftedChat.append(previousMessages, [newMessage]));
     setIsYuSuggestionsMode(false);
   };
@@ -102,8 +120,8 @@ const ChatRoomFriend = () => {
             <Send {...props} containerStyle={{ justifyContent: 'center' }}>
               <Ionicons name="send" color={Colors.primary} size={22} />
             </Send>
-            <Ionicons name="add" color={Colors.primary} size={22} />
-          </View>
+                  <ActionMenu />
+              </View>
         )}
       />
     );

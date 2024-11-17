@@ -2,6 +2,14 @@ import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 
+interface GenderIcon {
+  source: any;
+  dimensions: {
+    width: number;
+    height: number;
+  };
+}
+
 interface FriendProfileProps {
   friend: {
     id: number;
@@ -23,6 +31,59 @@ interface FriendProfileProps {
 const FoundFriendProfile: React.FC<FriendProfileProps> = ({ friend }) => {
   const router = useRouter();
 
+  const getGenderIcon = (gender: string): GenderIcon => {
+    switch (gender.toLowerCase()) {
+      case 'female':
+        return {
+          source: require('../assets/images/female_icon.png'),
+          dimensions: {
+            width: 12,
+            height: 18
+          }
+        };
+      case 'male':
+        return {
+          source: require('../assets/images/male_icon.png'),
+          dimensions: {
+            width: 14,
+            height: 14
+          }
+        };
+      case 'non-binary':
+        return {
+          source: require('../assets/images/non-binary_icon.png'),
+          dimensions: {
+            width: 12,
+            height: 22
+          }
+        };
+      case 'other':
+        return {
+          source: require('../assets/images/face_icon.png'),
+          dimensions: {
+            width: 18,
+            height: 20
+          }
+        };
+      case 'prefer not to say':
+        return {
+          source: require('../assets/images/minus_sign.png'),
+          dimensions: {
+            width: 8,
+            height: 2
+          }
+        };
+        default:
+          return {
+            source: require('../assets/images/face_icon.png'),  // fallback icon
+            dimensions: {
+              width: 18,
+              height: 20
+            }
+          };
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.friendContainer}>
@@ -35,12 +96,32 @@ const FoundFriendProfile: React.FC<FriendProfileProps> = ({ friend }) => {
         )}
         <Text style={styles.name}>{friend.name}</Text>
         
-        <View style={styles.detailsContainer}>
-          <Text style={styles.detailText}>Gender: {friend.gender}</Text>
-          <Text style={styles.detailText}>Location: {friend.city}, {friend.state}</Text>
-          <Text style={styles.detailText}>Country: {friend.country}</Text>
-        </View>
-      </View>
+        <View style={styles.details}>
+    <View style={styles.detailContainer}>
+        <Image source={require('../assets/images/Home_icon.png')}
+            style={{ width: 22, height: 22 }} />
+        <Text style={styles.detailText}>{friend.city}</Text>
+    </View>
+    <View style={styles.detailContainer}>
+    {(() => {
+        const iconInfo = getGenderIcon(friend.gender);
+        return (
+            <Image 
+                source={iconInfo.source}
+                style={iconInfo.dimensions}
+            />
+        );
+    })()}
+    <Text style={styles.detailText}>{friend.gender}</Text>
+</View>
+    <View style={styles.detailContainer}>
+        <Image source={require('../assets/images/ph_cake.png')}
+            style={{ width: 18, height: 18 }} />
+        <Text style={styles.detailText}>{friend.age} years-old</Text>
+    </View>
+</View>
+</View>
+
               
       <TouchableOpacity 
         style={styles.messageButton}
@@ -106,16 +187,22 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     color: '#42ade2',
   },
-  detailsContainer: {
-    width: '100%',
-    paddingTop: 15,
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-  },
-  detailText: {
+  details: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5,
     fontSize: 16,
-    marginBottom: 8,
-    color: '#666',
+    fontWeight: 'bold',
+  },
+    detailContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginRight: 10,
+        paddingVertical: 4,
+    },
+  detailText: {
+    color: '#000',
+    marginHorizontal: 5,
   },
   messageButton: {
     flexDirection: 'row',
