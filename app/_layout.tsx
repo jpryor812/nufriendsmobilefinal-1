@@ -29,6 +29,8 @@ export default function RootLayout() {
       options={{ headerShown: false }} />
       <Stack.Screen name="ChatRoomFriend"
       options={{ headerShown: false }} />
+      <Stack.Screen name="ChatRoomNewFriend"
+      options={{ headerShown: false }} />
       <Stack.Screen name="FindNewFriends"
       options={{ headerShown: false }} />
       <Stack.Screen name="FindingFriends"

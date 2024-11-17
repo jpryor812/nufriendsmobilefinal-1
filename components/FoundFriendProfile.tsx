@@ -45,17 +45,32 @@ const FoundFriendProfile: React.FC<FriendProfileProps> = ({ friend }) => {
       <TouchableOpacity 
         style={styles.messageButton}
         onPress={() => router.push({
-          pathname: '/ChatRoomFriend',
+          pathname: '/ChatRoomNewFriend',
           params: {
             id: friend.id.toString()
           }
         })}
       >
         <Image 
-          source={require('../assets/images/incoming_envelope.png')}
-          style={{ width: 42, height: 24 }} 
+          source={require('../assets/images/Yu_excited_no_speech.png')}
+          style={{ width: 36, height: 36 }} 
         />
-        <Text style={styles.messageButtonText}>Send Message</Text>
+        <Text style={styles.messageButtonText}>View the Conversation!!</Text>
+      </TouchableOpacity>
+      <TouchableOpacity 
+        style={styles.homeButton}
+        onPress={() => router.push({
+          pathname: '/HomePage',
+          params: {
+            id: friend.id.toString()
+          }
+        })}
+      >
+        <Image 
+          source={require('../assets/images/house_emoji.png')}
+          style={{ width: 32, height: 32 }} 
+        />
+        <Text style={styles.homeButtonText}>Go Back To Home</Text>
       </TouchableOpacity>
     </View>
   );
@@ -110,10 +125,26 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     borderColor: '#3498db',
-    width: 210,
+    width: 280,
+  },
+  homeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: 8,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#a9a9a9',
+    width: 220,
   },
   messageButtonText: {
     color: '#3498db',
+    marginLeft: 10,
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  homeButtonText: {
+    color: '#7d7d7d',
     marginLeft: 10,
     fontSize: 18,
     fontWeight: 'bold',

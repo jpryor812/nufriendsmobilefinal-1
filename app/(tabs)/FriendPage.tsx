@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, Image, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
 import Dropdown from '../../components/DropdownMenu';
 import FooterNavigation from '../../components/FooterNavigation';
-import HeaderButtons from '@/components/HeaderButtons';
+import HeaderButtonsRefer from '@/components/HeaderButtonsReferFriends';
 import { Link } from "expo-router";
 import { friendsData, Friend } from '../../constants/FriendsData'; // Update this path
 import ScrollSafeLayout from '@/components/ScrollSafeLayout';
@@ -114,7 +114,7 @@ const FriendPage: React.FC = () => {
 
   return (
     <SafeLayout style={styles.container} hasTabBar>
-      <HeaderButtons 
+      <HeaderButtonsRefer 
         onPressFindFriends={() => console.log('Find Friends pressed')}
         onPressUpgrade={() => console.log('Upgrade pressed')}
       />
