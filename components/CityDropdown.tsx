@@ -11,13 +11,17 @@ import {
 import { citiesByState } from './CitiesByState';
 
 interface CityDropdownProps {
-    onCitiesChange?: (city: string) => void;  // Changed to single string
-    selectedState?: string;
+  onCitiesChange: (city: string) => void;
+  selectedState: string;  // Keep this as it's needed for city filtering
+  defaultValue?: string;
 }
 
-const CityDropdown = ({ onCitiesChange, selectedState }: CityDropdownProps) => {
-    const [visible, setVisible] = useState(false);
-    const [selectedCity, setSelectedCity] = useState<string>('');
+const CityDropdown: React.FC<CityDropdownProps> = ({ 
+  onCitiesChange, 
+  selectedState, 
+  defaultValue 
+}) => {
+  const [selectedCity, setSelectedCity] = useState(defaultValue || '');    const [visible, setVisible] = useState(false);
     const [dropdownTop, setDropdownTop] = useState(0);
     const [dropdownLeft, setDropdownLeft] = useState(0);
     const buttonRef = useRef<TouchableOpacity>(null);

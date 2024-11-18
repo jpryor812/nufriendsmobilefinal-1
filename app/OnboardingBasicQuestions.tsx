@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
-import { View, StyleSheet, Text, ScrollView, TouchableOpacity, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useAuth } from '@/contexts/AuthContext';
 import CityDropdown from '../components/CityDropdown';
 import StateDropdown from '../components/StateDropdown';
 import GenderDropdown from '../components/GenderDropdown';
@@ -13,12 +13,13 @@ import UsernameInput from '@/components/UsernameInput';
 
 const OnboardingBasicQuestions = () => {
     const router = useRouter();
+    const { updateDemographics } = useAuth();
     const [selectedFilters, setSelectedFilters] = useState({
       cities: [] as string[],
       states: [] as string[],
       genders: [] as string[],
     });
-  
+    const [error, setError] = useState('');
     const [selectedState, setSelectedState] = useState('');
   
     const handleStateChange = (state: string) => {
@@ -43,9 +44,27 @@ const OnboardingBasicQuestions = () => {
       }));
     };
 
-    const handleEmailSubmit = (email: string) => {
-      console.log('Email submitted:', email);
-      router.push('/OnboardingQuestion1');
+    const handleContinue = async () => {
+      try {
+        // Validate that all fields are filled
+        if (!selectedFilters.genders[0] || !selectedFilters.states[0] || !selectedFilters.cities[0]) {
+          setError('Please fill in all fields');
+          return;
+        }
+
+        // Save demographics to Firebase
+        await updateDemographics(
+          selectedFilters.genders[0],
+          selectedFilters.states[0],
+          selectedFilters.cities[0]
+        );
+
+        // Continue to next screen
+        router.push('/OnboardingQuestion1');
+      } catch (err) {
+        setError('Failed to save information. Please try again.');
+        console.error('Error saving demographics:', err);
+      }
     };
   
     return (
@@ -70,12 +89,13 @@ const OnboardingBasicQuestions = () => {
               />
             </View>
             <UsernameInput />
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
           </KeyboardAwareScrollView>
           
           <View style={styles.buttonContainer}>
             <TouchableOpacity 
               style={styles.button}
-              onPress={() => router.push('/OnboardingQuestion1')}
+              onPress={handleContinue}
             >
               <Text style={styles.buttonText}>Continue</Text>
             </TouchableOpacity>
@@ -83,7 +103,7 @@ const OnboardingBasicQuestions = () => {
         </View>
       </SafeLayout>
     );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -138,6 +158,12 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  errorText: {
+    color: 'red',
+    textAlign: 'center',
+    marginTop: 10,
+    paddingHorizontal: 16,
   },
 });
 

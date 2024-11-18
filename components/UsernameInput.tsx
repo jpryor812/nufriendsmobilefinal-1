@@ -12,33 +12,43 @@ import {
 } from 'react-native-gifted-chat';
 import Colors from '@/assets/Colors';
 
-const UsernameInput: React.FC = () => {
-  const [UserName, setUserName] = useState('');
+interface UsernameInputProps {
+  onUsernameChange: (username: string) => void;
+  defaultValue?: string;
+}
+
+const UsernameInput: React.FC<UsernameInputProps> = ({ onUsernameChange, defaultValue }) => {
+  const [username, setUsername] = useState(defaultValue || '');
+
+  const handleUsernameChange = (text: string) => {
+    setUsername(text);
+    onUsernameChange(text);
+  };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} >
-    <View style={styles.container}>
-      <Text style={styles.label}>What Should Everyone Call You?</Text>
-      <InputToolbar
-        containerStyle={styles.inputContainer}
-        primaryStyle={styles.inputPrimary}
-        renderComposer={(props) => (
-          <Composer
-            {...props}
-            textInputStyle={styles.input}
-            text={UserName}
-            onTextChanged={setUserName}
-            placeholder="Enter your username"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            multiline={false}
-          />
-        )}
-        renderSend={() => null}
-        renderActions={() => null}
-      />
-    </View>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container}>
+        <Text style={styles.label}>What Should Everyone Call You?</Text>
+        <InputToolbar
+          containerStyle={styles.inputContainer}
+          primaryStyle={styles.inputPrimary}
+          renderComposer={(props) => (
+            <Composer
+              {...props}
+              textInputStyle={styles.input}
+              text={username}  // Changed from UserName to username
+              onTextChanged={handleUsernameChange}  // Changed from setUserName
+              placeholder="Enter your username"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              multiline={false}
+            />
+          )}
+          renderSend={() => null}
+          renderActions={() => null}
+        />
+      </View>
     </TouchableWithoutFeedback>
   );
 };

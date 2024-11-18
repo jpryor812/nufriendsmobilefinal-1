@@ -11,7 +11,7 @@ import {
   deleteUser,
   User as FirebaseUser
 } from 'firebase/auth';
-import { doc, setDoc, getDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, deleteDoc, serverTimestamp, updateDoc, } from 'firebase/firestore';
 
 // Define types
 interface UserData {
@@ -19,16 +19,50 @@ interface UserData {
   email: string | null;
   username: string;
   createdAt: Date;
+  demographics: {
+    gender: string;
+    state: string;
+    city: string;
+  };
+  questionnaire: {
+    interests: string[];
+    preferences: Record<string, any>;
+    personalityTraits: string[];
+  };
+  stats: {
+    messagesSent: number;
+    conversationsStarted: number;
+    aiInteractions: number;
+  };
+  subscription: {
+    type: string;
+    validUntil: null | Date;
+  };
+  avatar: {
+    currentOutfit: Record<string, any>;
+    unlockedItems: string[];
+  };
 }
 
+type UserWithData = FirebaseUser & {
+  userData?: UserData;
+};
+
 interface AuthContextType {
-  user: FirebaseUser | null;
+  user: UserWithData | null; 
   loading: boolean;
   signup: (email: string, password: string, username: string) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUserPassword: (currentPassword: string, newPassword: string) => Promise<void>;
   deleteUserAccount: (password: string) => Promise<void>;
+  updateDemographics: (gender: string, state: string, city: string) => Promise<void>;
+  updateProfile: (updates: { // Add this new type
+    username?: string,
+    city?: string,
+    state?: string
+  }) => Promise<void>;
+
 }
 
 interface AuthProviderProps {
@@ -38,12 +72,24 @@ interface AuthProviderProps {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [user, setUser] = useState<UserWithData | null>(null);
   const [loading, setLoading] = useState(true);
-
+  
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        // Fetch user data from Firestore
+        const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+        const userData = userDoc.data() as UserData;
+        
+        // Combine Firebase user with Firestore data
+        setUser({
+          ...firebaseUser,
+          userData: userData
+        });
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
 
@@ -66,6 +112,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         email: user.email,
         username,
         createdAt: serverTimestamp(),
+        demographics: {     // Add this section
+          gender: '',
+          state: '',
+          city: ''
+        },
         questionnaire: {
           interests: [],
           preferences: {},
@@ -153,6 +204,41 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  const updateDemographics = async (gender: string, state: string, city: string) => {
+    try {
+      if (!user) throw new Error('No user logged in');
+      
+      const userRef = doc(db, 'users', user.uid);
+      await updateDoc(userRef, {
+        'demographics.gender': gender,
+        'demographics.state': state,
+        'demographics.city': city
+      });
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const updateProfile = async (updates: {
+    username?: string,
+    city?: string,
+    state?: string
+  }) => {
+    try {
+      if (!user) throw new Error('No user logged in');
+      
+      const updateData: any = {};
+      if (updates.username) updateData.username = updates.username;
+      if (updates.city) updateData['demographics.city'] = updates.city;
+      if (updates.state) updateData['demographics.state'] = updates.state;
+      
+      const userRef = doc(db, 'users', user.uid);
+      await updateDoc(userRef, updateData);
+    } catch (error) {
+      throw error;
+    }
+  };
+
   return (
     <AuthContext.Provider 
       value={{
@@ -163,6 +249,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         logout,
         updateUserPassword,
         deleteUserAccount,
+        updateDemographics,
+        updateProfile,
       }}
     >
       {!loading && children}

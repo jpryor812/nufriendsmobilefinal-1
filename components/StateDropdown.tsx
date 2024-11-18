@@ -11,12 +11,13 @@ import {
 } from 'react-native';
 
 interface StateDropdownProps {
-    onStatesChange?: (state: string) => void;  // Changed from string[] to string
+    onStatesChange: (state: string) => void;
+    defaultValue?: string;
   }
 
-const StateDropdown: React.FC<StateDropdownProps> = ({ onStatesChange }) => {
+  const StateDropdown: React.FC<StateDropdownProps> = ({ onStatesChange, defaultValue }) => {
+    const [selectedState, setSelectedState] = useState(defaultValue || '');
     const [visible, setVisible] = useState(false);
-    const [selectedState, setSelectedState] = useState<string>('');  // Changed from string[] to string
     const [dropdownTop, setDropdownTop] = useState(0);
     const [dropdownLeft, setDropdownLeft] = useState(0);
     const buttonRef = useRef<TouchableOpacity>(null);
@@ -92,13 +93,13 @@ const StateDropdown: React.FC<StateDropdownProps> = ({ onStatesChange }) => {
 
   const handleStateSelect = (state: string) => {
     setSelectedState(state);
-    onStatesChange?.([state]);
+    onStatesChange(state);  // Changed from onStatesChange?.([state])
     setVisible(false);
   };
 
   const removeState = () => {
     setSelectedState('');
-    onStatesChange?.([]);
+    onStatesChange('');  // Changed from onStatesChange?.([])
   };
 
   const renderItem = ({ item }: { item: string }) => (
@@ -109,6 +110,11 @@ const StateDropdown: React.FC<StateDropdownProps> = ({ onStatesChange }) => {
       <Text>{item}</Text>
     </TouchableOpacity>
   );
+
+  const handleStateChange = (state: string) => {
+    setSelectedState(state);
+    onStatesChange(state);
+  };
 
   return (
     <View style={styles.container}>

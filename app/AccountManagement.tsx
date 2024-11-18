@@ -1,4 +1,3 @@
-// app/AccountManagement.tsx
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
 import { useRouter, Link } from 'expo-router';
@@ -7,12 +6,19 @@ import SafeLayout from '@/components/SafeLayout';
 import PasswordInput from '@/components/PasswordInput';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/assets/Colors';
+import UsernameInput from '@/components/UsernameInput';
+import StateDropdown from '@/components/StateDropdown';
+import CityDropdown from '@/components/CityDropdown';
+import ScrollSafeLayout from '@/components/ScrollSafeLayout';
 
 const AccountManagement = () => {
   const router = useRouter();
-  const { updateUserPassword, deleteUserAccount } = useAuth();
+  const { updateUserPassword, deleteUserAccount, updateProfile, user } = useAuth();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [username, setUsername] = useState('');
+  const [selectedState, setSelectedState] = useState('');
+  const [selectedCity, setSelectedCity] = useState('');
   const [error, setError] = useState('');
 
   const handleChangePassword = async () => {
@@ -49,14 +55,59 @@ const AccountManagement = () => {
     );
   };
 
+  const handleUpdateProfile = async () => {
+    try {
+      setError('');
+      const updates: any = {};
+      
+      if (username) updates.username = username;
+      if (selectedState) updates.state = selectedState;
+      if (selectedCity) updates.city = selectedCity;
+
+      if (Object.keys(updates).length === 0) {
+        setError('No changes to update');
+        return;
+      }
+
+      await updateProfile(updates);
+      Alert.alert('Success', 'Profile updated successfully');
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
   return (
     <SafeLayout style={styles.container}>
-        
-      <View style={styles.content}>
-      <Link href="/ProfilePage" style={styles.backButton}>
-        <Ionicons name="arrow-back" size={24} color={Colors.primary} />
-      </Link>
+      <View style={styles.header}>
+        <Link href="/ProfilePage" style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color={Colors.primary} />
+        </Link>
         <Text style={styles.title}>Account Management</Text>
+      </View>
+      <ScrollSafeLayout style={styles.scrollContainer}>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Update Profile</Text>
+          <UsernameInput 
+            onUsernameChange={setUsername}
+            defaultValue={user?.userData?.username}
+          />
+          <StateDropdown 
+            onStatesChange={setSelectedState}
+            defaultValue={user?.userData?.demographics?.state}
+          />
+          <CityDropdown 
+            onCitiesChange={setSelectedCity}
+            selectedState={selectedState}
+            defaultValue={user?.userData?.demographics?.city}
+          />
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleUpdateProfile}
+          >
+            <Text style={styles.buttonText}>Update Profile</Text>
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Change Password</Text>
           <PasswordInput
@@ -89,7 +140,7 @@ const AccountManagement = () => {
         </View>
 
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
-      </View>
+      </ScrollSafeLayout>
     </SafeLayout>
   );
 };
@@ -99,17 +150,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F0FCFE',
   },
-  content: {
+  header: {
     padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  scrollContainer: {
+    flex: 1,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 24,
     textAlign: 'center',
+    flex: 1,
   },
   section: {
     marginBottom: 24,
+    paddingHorizontal: 16,
   },
   sectionTitle: {
     fontSize: 18,
@@ -142,7 +199,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   backButton: {
-    marginLeft: 2,
+    marginRight: 16,
   },
 });
 
