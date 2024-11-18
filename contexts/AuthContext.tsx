@@ -1,4 +1,3 @@
-// contexts/AuthContext.tsx
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { auth, db } from '@/config/firebase';
 import { 
@@ -6,9 +5,13 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  updatePassword,
+  deleteUser,
   User as FirebaseUser
 } from 'firebase/auth';
-import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 
 // Define types
 interface UserData {
@@ -24,15 +27,15 @@ interface AuthContextType {
   signup: (email: string, password: string, username: string) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateUserPassword: (currentPassword: string, newPassword: string) => Promise<void>;
+  deleteUserAccount: (password: string) => Promise<void>;
 }
 
-// Create context with type
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Props type for AuthProvider
 interface AuthProviderProps {
   children: ReactNode;
 }
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<FirebaseUser | null>(null);
@@ -49,11 +52,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const signup = async (email: string, password: string, username: string) => {
     try {
+      console.log('Starting signup process...');
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
+      console.log('User created in Auth with UID:', user.uid);
 
       // Create user document
-      await setDoc(doc(db, 'users', user.uid), {
+      console.log('Attempting to create Firestore document...');
+      const userDocRef = doc(db, 'users', user.uid);
+      
+      const userData = {
         uid: user.uid,
         email: user.email,
         username,
@@ -76,8 +84,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
           currentOutfit: {},
           unlockedItems: ['basic_outfit']
         }
-      });
+      };
+
+      console.log('User data to be stored:', userData);
+      await setDoc(userDocRef, userData);
+      console.log('Firestore document created successfully');
+
+      // Verify the document was created
+      const docSnap = await getDoc(userDocRef);
+      if (docSnap.exists()) {
+        console.log('Verified document data:', docSnap.data());
+      } else {
+        console.log('Document was not created successfully');
+      }
+
     } catch (error) {
+      console.error('Error in signup process:', error);
       throw error;
     }
   };
@@ -90,6 +112,47 @@ export function AuthProvider({ children }: AuthProviderProps) {
     await signOut(auth);
   };
 
+  const updateUserPassword = async (currentPassword: string, newPassword: string) => {
+    try {
+      if (!user || !user.email) throw new Error('No user logged in');
+      
+      // Re-authenticate user before changing password
+      const credential = EmailAuthProvider.credential(user.email, currentPassword);
+      await reauthenticateWithCredential(user, credential);
+      
+      // Update password
+      await updatePassword(user, newPassword);
+    } catch (error: any) {
+      let errorMessage = 'Failed to update password';
+      if (error.code === 'auth/wrong-password') {
+        errorMessage = 'Current password is incorrect';
+      }
+      throw new Error(errorMessage);
+    }
+  };
+
+  const deleteUserAccount = async (password: string) => {
+    try {
+      if (!user || !user.email) throw new Error('No user logged in');
+      
+      // Re-authenticate user before deletion
+      const credential = EmailAuthProvider.credential(user.email, password);
+      await reauthenticateWithCredential(user, credential);
+      
+      // Delete user data from Firestore first
+      await deleteDoc(doc(db, 'users', user.uid));
+      
+      // Delete the user account
+      await deleteUser(user);
+    } catch (error: any) {
+      let errorMessage = 'Failed to delete account';
+      if (error.code === 'auth/wrong-password') {
+        errorMessage = 'Password is incorrect';
+      }
+      throw new Error(errorMessage);
+    }
+  };
+
   return (
     <AuthContext.Provider 
       value={{
@@ -98,6 +161,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         signup,
         login,
         logout,
+        updateUserPassword,
+        deleteUserAccount,
       }}
     >
       {!loading && children}

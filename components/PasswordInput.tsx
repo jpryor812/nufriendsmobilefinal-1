@@ -5,9 +5,10 @@ import { Ionicons } from '@expo/vector-icons';
 
 interface PasswordInputProps {
   onPasswordChange: (password: string) => void;
+  placeholder?: string; 
 }
 
-const PasswordInput = ({ onPasswordChange }: PasswordInputProps) => {
+const PasswordInput = ({ onPasswordChange, placeholder = "Enter password (min 6 characters)" }: PasswordInputProps) => {
   const [password, setPassword] = useState('');
   const [isValid, setIsValid] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -31,7 +32,7 @@ const PasswordInput = ({ onPasswordChange }: PasswordInputProps) => {
           value={password}
           onChangeText={handlePasswordChange}
           secureTextEntry={!showPassword}
-          placeholder="Enter password (min 6 characters)"
+          placeholder={placeholder}
           placeholderTextColor="#999"
         />
         <TouchableOpacity 
