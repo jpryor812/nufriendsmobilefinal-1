@@ -1,82 +1,71 @@
+// components/EmailInput.tsx
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from 'react-native';
-import {
-  InputToolbar,
-  Composer,
-} from 'react-native-gifted-chat';
-import Colors from '@/assets/Colors';
+import { View, TextInput, StyleSheet, Text } from 'react-native';
 
-const EmailInput: React.FC = () => {
+interface EmailInputProps {
+  onEmailChange: (email: string) => void;
+}
+
+const EmailInput = ({ onEmailChange }: EmailInputProps) => {
   const [email, setEmail] = useState('');
+  const [isValid, setIsValid] = useState(true);
+
+  const validateEmail = (text: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(text);
+  };
+
+  const handleEmailChange = (text: string) => {
+    setEmail(text);
+    onEmailChange(text);
+    setIsValid(validateEmail(text));
+  };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} >
     <View style={styles.container}>
-      <Text style={styles.label}>Email Address:</Text>
-      <InputToolbar
-        containerStyle={styles.inputContainer}
-        primaryStyle={styles.inputPrimary}
-        renderComposer={(props) => (
-          <Composer
-            {...props}
-            textInputStyle={styles.input}
-            text={email}
-            onTextChanged={setEmail}
-            placeholder="Enter your email"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            multiline={false}
-          />
-        )}
-        renderSend={() => null}
-        renderActions={() => null}
+      <Text style={styles.label}>Email</Text>
+      <TextInput
+        style={[styles.input, !isValid && email.length > 0 && styles.invalidInput]}
+        value={email}
+        onChangeText={handleEmailChange}
+        placeholder="Enter your email"
+        placeholderTextColor="#999"
+        keyboardType="email-address"
+        autoCapitalize="none"
+        autoComplete="email"
       />
+      {!isValid && email.length > 0 && (
+        <Text style={styles.errorText}>Please enter a valid email address</Text>
+      )}
     </View>
-    </TouchableWithoutFeedback>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 30,
-    paddingTop: 4,
-    paddingBottom: 4,
+    padding: 16,
+    width: '100%',
   },
   label: {
     fontSize: 16,
-    fontWeight: 'bold',
+    marginBottom: 8,
     color: '#333',
   },
-  inputContainer: {
-    backgroundColor: 'white',
-    borderRadius: 20,
-    borderWidth: 2,
-    borderTopWidth: 2,
-    borderColor: '#aaa',
-    minHeight: 32,
-    maxHeight: 32,
-    marginTop: 4,
-    marginBottom: 6,
-  },
-  inputPrimary: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-  },
   input: {
-    flex: 1,
-    fontSize: 14,
-    lineHeight: 18,
-    marginLeft: 16,
-    marginRight: 10,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 12,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  invalidInput: {
+    borderColor: 'red',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    marginTop: 4,
   },
 });
 

@@ -1,8 +1,11 @@
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { AuthProvider } from "../contexts/AuthContext";
+
 
 export default function RootLayout() {
   return (
+    <AuthProvider>
     <>
       <StatusBar style="dark" />
       <Stack
@@ -55,6 +58,8 @@ export default function RootLayout() {
       options={{ headerShown: false }} />
       <Stack.Screen name="OnboardingPreQuestions"
       options={{ headerShown: false }} />
+      <Stack.Screen name="OnboardingPreQuestionsCreateAccount"
+      options={{ headerShown: false }} />
       <Stack.Screen name="OnboardingPreQuestions2"
       options={{ headerShown: false }} />
       <Stack.Screen name="OnboardingBasicQuestions"
@@ -97,5 +102,6 @@ export default function RootLayout() {
       options={{ headerShown: false }} />
     </Stack>
     </>
+    </AuthProvider>
   );
 }

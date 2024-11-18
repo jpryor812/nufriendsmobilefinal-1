@@ -128,7 +128,7 @@ const FindingFriends: React.FC = () => {
               marginTop: -1200,
             }
           ]}
-        >
+        > 
           <FoundFriendProfile friend={selectedFriend} />
         </Animated.View>
       )}

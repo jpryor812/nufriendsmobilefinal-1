@@ -5,10 +5,6 @@ import { useRouter } from 'expo-router';
 import CityDropdown from '../components/CityDropdown';
 import StateDropdown from '../components/StateDropdown';
 import GenderDropdown from '../components/GenderDropdown';
-import FindMoreFriendsButton from '@/components/FindMoreFriendsButton';
-import FindFriendsButton from '@/components/FindMyFriendsButton';
-import FooterNavigation from '@/components/FooterNavigationIOS';
-import EmailInput from '@/components/EmailInput';
 import SmallYuOnboarding from '@/components/SmallYuOnboarding';
 import ProgressBar from '@/components/ProgressBar';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -65,7 +61,6 @@ const OnboardingBasicQuestions = () => {
             extraScrollHeight={20}
           >
             <SmallYuOnboarding text={'Before we jump in, please fill out the following information!'} />
-            <EmailInput />
             <View style={styles.dropdownsContainer}>
               <GenderDropdown onGendersChange={handleGendersChange} />
               <StateDropdown onStatesChange={handleStateChange} />

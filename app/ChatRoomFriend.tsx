@@ -120,7 +120,7 @@ const onSend = useCallback((newMessages: IMessage[] = []) => {
             <Send {...props} containerStyle={{ justifyContent: 'center' }}>
               <Ionicons name="send" color={Colors.primary} size={22} />
             </Send>
-                  <ActionMenu />
+              <ActionMenu />
               </View>
         )}
       />
