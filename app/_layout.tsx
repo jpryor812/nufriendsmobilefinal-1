@@ -100,6 +100,8 @@ export default function RootLayout() {
       options={{ headerShown: false }} />
       <Stack.Screen name="OnboardingAvatarCustomization"
       options={{ headerShown: false }} />
+      <Stack.Screen name="Settings"
+      options={{ headerShown: false }} />
       <Stack.Screen name="AccountManagement"
       options={{ headerShown: false }} />
     </Stack>

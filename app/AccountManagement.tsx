@@ -79,7 +79,7 @@ const AccountManagement = () => {
   return (
     <SafeLayout style={styles.container}>
       <View style={styles.header}>
-        <Link href="/ProfilePage" style={styles.backButton}>
+        <Link href="/Settings" style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color={Colors.primary} />
         </Link>
         <Text style={styles.title}>Account Management</Text>

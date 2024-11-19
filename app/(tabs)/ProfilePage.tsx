@@ -25,7 +25,7 @@ const ProfilePage = () => {
   };
 
   const handleSettingsPress = () => {
-    router.push('/AccountManagement');
+    router.push('/Settings');
   };
 
   return (

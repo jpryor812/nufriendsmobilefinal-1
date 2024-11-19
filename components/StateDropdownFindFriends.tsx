@@ -11,19 +11,20 @@ import {
 import { friendsData } from '../constants/FriendsData';
 
 interface StateDropdownProps {
-    onStatesChange?: (states: string[]) => void;
-    availableStates?: string[];
+    onStatesChange: (states: string[]) => void;  // Remove optional
+    availableStates: string[];  // Remove optional
+    selectedStates: string[];  // Add this prop
 }
 
-const StateDropdown = ({ onStatesChange, availableStates }: StateDropdownProps) => {
+const StateDropdown = ({ 
+    onStatesChange, 
+    availableStates,
+    selectedStates: externalSelectedStates  // Rename to avoid conflict
+}: StateDropdownProps) => {
     const [visible, setVisible] = useState(false);
-    const [selectedStates, setSelectedStates] = useState<string[]>([]);
     const [dropdownTop, setDropdownTop] = useState(0);
     const [dropdownLeft, setDropdownLeft] = useState(0);
     const buttonRef = useRef<TouchableOpacity>(null);
-
-    // Get unique states from friendsData if availableStates prop is not provided
-    const states = availableStates || [...new Set(friendsData.map(friend => friend.state))].sort();
 
     const toggleDropdown = () => {
         if (buttonRef.current) {
@@ -36,18 +37,18 @@ const StateDropdown = ({ onStatesChange, availableStates }: StateDropdownProps) 
     };
 
     const handleStateSelect = (state: string) => {
-        if (!selectedStates.includes(state)) {
-            const newSelectedStates = [...selectedStates, state];
-            setSelectedStates(newSelectedStates);
-            onStatesChange?.(newSelectedStates);
+        if (!externalSelectedStates.includes(state)) {
+            const newSelectedStates = [...externalSelectedStates, state];
+            onStatesChange(newSelectedStates);
         }
         setVisible(false);
     };
 
     const removeState = (stateToRemove: string) => {
-        const newSelectedStates = selectedStates.filter(state => state !== stateToRemove);
-        setSelectedStates(newSelectedStates);
-        onStatesChange?.(newSelectedStates);
+        const newSelectedStates = externalSelectedStates.filter(
+            state => state !== stateToRemove
+        );
+        onStatesChange(newSelectedStates);
     };
 
     const renderItem = ({ item }: { item: string }) => (
@@ -59,22 +60,17 @@ const StateDropdown = ({ onStatesChange, availableStates }: StateDropdownProps) 
         </TouchableOpacity>
     );
 
-    useEffect(() => {
-        // Update selected states based on available states
-        setSelectedStates(prev => prev.filter(state => availableStates?.includes(state) ?? true));
-      }, [availableStates]);
-
     return (
         <View style={styles.container}>
             <View style={styles.dropdownContainer}>
                 <TouchableOpacity 
                     ref={buttonRef} 
-                    style={[styles.button, selectedStates.length > 0 && styles.buttonActive]} 
+                    style={[styles.button, externalSelectedStates.length > 0 && styles.buttonActive]} 
                     onPress={toggleDropdown}
                 >
                     <Text style={styles.buttonText}>
-                        {selectedStates.length > 0 
-                            ? `${selectedStates.length} states selected`
+                        {externalSelectedStates.length > 0 
+                            ? `${externalSelectedStates.length} states selected`
                             : 'Select states'}
                     </Text>
                     <Text style={styles.icon}>▼</Text>
@@ -86,9 +82,9 @@ const StateDropdown = ({ onStatesChange, availableStates }: StateDropdownProps) 
                         onPress={() => setVisible(false)}
                     >
                         <View style={[styles.dropdown, { top: dropdownTop, left: dropdownLeft }]}>
-                            {states.length > 0 ? (
+                            {availableStates.length > 0 ? (
                                 <FlatList
-                                    data={states}
+                                    data={availableStates}
                                     renderItem={renderItem}
                                     keyExtractor={(item) => item}
                                     style={styles.list}
@@ -103,7 +99,7 @@ const StateDropdown = ({ onStatesChange, availableStates }: StateDropdownProps) 
                 </Modal>
             </View>
 
-            {selectedStates.length > 0 && (
+            {externalSelectedStates.length > 0 && (
                 <View style={styles.selectedStatesContainer}>
                     <Text style={styles.selectedStatesSubTitle}>Side scroll to view all selections</Text>
                     <ScrollView 
@@ -112,7 +108,7 @@ const StateDropdown = ({ onStatesChange, availableStates }: StateDropdownProps) 
                         contentContainerStyle={styles.scrollViewContent}
                         style={styles.scrollView}
                     >
-                        {selectedStates.map((state) => (
+                        {externalSelectedStates.map((state) => (
                             <View key={state} style={styles.stateChip}>
                                 <Text style={styles.stateChipText}>{state}</Text>
                                 <TouchableOpacity

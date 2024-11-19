@@ -11,19 +11,23 @@ import {
 import { friendsData } from '../constants/FriendsData';
 
 interface GenderDropdownProps {
-    onGendersChange?: (genders: string[]) => void;
-    availableGenders?: string[]; // New prop to receive available genders
+  onGendersChange: (genders: string[]) => void;  // Remove optional
+  availableGenders: string[];  // Remove optional
+  selectedGenders: string[];  // Add this prop for controlled state
 }  
 
-const GenderDropdown = ({ onGendersChange, availableGenders }: GenderDropdownProps) => {
+const GenderDropdown = ({ 
+  onGendersChange, 
+  availableGenders,
+  selectedGenders: externalSelectedGenders  // Rename to avoid conflict
+}: GenderDropdownProps) => {
   const [visible, setVisible] = useState(false);
-  const [selectedGenders, setSelectedGenders] = useState<string[]>([]);
+  // Remove internal state and use prop
+  // const [selectedGenders, setSelectedGenders] = useState<string[]>([]);
   const [dropdownTop, setDropdownTop] = useState(0);
   const [dropdownLeft, setDropdownLeft] = useState(0);
   const buttonRef = useRef<TouchableOpacity>(null);
 
-  // Get unique genders from friendsData if availableGenders prop is not provided
-  const genders = availableGenders || [...new Set(friendsData.map(friend => friend.gender))];
 
   const toggleDropdown = () => {
     if (buttonRef.current) {
@@ -36,19 +40,19 @@ const GenderDropdown = ({ onGendersChange, availableGenders }: GenderDropdownPro
   };
 
   const handleGenderSelect = (gender: string) => {
-    if (!selectedGenders.includes(gender)) {
-      const newSelectedGenders = [...selectedGenders, gender];
-      setSelectedGenders(newSelectedGenders);
-      onGendersChange?.(newSelectedGenders);
+    if (!externalSelectedGenders.includes(gender)) {
+        const newSelectedGenders = [...externalSelectedGenders, gender];
+        onGendersChange(newSelectedGenders);
     }
     setVisible(false);
-  };
+};
 
-  const removeGender = (genderToRemove: string) => {
-    const newSelectedGenders = selectedGenders.filter(gender => gender !== genderToRemove);
-    setSelectedGenders(newSelectedGenders);
-    onGendersChange?.(newSelectedGenders);
-  };
+const removeGender = (genderToRemove: string) => {
+    const newSelectedGenders = externalSelectedGenders.filter(
+        gender => gender !== genderToRemove
+    );
+    onGendersChange(newSelectedGenders);
+};
 
   const renderItem = ({ item }: { item: string }) => (
     <TouchableOpacity 
@@ -68,8 +72,8 @@ const GenderDropdown = ({ onGendersChange, availableGenders }: GenderDropdownPro
           onPress={toggleDropdown}
         >
           <Text style={styles.buttonText}>
-            {selectedGenders.length > 0 
-              ? `${selectedGenders.length} genders selected`
+            {externalSelectedGenders.length > 0 
+              ? `${externalSelectedGenders.length} genders selected`
               : 'Select genders'}
           </Text>
           <Text style={styles.icon}>▼</Text>
@@ -81,13 +85,14 @@ const GenderDropdown = ({ onGendersChange, availableGenders }: GenderDropdownPro
             onPress={() => setVisible(false)}
           >
             <View style={[styles.dropdown, { top: dropdownTop, left: dropdownLeft }]}>
-              {genders.length > 0 ? (
+                {availableGenders.length > 0 ? (
                 <FlatList
-                  data={genders}
-                  renderItem={renderItem}
-                  keyExtractor={(item) => item}
-                  style={styles.list}
+                    data={availableGenders}
+                    renderItem={renderItem}
+                    keyExtractor={(item) => item}
+                    style={styles.list}
                 />
+
               ) : (
                 <View style={styles.noDataContainer}>
                   <Text style={styles.noDataText}>No options available</Text>
@@ -98,7 +103,7 @@ const GenderDropdown = ({ onGendersChange, availableGenders }: GenderDropdownPro
         </Modal>
       </View>
 
-      {selectedGenders.length > 0 && (
+      {externalSelectedGenders.length > 0 && (
         <View style={styles.selectedGendersContainer}>
           <Text style={styles.selectedGendersSubTitle}>Side scroll to view all selections</Text>
           <ScrollView 
@@ -107,7 +112,7 @@ const GenderDropdown = ({ onGendersChange, availableGenders }: GenderDropdownPro
             contentContainerStyle={styles.scrollViewContent}
             style={styles.scrollView}
           >
-            {selectedGenders.map((gender) => (
+            {externalSelectedGenders.map((gender) => (
               <View key={gender} style={styles.genderChip}>
                 <Text style={styles.genderChipText}>{gender}</Text>
                 <TouchableOpacity

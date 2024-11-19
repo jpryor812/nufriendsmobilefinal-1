@@ -12,97 +12,111 @@ import SafeLayout from '@/components/SafeLayout';
 import UsernameInput from '@/components/UsernameInput';
 
 const OnboardingBasicQuestions = () => {
-    const router = useRouter();
-    const { updateDemographics } = useAuth();
-    const [selectedFilters, setSelectedFilters] = useState({
-      cities: [] as string[],
-      states: [] as string[],
-      genders: [] as string[],
-    });
-    const [error, setError] = useState('');
-    const [selectedState, setSelectedState] = useState('');
-  
-    const handleStateChange = (state: string) => {
-      setSelectedState(state);
-      setSelectedFilters(prev => ({
-        ...prev,
-        states: state ? [state] : []
-      }));
-    };
-  
-    const handleCityChange = (city: string) => {
-      setSelectedFilters(prev => ({ 
-        ...prev, 
-        cities: city ? [city] : [] 
-      }));
-    };
-  
-    const handleGendersChange = (gender: string) => {
-      setSelectedFilters(prev => ({ 
-        ...prev, 
-        genders: gender ? [gender] : [] 
-      }));
-    };
+  const router = useRouter();
+  const { updateDemographics } = useAuth();
+  const [username, setUsername] = useState(''); // Add this
+  const [selectedFilters, setSelectedFilters] = useState({
+    cities: [] as string[],
+    states: [] as string[],
+    genders: [] as string[],
+  });
+  const [error, setError] = useState('');
+  const [selectedState, setSelectedState] = useState('');
 
-    const handleContinue = async () => {
-      try {
-        // Validate that all fields are filled
-        if (!selectedFilters.genders[0] || !selectedFilters.states[0] || !selectedFilters.cities[0]) {
-          setError('Please fill in all fields');
-          return;
-        }
+  // Add this handler
+  const handleUsernameChange = (text: string) => {
+      setUsername(text);
+  };
 
-        // Save demographics to Firebase
-        await updateDemographics(
-          selectedFilters.genders[0],
-          selectedFilters.states[0],
-          selectedFilters.cities[0]
-        );
+  const handleStateChange = (state: string) => {
+    setSelectedState(state);
+    setSelectedFilters(prev => ({
+      ...prev,
+      states: state ? [state] : []
+    }));
+  };
 
-        // Continue to next screen
-        router.push('/OnboardingQuestion1');
-      } catch (err) {
-        setError('Failed to save information. Please try again.');
-        console.error('Error saving demographics:', err);
+  const handleCityChange = (city: string) => {
+    setSelectedFilters(prev => ({ 
+      ...prev, 
+      cities: city ? [city] : [] 
+    }));
+  };
+
+  const handleGendersChange = (gender: string) => {
+    setSelectedFilters(prev => ({ 
+      ...prev, 
+      genders: gender ? [gender] : [] 
+    }));
+  };
+
+  const handleContinue = async () => {
+    try {
+      // Add username validation
+      if (!username) {
+        setError('Please enter a username');
+        return;
       }
-    };
-  
-    return (
-      <SafeLayout style={styles.container}>
-        <ProgressBar progress={30} />
-        <View style={styles.contentContainer}>
-          <KeyboardAwareScrollView
-            style={styles.scrollContainer}
-            keyboardShouldPersistTaps="handled"
-            keyboardDismissMode="on-drag"
-            enableOnAndroid={true}
-            enableAutomaticScroll={true}
-            extraScrollHeight={20}
-          >
-            <SmallYuOnboarding text={'Before we jump in, please fill out the following information!'} />
-            <View style={styles.dropdownsContainer}>
-              <GenderDropdown onGendersChange={handleGendersChange} />
-              <StateDropdown onStatesChange={handleStateChange} />
-              <CityDropdown 
-                onCitiesChange={handleCityChange}
-                selectedState={selectedState}
-              />
-            </View>
-            <UsernameInput />
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
-          </KeyboardAwareScrollView>
-          
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity 
-              style={styles.button}
-              onPress={handleContinue}
-            >
-              <Text style={styles.buttonText}>Continue</Text>
-            </TouchableOpacity>
+      
+      // Validate that all fields are filled
+      if (!selectedFilters.genders[0] || !selectedFilters.states[0] || !selectedFilters.cities[0]) {
+        setError('Please fill in all fields');
+        return;
+      }
+
+      // Save demographics to Firebase
+      await updateDemographics(
+        selectedFilters.genders[0],
+        selectedFilters.states[0],
+        selectedFilters.cities[0]
+      );
+
+      // Continue to next screen
+      router.push('/OnboardingQuestion1');
+    } catch (err) {
+      setError('Failed to save information. Please try again.');
+      console.error('Error saving demographics:', err);
+    }
+  };
+
+  return (
+    <SafeLayout style={styles.container}>
+      <ProgressBar progress={30} />
+      <View style={styles.contentContainer}>
+        <KeyboardAwareScrollView
+          style={styles.scrollContainer}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          enableOnAndroid={true}
+          enableAutomaticScroll={true}
+          extraScrollHeight={20}
+        >
+          <SmallYuOnboarding text={'Before we jump in, please fill out the following information!'} />
+          <View style={styles.dropdownsContainer}>
+            <GenderDropdown onGendersChange={handleGendersChange} />
+            <StateDropdown onStatesChange={handleStateChange} />
+            <CityDropdown 
+              onCitiesChange={handleCityChange}
+              selectedState={selectedState}
+            />
           </View>
+          <UsernameInput 
+            onUsernameChange={handleUsernameChange}  // Replace the placeholder with actual handler
+          />
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+        </KeyboardAwareScrollView>
+        
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity 
+            style={styles.button}
+            onPress={handleContinue}
+          >
+            <Text style={styles.buttonText}>Continue</Text>
+          </TouchableOpacity>
         </View>
-      </SafeLayout>
-    );
+      </View>
+    </SafeLayout>
+  );
 };
 
 const styles = StyleSheet.create({
