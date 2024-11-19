@@ -103,6 +103,7 @@ const OnboardingBasicQuestions = () => {
           <UsernameInput 
             onUsernameChange={handleUsernameChange}  // Replace the placeholder with actual handler
           />
+          <Text style={styles.usernameNote}>Note: You mus wait six months to change your username again</Text>
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
         </KeyboardAwareScrollView>
         
@@ -178,6 +179,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 10,
     paddingHorizontal: 16,
+  },
+  usernameNote: {
+    color: '#a9a9a9',
+    fontSize: 12,
+    textAlign: 'center',
+    marginBottom: 12,
+    marginTop: -8,
   },
 });
 

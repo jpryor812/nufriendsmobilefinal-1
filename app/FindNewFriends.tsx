@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import { View, Text, ScrollView, Image, ActivityIndicator, StyleSheet } from 'react-native';
 import { useRouter, Link } from 'expo-router';
-import { collection, query, where, getDocs, Query } from 'firebase/firestore';
+import { collection, query, where, getDocs, } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 import StateDropdownFindFriends from '../components/StateDropdownFindFriends';
 import GenderDropdownFindFriends from '../components/GenderDropdownFindFriends';
@@ -33,8 +33,6 @@ const FindNewFriends = () => {
     cities: [] as string[],
   });
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [noMatchesError, setNoMatchesError] = useState<string | null>(null);
 
   const filterFriends = async (filters: typeof selectedFilters) => {
@@ -77,11 +75,12 @@ const FindNewFriends = () => {
       
       snapshot.docs.forEach(doc => {
         const data = doc.data();
-        // Handle nested fields (e.g., 'demographics.gender')
-        const value = fieldPath.split('.').reduce((obj, key) => obj?.[key], data);
-        if (value) values.add(value);
+        const nestedValue: any = fieldPath.split('.').reduce((obj, key) => obj?.[key], data);
+        if (nestedValue && typeof nestedValue === 'string' && nestedValue.trim() !== '') {
+          values.add(nestedValue);
+        }
       });
-
+  
       return Array.from(values).sort();
     } catch (error) {
       console.error(`Error getting ${fieldPath} values:`, error);
@@ -93,7 +92,6 @@ const FindNewFriends = () => {
   useEffect(() => {
     const loadInitialData = async () => {
       try {
-        setIsInitialLoading(true);
         const [genders, states, cities] = await Promise.all([
           getUniqueFieldValues('demographics.gender'),
           getUniqueFieldValues('demographics.state'),
@@ -107,13 +105,105 @@ const FindNewFriends = () => {
         });
       } catch (error) {
         console.error('Error loading initial data:', error);
-      } finally {
-        setIsInitialLoading(false);
       }
     };
 
     loadInitialData();
   }, []);
+
+  useEffect(() => {
+    const loadAvailableStates = async () => {
+      try {
+        let q = query(collection(db, 'users'));
+        if (selectedFilters.genders.length > 0) {
+          q = query(q, where('demographics.gender', 'in', selectedFilters.genders));
+        }
+        const snapshot = await getDocs(q);
+        const states = new Set<string>();
+        
+        snapshot.docs.forEach(doc => {
+          const state = doc.data().demographics?.state;
+          if (state && typeof state === 'string' && state.trim() !== '') {
+            states.add(state);
+          }
+        });
+    
+        setAvailableOptions(prev => ({
+          ...prev,
+          states: Array.from(states).sort()
+        }));
+      } catch (error) {
+        console.error('Error loading states:', error);
+      }
+    };
+  
+    loadAvailableStates();
+  }, [selectedFilters.genders]);
+
+  useEffect(() => {
+    const loadAvailableCities = async () => {
+      try {
+        let q = query(collection(db, 'users'));
+   
+        if (selectedFilters.genders.length > 0) {
+          q = query(q, where('demographics.gender', 'in', selectedFilters.genders));
+        }
+   
+        const snapshot = await getDocs(q);
+        const cities = new Set<string>();
+        
+        snapshot.docs.forEach(doc => {
+          const city = doc.data().demographics?.city;
+          if (city && typeof city === 'string' && city.trim() !== '') {
+            cities.add(city);
+          }
+        });
+   
+        setAvailableOptions(prev => ({
+          ...prev,
+          cities: Array.from(cities).sort()
+        }));
+      } catch (error) {
+        console.error('Error loading cities:', error);
+      }
+    };
+   
+    loadAvailableCities();
+   }, [selectedFilters.genders]);
+
+   useEffect(() => {
+    const loadAvailableGenders = async () => {
+      try {
+        let q = query(collection(db, 'users'));
+   
+        if (selectedFilters.states.length > 0) {
+          q = query(q, where('demographics.state', 'in', selectedFilters.states));
+        }
+        if (selectedFilters.cities.length > 0) {
+          q = query(q, where('demographics.city', 'in', selectedFilters.cities));
+        }
+   
+        const snapshot = await getDocs(q);
+        const genders = new Set<string>();
+        
+        snapshot.docs.forEach(doc => {
+          const gender = doc.data().demographics?.gender;
+          if (gender && typeof gender === 'string' && gender.trim() !== '') {
+            genders.add(gender);
+          }
+        });
+   
+        setAvailableOptions(prev => ({
+          ...prev,
+          genders: Array.from(genders).sort()
+        }));
+      } catch (error) {
+        console.error('Error loading genders:', error);
+      }
+    };
+   
+    loadAvailableGenders();
+   }, [selectedFilters.states, selectedFilters.cities]); 
 
   // Handle filter changes
   const handleGendersChange = (genders: string[]) => {
@@ -141,9 +231,6 @@ const FindNewFriends = () => {
   };
 
   const handleFindFriends = async () => {
-    setIsLoading(true);
-    setNoMatchesError(null);
-    
     try {
       const matchingFriends = await filterFriends(selectedFilters);
 
@@ -165,8 +252,6 @@ const FindNewFriends = () => {
       setNoMatchesError(
         "An error occurred while searching. Please try again."
       );
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -175,13 +260,6 @@ const FindNewFriends = () => {
   <Link href="/HomePage" style={styles.backButton}>
     <Ionicons name="arrow-back" size={24} color={Colors.primary} />
   </Link>
-  
-  {isInitialLoading ? (
-    <View style={styles.loadingContainer}>
-      <ActivityIndicator size="large" color={Colors.primary} />
-      <Text style={styles.loadingText}>Loading available friends...</Text>
-    </View>
-  ) : (
     <ScrollView style={styles.scrollContainer}>
       <Image 
         source={require('@/assets/images/Yu_excited_no_speech.png')} 
@@ -189,8 +267,10 @@ const FindNewFriends = () => {
       />
       <Text style={styles.PageTitle}>Find Your New Friend!!</Text>
       <Text style={styles.PageSubTitle}>
-        Feel free to use multiple filters! For example, select both "Male" and "Female"
-        to find friends of any gender in your selected locations!
+        Use the filters to find your new friend, or, leave it blank and search for anyone, anywehre!
+      </Text>
+      <Text style={styles.PageSubSubTitle}>
+        Note: If you're not able to do certain searches, it's becasue we don't have any users that meet those criteria, but I'm sure we will soon! 
       </Text>
       
       <View style={styles.dropdownsContainer}>
@@ -208,6 +288,7 @@ const FindNewFriends = () => {
           onCitiesChange={handleCitiesChange}
           availableCities={availableOptions.cities}
           selectedCities={selectedFilters.cities}
+          selectedStates={selectedFilters.states}  // Add this
         />
         
         {noMatchesError && (
@@ -216,8 +297,6 @@ const FindNewFriends = () => {
         
         <FindFriendsButton 
           onPress={handleFindFriends}
-          isLoading={isLoading}
-          disabled={isLoading}
         />
 
         <View style={styles.introContainer}>
@@ -229,7 +308,6 @@ const FindNewFriends = () => {
         </View>
       </View>
     </ScrollView>
-  )}
 </SafeLayout>
 );
 };
@@ -264,19 +342,19 @@ const styles = StyleSheet.create({
   PageTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginTop: 10,
+    marginTop: 6,
     textAlign: 'center',
   },
   PageSubTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    marginTop: 20,
+    marginTop: 12,
     textAlign: 'center',
     marginHorizontal: 24,
   },
   PageSubSubTitle: {
     fontSize: 10,
-    marginTop: 2,
+    marginTop: 4,
     textAlign: 'center',
     fontStyle: 'italic',
     color: '#9d9d9d',

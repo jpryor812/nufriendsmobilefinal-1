@@ -8,23 +8,29 @@ import {
   StyleSheet,
   ScrollView,
 } from 'react-native';
-import { friendsData } from '../constants/FriendsData';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '@/config/firebase';
+
 
 interface CityDropdownProps {
-    onCitiesChange: (cities: string[]) => void;  // Remove optional
-    availableCities: string[];  // Remove optional
-    selectedCities: string[];  // Add this prop
-}
+    onCitiesChange: (cities: string[]) => void;
+    availableCities: string[];
+    selectedCities: string[];  // Fix syntax error
+    selectedStates: string[];
+}  // Add this prop
+
 
 const CityDropdownFindFriends = ({ 
     onCitiesChange, 
     availableCities,
-    selectedCities: externalSelectedCities  // Rename to avoid conflict
+    selectedCities: externalSelectedCities,
+    selectedStates  // Add this
 }: CityDropdownProps) => {
     const [visible, setVisible] = useState(false);
     const [dropdownTop, setDropdownTop] = useState(0);
     const [dropdownLeft, setDropdownLeft] = useState(0);
     const buttonRef = useRef<TouchableOpacity>(null);
+    const [filteredCities, setFilteredCities] = useState<string[]>([]);
 
     const toggleDropdown = () => {
         if (buttonRef.current) {
@@ -50,6 +56,30 @@ const CityDropdownFindFriends = ({
         );
         onCitiesChange(newSelectedCities);
     };
+
+    useEffect(() => {
+        const filterCities = async () => {
+            if (selectedStates.length === 0) {
+                setFilteredCities(availableCities);
+                return;
+            }
+    
+            const filtered = await Promise.all(availableCities.map(async (city) => {
+                const cityData = await getDocs(
+                    query(
+                        collection(db, 'users'),
+                        where('demographics.city', '==', city),
+                        where('demographics.state', 'in', selectedStates)
+                    )
+                );
+                return !cityData.empty ? city : null;
+            }));
+            
+            setFilteredCities(filtered.filter((city): city is string => city !== null));
+        };
+    
+        filterCities();
+    }, [selectedStates, availableCities]);
 
     // Update getStateForCity to use Firestore data
 
@@ -90,10 +120,10 @@ const CityDropdownFindFriends = ({
                         <View style={[styles.dropdown, { top: dropdownTop, left: dropdownLeft }]}>
                             {availableCities.length > 0 ? (
                                 <FlatList
-                                    data={availableCities}
-                                    renderItem={renderItem}
-                                    keyExtractor={(item) => item}
-                                    style={styles.list}
+                                data={filteredCities}
+                                renderItem={renderItem}
+                                keyExtractor={(item) => item}
+                                style={styles.list}
                                 />
                             ) : (
                                 <View style={styles.noDataContainer}>

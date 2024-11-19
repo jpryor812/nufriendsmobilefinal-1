@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Alert, Image } from 'react-native';
 import { useRouter, Link } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import SafeLayout from '@/components/SafeLayout';
@@ -20,6 +20,7 @@ const AccountManagement = () => {
   const [selectedState, setSelectedState] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
   const [error, setError] = useState('');
+  const [isEditingLocation, setIsEditingLocation] = useState(false);
 
   const handleChangePassword = async () => {
     try {
@@ -76,6 +77,9 @@ const AccountManagement = () => {
     }
   };
 
+  const toggleEditLocation = () => setIsEditingLocation((prev) => !prev);
+
+
   return (
     <SafeLayout style={styles.container}>
       <View style={styles.header}>
@@ -90,22 +94,58 @@ const AccountManagement = () => {
           <UsernameInput 
             onUsernameChange={setUsername}
             defaultValue={user?.userData?.username}
+            editable={false}
           />
-          <StateDropdown 
-            onStatesChange={setSelectedState}
-            defaultValue={user?.userData?.demographics?.state}
-          />
-          <CityDropdown 
-            onCitiesChange={setSelectedCity}
-            selectedState={selectedState}
-            defaultValue={user?.userData?.demographics?.city}
-          />
-          <TouchableOpacity
-            style={styles.button}
-            onPress={handleUpdateProfile}
-          >
-            <Text style={styles.buttonText}>Update Profile</Text>
-          </TouchableOpacity>
+            <Text style={styles.usernameNote}>You must wait six months to change your username</Text>
+            {!isEditingLocation ? (
+  <>
+    {/* Header with the image and text */}
+    <View style={styles.headerContainer}>
+      <Image 
+        source={require('../assets/images/house_emoji.png')} 
+        style={styles.houseIcon} 
+      />
+      <Text style={styles.headerText}>Current Location:</Text>
+    </View>
+
+    {/* Location display */}
+    <View style={styles.locationDisplayContainer}>
+      <Text style={styles.locationText}>
+        {selectedCity}, {selectedState}
+      </Text>
+    </View>
+
+    {/* Change location button */}
+    <TouchableOpacity
+      style={styles.button}
+      onPress={toggleEditLocation}
+    >
+      <Text style={styles.buttonText}>Change Location</Text>
+    </TouchableOpacity>
+  </>
+) : (
+  // Show dropdowns to edit location
+  <>
+    <StateDropdown 
+      onStatesChange={setSelectedState}
+      defaultValue={selectedState}
+    />
+    <CityDropdown 
+      onCitiesChange={setSelectedCity}
+      selectedState={selectedState}
+      defaultValue={selectedCity}
+    />
+    <TouchableOpacity
+      style={styles.button}
+      onPress={() => {
+        handleUpdateProfile();
+        toggleEditLocation();
+      }}
+    >
+      <Text style={styles.buttonText}>Save Location</Text>
+    </TouchableOpacity>
+  </>
+)}
         </View>
 
         <View style={styles.section}>
@@ -118,6 +158,9 @@ const AccountManagement = () => {
             onPasswordChange={setNewPassword}
             placeholder="New Password"
           />
+
+            <Text style={styles.forgotPasswordText}>Forgot Password</Text>
+            
           <TouchableOpacity
             style={styles.button}
             onPress={handleChangePassword}
@@ -171,15 +214,16 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    marginBottom: 16,
+    marginBottom: 2,
   },
   button: {
     backgroundColor: '#57C7FF',
     borderRadius: 20,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 4,
     alignItems: 'center',
     marginTop: 16,
+    marginHorizontal: 56,
   },
   deleteButton: {
     backgroundColor: '#FF5757',
@@ -188,6 +232,20 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
+  },
+  locationDisplayContainer: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: '#aaa',
+    paddingVertical: 6,
+    paddingHorizontal: 16,  
+    marginHorizontal: 56,   
+},
+  locationText: {
+    fontSize: 16,
+    color: '#333',
+    textAlign: 'center',
   },
   warningText: {
     color: '#FF5757',
@@ -200,6 +258,35 @@ const styles = StyleSheet.create({
   },
   backButton: {
     marginRight: 16,
+  },
+  forgotPasswordText: {
+    color: '#a9a9a9',
+    fontSize: 12,
+    textAlign: 'right',
+    textDecorationLine: 'underline',
+  },
+  usernameNote: {
+    color: '#a9a9a9',
+    fontSize: 12,
+    textAlign: 'center',
+    marginBottom: 12,
+    marginTop: -8,
+  },
+  houseIcon: {
+    width: 24, // Match the size specified in your example
+    height: 24,
+    marginRight: 8,
+    marginLeft: 30, // Add spacing between the icon and the text
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  headerText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
   },
 });
 

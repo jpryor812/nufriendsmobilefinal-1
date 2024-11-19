@@ -15,39 +15,52 @@ import Colors from '@/assets/Colors';
 interface UsernameInputProps {
   onUsernameChange: (username: string) => void;
   defaultValue?: string;
+  editable?: boolean;
 }
 
-const UsernameInput: React.FC<UsernameInputProps> = ({ onUsernameChange, defaultValue }) => {
+const UsernameInput: React.FC<UsernameInputProps> = ({
+  onUsernameChange,
+  defaultValue,
+  editable = true, // Default to editable
+}) => {
   const [username, setUsername] = useState(defaultValue || '');
 
   const handleUsernameChange = (text: string) => {
-    setUsername(text);
-    onUsernameChange(text);
+    if (editable) {
+      setUsername(text);
+      onUsernameChange(text);
+    }
   };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.container}>
+      <View style={[styles.container]}>
         <Text style={styles.label}>What Should Everyone Call You?</Text>
-        <InputToolbar
-          containerStyle={styles.inputContainer}
-          primaryStyle={styles.inputPrimary}
-          renderComposer={(props) => (
-            <Composer
-              {...props}
-              textInputStyle={styles.input}
-              text={username}  // Changed from UserName to username
-              onTextChanged={handleUsernameChange}  // Changed from setUserName
-              placeholder="Enter your username"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              multiline={false}
-            />
-          )}
-          renderSend={() => null}
-          renderActions={() => null}
-        />
+        <View pointerEvents={!editable ? 'none' : 'auto'}>
+          <InputToolbar
+            containerStyle={styles.inputContainer}
+            primaryStyle={styles.inputPrimary}
+            renderComposer={(props) => (
+              <Composer
+                {...props}
+                textInputStyle={[
+                  styles.input,
+                  !editable && { color: '#aaa' }, // Gray out when non-editable
+                ]}
+                text={username}
+                onTextChanged={handleUsernameChange}
+                placeholder={editable ? 'Enter your username' : ''}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                multiline={false}
+                editable={editable}
+              />
+            )}
+            renderSend={() => null}
+            renderActions={() => null}
+          />
+        </View>
       </View>
     </TouchableWithoutFeedback>
   );
