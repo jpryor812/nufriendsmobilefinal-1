@@ -1,6 +1,8 @@
 import { Text, View, StyleSheet } from "react-native";
 import { Link } from "expo-router";
 import MessagesChart from "@/components/MessagesChart";
+import 'expo-router/entry';
+
 
 export default function Index() {
   return (

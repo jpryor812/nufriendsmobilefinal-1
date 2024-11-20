@@ -12,7 +12,7 @@ import {
   getAuth,
   User as FirebaseUser
 } from 'firebase/auth';
-import { doc, setDoc, getDoc, deleteDoc, serverTimestamp, updateDoc, } from 'firebase/firestore';
+import { doc, setDoc, getDoc, deleteDoc, serverTimestamp, updateDoc, where} from 'firebase/firestore';
 
 
 // Define types

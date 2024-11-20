@@ -1,8 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import { View, Text, ScrollView, Image, ActivityIndicator, StyleSheet } from 'react-native';
 import { useRouter, Link } from 'expo-router';
-import { collection, query, where, getDocs, } from 'firebase/firestore';
-import { db } from '@/config/firebase';
+import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
+import { db, auth } from '@/config/firebase';
 import StateDropdownFindFriends from '../components/StateDropdownFindFriends';
 import GenderDropdownFindFriends from '../components/GenderDropdownFindFriends';
 import CityDropdownFindFriends from '@/components/CityDropdownFindFriends';
@@ -11,6 +11,7 @@ import FindFriendsButton from '@/components/FindMyFriendsButton';
 import SafeLayout from '@/components/SafeLayout';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/assets/Colors';
+
 
 // Helper function for Firebase queries
 const createOrQuery = (field: string, values: string[]) => {
@@ -57,7 +58,42 @@ const FindNewFriends = () => {
       }
 
       const querySnapshot = await getDocs(baseQuery);
-      return querySnapshot.docs.map(doc => ({
+      const currentUser = auth.currentUser; // Add this
+      const currentUserDoc = await getDoc(doc(db, 'users', currentUser?.uid || '')); // Add this
+      const currentUserAge = currentUserDoc.data()?.demographics?.age || 0; // Add this
+  
+      // Filter results based on age logic
+      const filteredResults = querySnapshot.docs.filter(doc => {
+        const userData = doc.data();
+        const userAge = userData.demographics?.age || 0;
+  
+        // Skip the current user
+        if (doc.id === currentUser?.uid) {
+          return false;
+        }
+  
+        // Age filtering logic
+        if (currentUserAge < 13 || userAge < 13) {
+          return false; // No matches for users under 13
+        }
+  
+        // 13-17 age group
+        if (currentUserAge >= 13 && currentUserAge <= 17) {
+          return userAge >= 13 && userAge <= 17;
+        }
+  
+        // 18-20 age group
+        if (currentUserAge >= 18 && currentUserAge <= 20) {
+          return userAge >= 18 && userAge <= 24;
+        }
+  
+        // 21+ age group
+        const minAge = Math.max(18, currentUserAge - 4);
+        const maxAge = currentUserAge + 4;
+        return userAge >= minAge && userAge <= maxAge;
+      });
+  
+      return filteredResults.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
