@@ -3,7 +3,6 @@ import { Link } from "expo-router";
 import MessagesChart from "@/components/MessagesChart";
 import 'expo-router/entry';
 
-
 export default function Index() {
   return (
     <View style={styles.container}>

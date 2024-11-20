@@ -13,6 +13,8 @@ export default function RootLayout() {
           headerShown: false // Global setting for all screens
         }}
       >
+              <Stack.Screen name="index" 
+      options={{ headerShown: false }} />
         {/* Add the tabs group first */}
         <Stack.Screen 
           name="(tabs)" 
@@ -22,8 +24,6 @@ export default function RootLayout() {
             header: () => null,
           }} 
         />
-      <Stack.Screen name="index" 
-      options={{ headerShown: false }} />
       <Stack.Screen name="about" 
       options={{ headerShown: false }} />
       <Stack.Screen name="RelationshipTracker"
