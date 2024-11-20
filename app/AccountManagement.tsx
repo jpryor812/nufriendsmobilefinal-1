@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Modal, Text, TouchableOpacity, Alert, Image, TextInput } from 'react-native';
 import { useRouter, Link } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
@@ -17,8 +17,8 @@ const AccountManagement = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [username, setUsername] = useState('');
-  const [selectedState, setSelectedState] = useState('');
-  const [selectedCity, setSelectedCity] = useState('');
+  const [selectedState, setSelectedState] = useState(user?.userData?.demographics?.state || '');
+  const [selectedCity, setSelectedCity] = useState(user?.userData?.demographics?.city || '');
   const [error, setError] = useState('');
   const [isEditingLocation, setIsEditingLocation] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -64,6 +64,12 @@ const [deleteEmail, setDeleteEmail] = useState('');
 
   const toggleEditLocation = () => setIsEditingLocation((prev) => !prev);
 
+  useEffect(() => {
+    if (user?.userData?.demographics) {
+      setSelectedState(user.userData.demographics.state);
+      setSelectedCity(user.userData.demographics.city);
+    }
+  }, [user?.userData?.demographics]);
 
   return (
     <SafeLayout style={styles.container}>
@@ -249,6 +255,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     flex: 1,
+    marginRight: 16,
   },
   section: {
     marginBottom: 24,
