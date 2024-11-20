@@ -9,9 +9,11 @@ import {
   reauthenticateWithCredential,
   updatePassword,
   deleteUser,
+  getAuth,
   User as FirebaseUser
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, deleteDoc, serverTimestamp, updateDoc, } from 'firebase/firestore';
+
 
 // Define types
 interface UserData {
@@ -20,6 +22,8 @@ interface UserData {
   username: string;
   createdAt: Date;
   demographics: {
+    age: number;
+    birthDate: string; 
     gender: string;
     state: string;
     city: string;
@@ -55,14 +59,22 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUserPassword: (currentPassword: string, newPassword: string) => Promise<void>;
-  deleteUserAccount: (password: string) => Promise<void>;
-  updateDemographics: (gender: string, state: string, city: string) => Promise<void>;
-  updateProfile: (updates: { // Add this new type
+  deleteUserAccount: (email: string, password: string) => Promise<void>;
+  // Update this line to include birthDate parameter
+  updateDemographics: (
+    age: number, 
+    gender: string, 
+    state: string, 
+    city: string,
+    birthDate: string
+  ) => Promise<void>;
+  updateProfile: (updates: {
     username?: string,
     city?: string,
     state?: string
+    age?: number
+    birthDate?: string  
   }) => Promise<void>;
-
 }
 
 interface AuthProviderProps {
@@ -112,7 +124,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         email: user.email,
         username,
         createdAt: serverTimestamp(),
-        demographics: {     // Add this section
+        demographics: {  
+          age: 0,  
           gender: '',
           state: '',
           city: ''
@@ -182,37 +195,53 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const deleteUserAccount = async (password: string) => {
+  const deleteUserAccount = async (password: string): Promise<void> => {
     try {
-      if (!user || !user.email) throw new Error('No user logged in');
-      
-      // Re-authenticate user before deletion
-      const credential = EmailAuthProvider.credential(user.email, password);
-      await reauthenticateWithCredential(user, credential);
-      
-      // Delete user data from Firestore first
-      await deleteDoc(doc(db, 'users', user.uid));
-      
-      // Delete the user account
-      await deleteUser(user);
-    } catch (error: any) {
-      let errorMessage = 'Failed to delete account';
-      if (error.code === 'auth/wrong-password') {
-        errorMessage = 'Password is incorrect';
+      const currentUser = auth.currentUser;
+      if (!currentUser || !currentUser.email) throw new Error('No user logged in');
+  
+      // Create credential with email and password
+      const credential = EmailAuthProvider.credential(currentUser.email, password);
+  
+      // Reauthenticate user
+      await reauthenticateWithCredential(currentUser, credential);
+  
+      // Delete user
+      await deleteUser(currentUser);
+  
+      // Delete user data from Firestore
+      await deleteDoc(doc(db, 'users', currentUser.uid));
+  
+      console.log('Account deleted successfully');
+    } catch (err: any) {
+      console.error('Error deleting account:', err);
+      if (err.code === 'auth/wrong-password') {
+        throw new Error('Incorrect password. Please try again.');
+      } else if (err.code === 'auth/requires-recent-login') {
+        throw new Error('Please log in again before deleting your account.');
+      } else {
+        throw new Error(err.message);
       }
-      throw new Error(errorMessage);
     }
   };
 
-  const updateDemographics = async (gender: string, state: string, city: string) => {
+  const updateDemographics = async (
+    age: number, 
+    gender: string, 
+    state: string, 
+    city: string,
+    birthDate: string
+  ) => {
     try {
       if (!user) throw new Error('No user logged in');
       
       const userRef = doc(db, 'users', user.uid);
       await updateDoc(userRef, {
+        'demographics.age': age,
         'demographics.gender': gender,
         'demographics.state': state,
-        'demographics.city': city
+        'demographics.city': city,
+        'demographics.birthDate': birthDate
       });
     } catch (error) {
       throw error;
@@ -223,6 +252,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     username?: string,
     city?: string,
     state?: string
+    age?: number
+    birthDate?: string  // Add this
   }) => {
     try {
       if (!user) throw new Error('No user logged in');
@@ -231,6 +262,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (updates.username) updateData.username = updates.username;
       if (updates.city) updateData['demographics.city'] = updates.city;
       if (updates.state) updateData['demographics.state'] = updates.state;
+      if (updates.age) updateData['demographics.age'] = updates.age;
+      if (updates.birthDate) updateData['demographics.birthDate'] = updates.birthDate;
       
       const userRef = doc(db, 'users', user.uid);
       await updateDoc(userRef, updateData);

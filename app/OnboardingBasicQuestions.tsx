@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,11 +10,18 @@ import ProgressBar from '@/components/ProgressBar';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import SafeLayout from '@/components/SafeLayout';
 import UsernameInput from '@/components/UsernameInput';
+import AgePicker from '@/components/BirthdayDropdown';  // Import the new component
+
+interface AgeData {
+  age: number;
+  birthDate: Date;
+  isEligible: boolean;
+}
 
 const OnboardingBasicQuestions = () => {
   const router = useRouter();
   const { updateDemographics } = useAuth();
-  const [username, setUsername] = useState(''); // Add this
+  const [username, setUsername] = useState('');
   const [selectedFilters, setSelectedFilters] = useState({
     cities: [] as string[],
     states: [] as string[],
@@ -22,10 +29,10 @@ const OnboardingBasicQuestions = () => {
   });
   const [error, setError] = useState('');
   const [selectedState, setSelectedState] = useState('');
+  const [ageData, setAgeData] = useState<AgeData | null>(null);  // Replace age state
 
-  // Add this handler
   const handleUsernameChange = (text: string) => {
-      setUsername(text);
+    setUsername(text);
   };
 
   const handleStateChange = (state: string) => {
@@ -50,15 +57,25 @@ const OnboardingBasicQuestions = () => {
     }));
   };
 
+  const handleAgeChange = (data: AgeData) => {
+    setAgeData(data);
+  };
+
   const handleContinue = async () => {
     try {
-      // Add username validation
+      // Validate username
       if (!username) {
-        setError('Please enter a username');
+        setError('Please enter your username');
+        return;
+      }
+
+      // Validate age
+      if (!ageData || !ageData.isEligible) {
+        setError('You must be at least 13 years old to use this app');
         return;
       }
       
-      // Validate that all fields are filled
+      // Validate other fields
       if (!selectedFilters.genders[0] || !selectedFilters.states[0] || !selectedFilters.cities[0]) {
         setError('Please fill in all fields');
         return;
@@ -66,9 +83,11 @@ const OnboardingBasicQuestions = () => {
 
       // Save demographics to Firebase
       await updateDemographics(
+        ageData.age,
         selectedFilters.genders[0],
         selectedFilters.states[0],
-        selectedFilters.cities[0]
+        selectedFilters.cities[0],
+        ageData.birthDate.toISOString()
       );
 
       // Continue to next screen
@@ -99,11 +118,12 @@ const OnboardingBasicQuestions = () => {
               onCitiesChange={handleCityChange}
               selectedState={selectedState}
             />
+            <AgePicker onAgeChange={handleAgeChange} />
           </View>
           <UsernameInput 
-            onUsernameChange={handleUsernameChange}  // Replace the placeholder with actual handler
+            onUsernameChange={handleUsernameChange}
           />
-          <Text style={styles.usernameNote}>Note: You mus wait six months to change your username again</Text>
+          <Text style={styles.usernameNote}>Note: You must wait six months to change your username again</Text>
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
         </KeyboardAwareScrollView>
         
@@ -186,6 +206,23 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 12,
     marginTop: -8,
+  },
+  inputContainer: {
+    padding: 10,
+    width: '100%',
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 8,
+    color: '#333',
+  },
+  input: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 6,
+    fontSize: 14,
+    borderWidth: 1,
+    borderColor: '#ddd',
   },
 });
 

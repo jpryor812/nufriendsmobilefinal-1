@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Alert, Image } from 'react-native';
+import { View, StyleSheet, Modal, Text, TouchableOpacity, Alert, Image, TextInput } from 'react-native';
 import { useRouter, Link } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import SafeLayout from '@/components/SafeLayout';
@@ -21,6 +21,9 @@ const AccountManagement = () => {
   const [selectedCity, setSelectedCity] = useState('');
   const [error, setError] = useState('');
   const [isEditingLocation, setIsEditingLocation] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+const [deletePassword, setDeletePassword] = useState('');
+const [deleteEmail, setDeleteEmail] = useState('');
 
   const handleChangePassword = async () => {
     try {
@@ -35,25 +38,7 @@ const AccountManagement = () => {
   };
 
   const handleDeleteAccount = async () => {
-    Alert.alert(
-      'Delete Account',
-      'Are you sure you want to delete your account? This action cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteUserAccount(currentPassword);
-              router.push('/OnboardingPage1');
-            } catch (err: any) {
-              setError(err.message);
-            }
-          },
-        },
-      ]
-    );
+    setShowDeleteModal(true);
   };
 
   const handleUpdateProfile = async () => {
@@ -184,6 +169,64 @@ const AccountManagement = () => {
 
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
       </ScrollSafeLayout>
+      <Modal
+        visible={showDeleteModal}
+        transparent
+        animationType="fade"
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Delete Account</Text>
+            <Text style={styles.modalText}>
+              Please enter your email and password to confirm account deletion. 
+              This action cannot be undone.
+            </Text>
+            <TextInput
+        style={styles.input}
+        placeholder="Enter your email"
+        value={deleteEmail}
+        onChangeText={setDeleteEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
+        autoCorrect={false}
+      />
+            <PasswordInput
+              onPasswordChange={setDeletePassword}
+              placeholder="Enter your password"
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={[styles.button, styles.cancelButton]}
+                onPress={() => {
+                  setShowDeleteModal(false);
+                  setDeletePassword('');
+                }}
+              >
+          <Text style={styles.buttonText}>Cancel</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.button, styles.deleteButton]}
+          onPress={async () => {
+            if (!deleteEmail || !deletePassword) {
+              setError('Email and password are required');
+              return;
+            }
+            try {
+              await deleteUserAccount(deleteEmail, deletePassword);
+              setShowDeleteModal(false);
+              router.push('/OnboardingPage1');
+            } catch (err: any) {
+              setError(err.message);
+            }
+          }}
+        >
+                <Text style={styles.buttonText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+          </View>
+        </View>
+      </Modal>
     </SafeLayout>
   );
 };
@@ -224,9 +267,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 16,
     marginHorizontal: 56,
-  },
-  deleteButton: {
-    backgroundColor: '#FF5757',
   },
   buttonText: {
     color: 'white',
@@ -288,6 +328,50 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333',
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 16,
+    width: '80%',
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalText: {
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 2,
+  },
+  cancelButton: {
+    backgroundColor: '#999',
+    paddingHorizontal: 16,
+  },
+  deleteButton: {
+    backgroundColor: '#FF5757',
+    paddingHorizontal: 16,
+  },
+  input: {
+    width: '100%',
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  
 });
 
 export default AccountManagement;
