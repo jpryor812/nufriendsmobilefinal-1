@@ -12,19 +12,14 @@ interface GenderIcon {
 
 interface FriendProfileProps {
   friend: {
-    id: number;
-    initials: string;
-    name: string;
-    messages: number;
-    daysAsFriends: number;
-    streak: number;
-    mutualFriends: number;
-    avatar: any;
-    city: string;
-    state: string;
-    country: string;
-    age: number;
-    gender: string;
+    id: string;
+    username: string;
+    demographics: {
+      gender: string;
+      state: string;
+      city: string;
+      age: number;
+    };
   };
 }
 
@@ -73,62 +68,65 @@ const FoundFriendProfile: React.FC<FriendProfileProps> = ({ friend }) => {
             height: 2
           }
         };
-        default:
-          return {
-            source: require('../assets/images/face_icon.png'),  // fallback icon
-            dimensions: {
-              width: 18,
-              height: 20
-            }
-          };
+      default:
+        return {
+          source: require('../assets/images/face_icon.png'),
+          dimensions: {
+            width: 18,
+            height: 20
+          }
+        };
     }
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.friendContainer}>
-        {friend.avatar && (
-          <Image 
-            source={friend.avatar} 
-            style={styles.avatar}
-            resizeMode="cover"
-          />
-        )}
-        <Text style={styles.name}>{friend.name}</Text>
+        <Image 
+          source={require('../assets/images/profile_picture.jpg')} 
+          style={styles.avatar}
+          resizeMode="cover"
+        />
+        <Text style={styles.name}>{friend.username}</Text>
         
         <View style={styles.details}>
-    <View style={styles.detailContainer}>
-        <Image source={require('../assets/images/Home_icon.png')}
-            style={{ width: 22, height: 22 }} />
-        <Text style={styles.detailText}>{friend.city}</Text>
-    </View>
-    <View style={styles.detailContainer}>
-    {(() => {
-        const iconInfo = getGenderIcon(friend.gender);
-        return (
+          <View style={styles.detailContainer}>
             <Image 
-                source={iconInfo.source}
-                style={iconInfo.dimensions}
+              source={require('../assets/images/Home_icon.png')}
+              style={{ width: 22, height: 22 }} 
             />
-        );
-    })()}
-    <Text style={styles.detailText}>{friend.gender}</Text>
-</View>
-    <View style={styles.detailContainer}>
-        <Image source={require('../assets/images/ph_cake.png')}
-            style={{ width: 18, height: 18 }} />
-        <Text style={styles.detailText}>{friend.age} years-old</Text>
-    </View>
-</View>
-</View>
-
+            <Text style={styles.detailText}>
+              {friend.demographics.city}, {friend.demographics.state}
+            </Text>
+          </View>
+          <View style={styles.detailContainer}>
+            {(() => {
+              const iconInfo = getGenderIcon(friend.demographics.gender);
+              return (
+                <Image 
+                  source={iconInfo.source}
+                  style={iconInfo.dimensions}
+                />
+              );
+            })()}
+            <Text style={styles.detailText}>{friend.demographics.gender}</Text>
+          </View>
+          <View style={styles.detailContainer}>
+            <Image 
+              source={require('../assets/images/ph_cake.png')}
+              style={{ width: 18, height: 18 }} 
+            />
+            <Text style={styles.detailText}>{friend.demographics.age} years-old</Text>
+          </View>
+        </View>
+      </View>
               
       <TouchableOpacity 
         style={styles.messageButton}
         onPress={() => router.push({
           pathname: '/ChatRoomNewFriend',
           params: {
-            id: friend.id.toString()
+            id: friend.id
           }
         })}
       >
@@ -140,12 +138,7 @@ const FoundFriendProfile: React.FC<FriendProfileProps> = ({ friend }) => {
       </TouchableOpacity>
       <TouchableOpacity 
         style={styles.homeButton}
-        onPress={() => router.push({
-          pathname: '/HomePage',
-          params: {
-            id: friend.id.toString()
-          }
-        })}
+        onPress={() => router.push('/HomePage')}
       >
         <Image 
           source={require('../assets/images/house_emoji.png')}
@@ -161,7 +154,7 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     width: '100%',
-    gap: 20, // Adds space between the friend container and button
+    gap: 20,
   },
   friendContainer: {
     alignItems: 'center',
@@ -194,12 +187,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-    detailContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginRight: 10,
-        paddingVertical: 4,
-    },
+  detailContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 10,
+    paddingVertical: 4,
+  },
   detailText: {
     color: '#000',
     marginHorizontal: 5,

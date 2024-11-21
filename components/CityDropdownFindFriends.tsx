@@ -8,22 +8,29 @@ import {
   StyleSheet,
   ScrollView,
 } from 'react-native';
-import { friendsData } from '../constants/FriendsData';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '@/config/firebase';
+
 
 interface CityDropdownProps {
-    onCitiesChange?: (cities: string[]) => void;
-    availableCities?: string[];
-}
+    onCitiesChange: (cities: string[]) => void;
+    availableCities: string[];
+    selectedCities: string[];  // Fix syntax error
+    selectedStates: string[];
+}  // Add this prop
 
-const CityDropdownFindFriends = ({ onCitiesChange, availableCities }: CityDropdownProps) => {
+
+const CityDropdownFindFriends = ({ 
+    onCitiesChange, 
+    availableCities,
+    selectedCities: externalSelectedCities,
+    selectedStates  // Add this
+}: CityDropdownProps) => {
     const [visible, setVisible] = useState(false);
-    const [selectedCities, setSelectedCities] = useState<string[]>([]);
     const [dropdownTop, setDropdownTop] = useState(0);
     const [dropdownLeft, setDropdownLeft] = useState(0);
     const buttonRef = useRef<TouchableOpacity>(null);
-
-    // Get unique cities from friendsData if availableCities prop is not provided
-    const cities = availableCities || [...new Set(friendsData.map(friend => friend.city))].sort();
+    const [filteredCities, setFilteredCities] = useState<string[]>([]);
 
     const toggleDropdown = () => {
         if (buttonRef.current) {
@@ -36,25 +43,45 @@ const CityDropdownFindFriends = ({ onCitiesChange, availableCities }: CityDropdo
     };
 
     const handleCitySelect = (city: string) => {
-        if (!selectedCities.includes(city)) {
-            const newSelectedCities = [...selectedCities, city];
-            setSelectedCities(newSelectedCities);
-            onCitiesChange?.(newSelectedCities);
+        if (!externalSelectedCities.includes(city)) {
+            const newSelectedCities = [...externalSelectedCities, city];
+            onCitiesChange(newSelectedCities);
         }
         setVisible(false);
     };
 
     const removeCity = (cityToRemove: string) => {
-        const newSelectedCities = selectedCities.filter(city => city !== cityToRemove);
-        setSelectedCities(newSelectedCities);
-        onCitiesChange?.(newSelectedCities);
+        const newSelectedCities = externalSelectedCities.filter(
+            city => city !== cityToRemove
+        );
+        onCitiesChange(newSelectedCities);
     };
 
-    // Get state for a given city
-    const getStateForCity = (city: string) => {
-        const friend = friendsData.find(f => f.city === city);
-        return friend ? friend.state : '';
-    };
+    useEffect(() => {
+        const filterCities = async () => {
+            if (selectedStates.length === 0) {
+                setFilteredCities(availableCities);
+                return;
+            }
+    
+            const filtered = await Promise.all(availableCities.map(async (city) => {
+                const cityData = await getDocs(
+                    query(
+                        collection(db, 'users'),
+                        where('demographics.city', '==', city),
+                        where('demographics.state', 'in', selectedStates)
+                    )
+                );
+                return !cityData.empty ? city : null;
+            }));
+            
+            setFilteredCities(filtered.filter((city): city is string => city !== null));
+        };
+    
+        filterCities();
+    }, [selectedStates, availableCities]);
+
+    // Update getStateForCity to use Firestore data
 
     const renderItem = ({ item }: { item: string }) => (
         <TouchableOpacity 
@@ -64,28 +91,22 @@ const CityDropdownFindFriends = ({ onCitiesChange, availableCities }: CityDropdo
             <View style={styles.itemContainer}>
                 <View style={styles.cityInfoContainer}>
                     <Text style={styles.itemText}>{item}</Text>
-                    <Text style={styles.stateText}>{getStateForCity(item)}</Text>
                 </View>
             </View>
         </TouchableOpacity>
     );
-
-    useEffect(() => {
-      // Update selected cities based on available cities
-      setSelectedCities(prev => prev.filter(city => availableCities?.includes(city) ?? true));
-    }, [availableCities]);
 
     return (
         <View style={styles.container}>
             <View style={styles.dropdownContainer}>
                 <TouchableOpacity 
                     ref={buttonRef} 
-                    style={[styles.button, selectedCities.length > 0 && styles.buttonActive]}
+                    style={[styles.button, externalSelectedCities.length > 0 && styles.buttonActive]}
                     onPress={toggleDropdown}
                 >
                     <Text style={styles.buttonText}>
-                        {selectedCities.length > 0 
-                            ? `${selectedCities.length} cities selected`
+                        {externalSelectedCities.length > 0 
+                            ? `${externalSelectedCities.length} cities selected`
                             : 'Select cities'}
                     </Text>
                     <Text style={styles.icon}>▼</Text>
@@ -97,12 +118,12 @@ const CityDropdownFindFriends = ({ onCitiesChange, availableCities }: CityDropdo
                         onPress={() => setVisible(false)}
                     >
                         <View style={[styles.dropdown, { top: dropdownTop, left: dropdownLeft }]}>
-                            {cities.length > 0 ? (
+                            {availableCities.length > 0 ? (
                                 <FlatList
-                                    data={cities}
-                                    renderItem={renderItem}
-                                    keyExtractor={(item) => item}
-                                    style={styles.list}
+                                data={filteredCities}
+                                renderItem={renderItem}
+                                keyExtractor={(item) => item}
+                                style={styles.list}
                                 />
                             ) : (
                                 <View style={styles.noDataContainer}>
@@ -114,7 +135,7 @@ const CityDropdownFindFriends = ({ onCitiesChange, availableCities }: CityDropdo
                 </Modal>
             </View>
 
-            {selectedCities.length > 0 && (
+            {externalSelectedCities.length > 0 && (
                 <View style={styles.selectedCitiesContainer}>
                     <Text style={styles.selectedCitiesSubTitle}>Side scroll to view all selections</Text>
                     <ScrollView
@@ -123,7 +144,7 @@ const CityDropdownFindFriends = ({ onCitiesChange, availableCities }: CityDropdo
                         contentContainerStyle={styles.scrollViewContent}
                         style={styles.scrollView}
                     >
-                        {selectedCities.map((city) => (
+                        {externalSelectedCities.map((city) => (
                             <View key={city} style={styles.cityChip}>
                                 <Text style={styles.cityChipText}>{city}</Text>
                                 <TouchableOpacity

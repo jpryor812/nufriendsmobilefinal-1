@@ -1,7 +1,14 @@
 import { Tabs } from "expo-router";
 import { Image } from 'react-native';
+import { useAuth } from "../../contexts/AuthContext";
+import { Redirect } from "expo-router";
 
 export default function TabsLayout() {
+  const { user } = useAuth();
+  if (!user) {
+    return <Redirect href="/OnboardingPage1" />;
+  }
+
   return (
     <Tabs
       screenOptions={{

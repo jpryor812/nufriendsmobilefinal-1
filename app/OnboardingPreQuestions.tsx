@@ -16,7 +16,7 @@ const OnboardingPreQuestions = () => (
     </View>
 
     <View style={styles.link_container}>
-    <Link href="/OnboardingPreQuestions2" style={styles.link}>
+    <Link href="/OnboardingPreQuestionsCreateAccount" style={styles.link}>
         <View style={styles.continue_button_container}>
           <Text style={styles.continue_button_text}>Continue</Text>
         </View>

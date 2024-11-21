@@ -1,99 +1,106 @@
 import React, { useState, useRef } from 'react';
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  Modal,
-  FlatList,
-  StyleSheet,
+ View,
+ Text,
+ TouchableOpacity,
+ Modal,
+ FlatList,
+ StyleSheet,
+ ScrollView,
 } from 'react-native';
 
 interface GenderDropdownProps {
-    onGendersChange?: (gender: string) => void;  // Changed from string[] to string
-  }  
+ onGendersChange: (genders: string[]) => void;
+ availableGenders: string[];
+ selectedGenders: string[];
+}  
 
-const GenderDropdown = ({ onGendersChange }: GenderDropdownProps) => {
-  const [visible, setVisible] = useState(false);
-  const [selectedGender, setSelectedGender] = useState<string>('');  // Changed to single string
-  const [dropdownTop, setDropdownTop] = useState(0);
-  const [dropdownLeft, setDropdownLeft] = useState(0);
-  const buttonRef = useRef<TouchableOpacity>(null);
+const GenderDropdown = ({ 
+ onGendersChange, 
+ availableGenders,
+ selectedGenders: externalSelectedGenders
+}: GenderDropdownProps) => {
+ const [visible, setVisible] = useState(false);
+ const [dropdownTop, setDropdownTop] = useState(0);
+ const [dropdownLeft, setDropdownLeft] = useState(0);
+ const buttonRef = useRef<TouchableOpacity>(null);
 
-  const genders = [
-    "Female",
-    "Male",
-    "Non-binary",
-    "Other",
-    "Prefer not to say"
-  ] as const;
+ const toggleDropdown = () => {
+   if (buttonRef.current) {
+     buttonRef.current.measure((fx, fy, width, height, px, py) => {
+       setDropdownTop(py + height);
+       setDropdownLeft(px + width / 3 - (width * 0.65) / 2);
+     });
+   }
+   setVisible(!visible);
+ };
 
-  const toggleDropdown = () => {
-    if (buttonRef.current) {
-      buttonRef.current.measure((fx, fy, width, height, px, py) => {
-        setDropdownTop(py + height);
-        setDropdownLeft(px + width / 3 - (width * 0.65) / 2);
-      });
-    }
-    setVisible(!visible);
-  };
+ const handleGenderSelect = (gender: string) => {
+  onGendersChange(gender);  // Just pass the single gender
+  setVisible(false);
+ };
 
-  const handleGenderSelect = (gender: string) => {
-    setSelectedGender(gender);
-    onGendersChange?.(gender);
-    setVisible(false);
-  };
+ const removeGender = (genderToRemove: string) => {
+   const newSelectedGenders = externalSelectedGenders.filter(
+     gender => gender !== genderToRemove
+   );
+   onGendersChange(newSelectedGenders);
+ };
 
-  const removeGender = () => {
-    setSelectedGender('');
-    onGendersChange?.('');
-  };
+ const renderItem = ({ item }: { item: string }) => (
+   <TouchableOpacity 
+     style={styles.item} 
+     onPress={() => handleGenderSelect(item)}
+   >
+     <Text style={styles.itemText}>{item}</Text>
+   </TouchableOpacity>
+ );
 
-  const renderItem = ({ item }: { item: string }) => (
+ return (
+  <View style={styles.container}>
+  <View style={styles.dropdownContainer}>
     <TouchableOpacity 
-      style={styles.item} 
-      onPress={() => handleGenderSelect(item)}
+      ref={buttonRef} 
+      style={styles.button} 
+      onPress={toggleDropdown}
     >
-      <Text style={styles.itemText}>{item}</Text>
+      <Text style={styles.buttonText}>
+        {externalSelectedGenders.length > 0 
+          ? externalSelectedGenders[0]  // Show the single selected gender
+          : 'Select gender'} 
+      </Text>
+      <Text style={styles.icon}>▼</Text>
     </TouchableOpacity>
-  );
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.dropdownContainer}>
-        <TouchableOpacity 
-          ref={buttonRef} 
-          style={styles.button} 
-          onPress={toggleDropdown}
-        >
-        <Text style={styles.buttonText}>
-        Select a gender  {/* Always show this text */}
-        </Text>
-        <Text style={styles.icon}>▼</Text>
-        </TouchableOpacity>
-
-        <Modal visible={visible} transparent animationType="none">
+    <Modal visible={visible} transparent animationType="none">
           <TouchableOpacity 
             style={styles.overlay} 
             onPress={() => setVisible(false)}
           >
             <View style={[styles.dropdown, { top: dropdownTop, left: dropdownLeft }]}>
-              <FlatList
-                data={genders}
-                renderItem={renderItem}
-                keyExtractor={(item) => item}
-                style={styles.list}
-              />
+              {availableGenders.length > 0 ? (
+                <FlatList
+                  data={availableGenders}
+                  renderItem={renderItem}
+                  keyExtractor={(item) => item}
+                  style={styles.list}
+                />
+              ) : (
+                <View style={styles.noDataContainer}>
+                  <Text style={styles.noDataText}>No options available</Text>
+                </View>
+              )}
             </View>
           </TouchableOpacity>
         </Modal>
       </View>
 
-      {selectedGender !== '' && (
+      {externalSelectedGenders.length > 0 && (
         <View style={styles.selectedGendersContainer}>
           <View style={styles.genderChip}>
-            <Text style={styles.genderChipText}>{selectedGender}</Text>
+            <Text style={styles.genderChipText}>{externalSelectedGenders[0]}</Text>
             <TouchableOpacity
-              onPress={removeGender}
+              onPress={() => onGendersChange('')}  // Clear selection
               style={styles.removeButton}
             >
               <Text style={styles.removeButtonText}>×</Text>
@@ -153,27 +160,24 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#cccccc',
   },
-  itemText: {
-    fontSize: 14,
-  },
   list: {
     maxHeight: 300,
   },
   selectedGendersContainer: {
-    width: '100%',
     paddingHorizontal: 10,
     paddingTop: 1,
     paddingBottom: 16,
+    alignContent: 'center',
   },
-  selectedGendersTitle: {
+  selectedGenderTitle: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
     textAlign: 'center',
   },
-  selectedGendersSubTitle: {
+  selectedGenderSubTitle: {
     fontSize: 10,
-    marginBottom: 8,
+    marginBottom: 6,
     marginTop: -4,
     color: '#333',
     textAlign: 'center',

@@ -1,28 +1,33 @@
 import React, {useState, useEffect} from 'react';
-import { View, StyleSheet, Text, ScrollView, Image } from 'react-native';
-import { useRouter } from 'expo-router';
+import { View, Text, ScrollView, Image, ActivityIndicator, StyleSheet } from 'react-native';
+import { useRouter, Link } from 'expo-router';
+import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
+import { db, auth } from '@/config/firebase';
 import StateDropdownFindFriends from '../components/StateDropdownFindFriends';
 import GenderDropdownFindFriends from '../components/GenderDropdownFindFriends';
+import CityDropdownFindFriends from '@/components/CityDropdownFindFriends';
 import FindMoreFriendsButton from '@/components/FindMoreFriendsButton';
 import FindFriendsButton from '@/components/FindMyFriendsButton';
 import SafeLayout from '@/components/SafeLayout';
-import { Link } from 'expo-router';
-import Colors from '@/assets/Colors';
 import { Ionicons } from '@expo/vector-icons';
-import CityDropdownFindFriends from '@/components/CityDropdownFindFriends';
-import { friendsData } from '../constants/FriendsData';
+import Colors from '@/assets/Colors';
+
+
+// Helper function for Firebase queries
+const createOrQuery = (field: string, values: string[]) => {
+  if (values.length === 0) return null;
+  return where(field, 'in', values);
+};
 
 const FindNewFriends = () => {
   const router = useRouter();
   
-  // Selected filters state
   const [selectedFilters, setSelectedFilters] = useState({
     cities: [] as string[],
     states: [] as string[],
     genders: [] as string[],
   });
 
-  // Available options state
   const [availableOptions, setAvailableOptions] = useState({
     genders: [] as string[],
     states: [] as string[],
@@ -31,115 +36,212 @@ const FindNewFriends = () => {
 
   const [noMatchesError, setNoMatchesError] = useState<string | null>(null);
 
-  // Initialize available genders on component mount
+  const filterFriends = async (filters: typeof selectedFilters) => {
+    try {
+      let baseQuery = query(collection(db, 'users'));
+      const conditions = [];
+
+      // Add conditions for each filter with values
+      if (filters.genders.length > 0) {
+        conditions.push(where('demographics.gender', 'in', filters.genders));
+      }
+      if (filters.states.length > 0) {
+        conditions.push(where('demographics.state', 'in', filters.states));
+      }
+      if (filters.cities.length > 0) {
+        conditions.push(where('demographics.city', 'in', filters.cities));
+      }
+
+      // Apply all conditions to query
+      if (conditions.length > 0) {
+        baseQuery = query(collection(db, 'users'), ...conditions);
+      }
+
+      const querySnapshot = await getDocs(baseQuery);
+      const currentUser = auth.currentUser; // Add this
+      const currentUserDoc = await getDoc(doc(db, 'users', currentUser?.uid || '')); // Add this
+      const currentUserAge = currentUserDoc.data()?.demographics?.age || 0; // Add this
+  
+      // Filter results based on age logic
+      const filteredResults = querySnapshot.docs.filter(doc => {
+        const userData = doc.data();
+        const userAge = userData.demographics?.age || 0;
+  
+        // Skip the current user
+        if (doc.id === currentUser?.uid) {
+          return false;
+        }
+  
+        // Age filtering logic
+        if (currentUserAge < 13 || userAge < 13) {
+          return false; // No matches for users under 13
+        }
+  
+        // 13-17 age group
+        if (currentUserAge >= 13 && currentUserAge <= 17) {
+          return userAge >= 13 && userAge <= 17;
+        }
+  
+        // 18-20 age group
+        if (currentUserAge >= 18 && currentUserAge <= 20) {
+          return userAge >= 18 && userAge <= 24;
+        }
+  
+        // 21+ age group
+        const minAge = Math.max(18, currentUserAge - 4);
+        const maxAge = currentUserAge + 4;
+        return userAge >= minAge && userAge <= maxAge;
+      });
+  
+      return filteredResults.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+    } catch (error) {
+      console.error('Search error:', error);
+      throw error;
+    }
+  };
+
+  // Function to get unique values for dropdowns from Firestore
+  const getUniqueFieldValues = async (fieldPath: string) => {
+    try {
+      const snapshot = await getDocs(collection(db, 'users'));
+      const values = new Set<string>();
+      
+      snapshot.docs.forEach(doc => {
+        const data = doc.data();
+        const nestedValue: any = fieldPath.split('.').reduce((obj, key) => obj?.[key], data);
+        if (nestedValue && typeof nestedValue === 'string' && nestedValue.trim() !== '') {
+          values.add(nestedValue);
+        }
+      });
+  
+      return Array.from(values).sort();
+    } catch (error) {
+      console.error(`Error getting ${fieldPath} values:`, error);
+      return [];
+    }
+  };
+
+
   useEffect(() => {
-    const uniqueGenders = [...new Set(friendsData.map(friend => friend.gender))].sort();
-    setAvailableOptions(prev => ({
-      ...prev,
-      genders: uniqueGenders
-    }));
+    const loadInitialData = async () => {
+      try {
+        const [genders, states, cities] = await Promise.all([
+          getUniqueFieldValues('demographics.gender'),
+          getUniqueFieldValues('demographics.state'),
+          getUniqueFieldValues('demographics.city')
+        ]);
+
+        setAvailableOptions({
+          genders,
+          states,
+          cities
+        });
+      } catch (error) {
+        console.error('Error loading initial data:', error);
+      }
+    };
+
+    loadInitialData();
   }, []);
 
-  const stateHasValidUsers = (state: string, selectedGenders: string[]) => {
-    if (selectedGenders.length === 0) return true;
-    return friendsData.some(friend => 
-      friend.state === state && selectedGenders.includes(friend.gender)
-    );
-  };
-
-  // Function to check if a city has users matching selected genders and states
-  const cityHasValidUsers = (city: string, selectedGenders: string[], selectedStates: string[]) => {
-    if (selectedGenders.length === 0 && selectedStates.length === 0) return true;
-    return friendsData.some(friend => 
-      friend.city === city && 
-      (selectedGenders.length === 0 || selectedGenders.includes(friend.gender)) &&
-      (selectedStates.length === 0 || selectedStates.includes(friend.state))
-    );
-  };
-
-  // Function to get valid states based on selected genders
-  const getValidStates = (selectedGenders: string[]) => {
-    const validStates = [...new Set(friendsData
-      .filter(friend => selectedGenders.length === 0 || selectedGenders.includes(friend.gender))
-      .map(friend => friend.state)
-    )].sort();
-    return validStates;
-  };
-
-  // Get valid cities based on selected genders and states
-  const getValidCities = (selectedGenders: string[], selectedStates: string[]) => {
-    const validCities = [...new Set(friendsData
-      .filter(friend => {
-        const genderMatch = selectedGenders.length === 0 || selectedGenders.includes(friend.gender);
-        const stateMatch = selectedStates.length === 0 || selectedStates.includes(friend.state);
-        return genderMatch && stateMatch;
-      })
-      .map(friend => friend.city)
-    )].sort();
-    return validCities;
-  };
-
-  // Update available and selected options when gender selection changes
   useEffect(() => {
-    // Get valid states based on selected genders
-    const validStates = getValidStates(selectedFilters.genders);
+    const loadAvailableStates = async () => {
+      try {
+        let q = query(collection(db, 'users'));
+        if (selectedFilters.genders.length > 0) {
+          q = query(q, where('demographics.gender', 'in', selectedFilters.genders));
+        }
+        const snapshot = await getDocs(q);
+        const states = new Set<string>();
+        
+        snapshot.docs.forEach(doc => {
+          const state = doc.data().demographics?.state;
+          if (state && typeof state === 'string' && state.trim() !== '') {
+            states.add(state);
+          }
+        });
     
-    // Clean up selected states
-    const cleanedStates = selectedFilters.states.filter(state => 
-      stateHasValidUsers(state, selectedFilters.genders)
-    );
-
-    // Get valid cities based on new states
-    const validCities = getValidCities(selectedFilters.genders, cleanedStates);
-    
-    // Clean up selected cities
-    const cleanedCities = selectedFilters.cities.filter(city => 
-      cityHasValidUsers(city, selectedFilters.genders, cleanedStates)
-    );
-
-    // Update available options
-    setAvailableOptions(prev => ({
-      ...prev,
-      states: validStates,
-      cities: validCities
-    }));
-
-    // Update selected filters if anything was cleaned
-    if (cleanedStates.length !== selectedFilters.states.length || 
-        cleanedCities.length !== selectedFilters.cities.length) {
-      setSelectedFilters(prev => ({
-        ...prev,
-        states: cleanedStates,
-        cities: cleanedCities
-      }));
-    }
+        setAvailableOptions(prev => ({
+          ...prev,
+          states: Array.from(states).sort()
+        }));
+      } catch (error) {
+        console.error('Error loading states:', error);
+      }
+    };
+  
+    loadAvailableStates();
   }, [selectedFilters.genders]);
 
-  // Update available cities when states change
   useEffect(() => {
-    // Get valid cities based on current filters
-    const validCities = getValidCities(selectedFilters.genders, selectedFilters.states);
-    
-    // Clean up selected cities
-    const cleanedCities = selectedFilters.cities.filter(city => 
-      cityHasValidUsers(city, selectedFilters.genders, selectedFilters.states)
-    );
+    const loadAvailableCities = async () => {
+      try {
+        let q = query(collection(db, 'users'));
+   
+        if (selectedFilters.genders.length > 0) {
+          q = query(q, where('demographics.gender', 'in', selectedFilters.genders));
+        }
+   
+        const snapshot = await getDocs(q);
+        const cities = new Set<string>();
+        
+        snapshot.docs.forEach(doc => {
+          const city = doc.data().demographics?.city;
+          if (city && typeof city === 'string' && city.trim() !== '') {
+            cities.add(city);
+          }
+        });
+   
+        setAvailableOptions(prev => ({
+          ...prev,
+          cities: Array.from(cities).sort()
+        }));
+      } catch (error) {
+        console.error('Error loading cities:', error);
+      }
+    };
+   
+    loadAvailableCities();
+   }, [selectedFilters.genders]);
 
-    // Update available options
-    setAvailableOptions(prev => ({
-      ...prev,
-      cities: validCities
-    }));
+   useEffect(() => {
+    const loadAvailableGenders = async () => {
+      try {
+        let q = query(collection(db, 'users'));
+   
+        if (selectedFilters.states.length > 0) {
+          q = query(q, where('demographics.state', 'in', selectedFilters.states));
+        }
+        if (selectedFilters.cities.length > 0) {
+          q = query(q, where('demographics.city', 'in', selectedFilters.cities));
+        }
+   
+        const snapshot = await getDocs(q);
+        const genders = new Set<string>();
+        
+        snapshot.docs.forEach(doc => {
+          const gender = doc.data().demographics?.gender;
+          if (gender && typeof gender === 'string' && gender.trim() !== '') {
+            genders.add(gender);
+          }
+        });
+   
+        setAvailableOptions(prev => ({
+          ...prev,
+          genders: Array.from(genders).sort()
+        }));
+      } catch (error) {
+        console.error('Error loading genders:', error);
+      }
+    };
+   
+    loadAvailableGenders();
+   }, [selectedFilters.states, selectedFilters.cities]); 
 
-    // Update selected filters if cities were cleaned
-    if (cleanedCities.length !== selectedFilters.cities.length) {
-      setSelectedFilters(prev => ({
-        ...prev,
-        cities: cleanedCities
-      }));
-    }
-  }, [selectedFilters.states]);
-
+  // Handle filter changes
   const handleGendersChange = (genders: string[]) => {
     setSelectedFilters(prev => ({
       ...prev,
@@ -162,85 +264,88 @@ const FindNewFriends = () => {
       cities
     }));
     setNoMatchesError(null);
-  };  
-
-  const handlePress = () => {
-    console.log('Find New Friends pressed');
   };
 
-  const filterFriends = (filters: typeof selectedFilters) => {
-    let filteredFriends = [...friendsData];
+  const handleFindFriends = async () => {
+    try {
+      const matchingFriends = await filterFriends(selectedFilters);
 
-    if (filters.genders.length > 0) {
-      filteredFriends = filteredFriends.filter(friend => 
-        filters.genders.includes(friend.gender)
+      if (matchingFriends.length === 0) {
+        setNoMatchesError(
+          "We're sorry, but there are currently no friends matching your criteria. Try broadening your search!"
+        );
+      } else {
+        router.push({
+          pathname: '/FindingFriends',
+          params: {
+            filters: JSON.stringify(selectedFilters),
+            matchedUsers: JSON.stringify(matchingFriends)
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+      setNoMatchesError(
+        "An error occurred while searching. Please try again."
       );
-    }
-    if (filters.states.length > 0) {
-      filteredFriends = filteredFriends.filter(friend => 
-        filters.states.includes(friend.state)
-      );
-    }
-    if (filters.cities.length > 0) {
-      filteredFriends = filteredFriends.filter(friend => 
-        filters.cities.includes(friend.city)
-      );
-    }
-
-    return filteredFriends;
-  };
-
-  const handleFindFriends = () => {
-    const matchingFriends = filterFriends(selectedFilters);
-
-    if (matchingFriends.length === 0) {
-      setNoMatchesError("We're sorry, but there are currently no friends matching your criteria. Try broadening your search!");
-    } else {
-      setNoMatchesError(null);
-      router.push({
-        pathname: '/FindingFriends',
-        params: {
-          filters: JSON.stringify(selectedFilters)
-        }
-      });
     }
   };
 
-  return (
-    <SafeLayout style={styles.container}>
-      <Link href="/HomePage" style={styles.backButton}>
-        <Ionicons name="arrow-back" size={24} color={Colors.primary} />
-      </Link>
-      <ScrollView style={styles.scrollContainer}>
-        <Image source={require('@/assets/images/Yu_excited_no_speech.png')} style={styles.yuImage} />
-        <Text style={styles.PageTitle}>Find Your New Friend!!</Text>
-        <Text style={styles.PageSubTitle}>Feel free to use the filters to look for specific friends or just search for anyone anywhere by leaving everything blank!!</Text>
-        <Text style={styles.PageSubSubTitle}>Note: We only show genders, states, and cities of active users on our app.</Text>
-        <View style={styles.dropdownsContainer}>
-          <GenderDropdownFindFriends 
-            onGendersChange={handleGendersChange}
-            availableGenders={availableOptions.genders}
-          />
-          <StateDropdownFindFriends 
-            onStatesChange={handleStatesChange}
-            availableStates={availableOptions.states}
-          />
-          <CityDropdownFindFriends 
-            onCitiesChange={handleCitiesChange}
-            availableCities={availableOptions.cities}
-          />
-          {noMatchesError && (
-            <Text style={styles.errorText}>{noMatchesError}</Text>
-          )}
-          <FindFriendsButton onPress={handleFindFriends} />
-          <View style={styles.introContainer}>
-            <Text style={styles.Announcement}>As a FREE user, you cannot find new friends; you can only receive random matches. Upgrade to find up to four new friends per day on your terms!</Text>
-            <FindMoreFriendsButton onPress={handlePress} />
-          </View>
+  return(
+  <SafeLayout style={styles.container}>
+  <Link href="/HomePage" style={styles.backButton}>
+    <Ionicons name="arrow-back" size={24} color={Colors.primary} />
+  </Link>
+    <ScrollView style={styles.scrollContainer}>
+      <Image 
+        source={require('@/assets/images/Yu_excited_no_speech.png')} 
+        style={styles.yuImage} 
+      />
+      <Text style={styles.PageTitle}>Find Your New Friend!!</Text>
+      <Text style={styles.PageSubTitle}>
+        Use the filters to find your new friend, or, leave it blank and search for anyone, anywehre!
+      </Text>
+      <Text style={styles.PageSubSubTitle}>
+        Note: If you're not able to do certain searches, it's becasue we don't have any users that meet those criteria, but I'm sure we will soon! 
+      </Text>
+      
+      <View style={styles.dropdownsContainer}>
+        <GenderDropdownFindFriends 
+          onGendersChange={handleGendersChange}
+          availableGenders={availableOptions.genders}
+          selectedGenders={selectedFilters.genders}
+        />
+        <StateDropdownFindFriends 
+          onStatesChange={handleStatesChange}
+          availableStates={availableOptions.states}
+          selectedStates={selectedFilters.states}
+        />
+        <CityDropdownFindFriends 
+          onCitiesChange={handleCitiesChange}
+          availableCities={availableOptions.cities}
+          selectedCities={selectedFilters.cities}
+          selectedStates={selectedFilters.states}  // Add this
+        />
+        
+        {noMatchesError && (
+          <Text style={styles.errorText}>{noMatchesError}</Text>
+        )}
+        
+        <FindFriendsButton 
+          onPress={handleFindFriends}
+        />
+
+        <View style={styles.introContainer}>
+          <Text style={styles.Announcement}>
+            As a FREE user, you cannot find new friends; you can only receive 
+            random matches. Upgrade to find up to four new friends per day on your terms!
+          </Text>
+          <FindMoreFriendsButton onPress={() => router.push('/UpgradeToPremium')} />
         </View>
-      </ScrollView>
-    </SafeLayout>
-  );
+      </View>
+    </ScrollView>
+</SafeLayout>
+);
 };
 
 const styles = StyleSheet.create({
@@ -273,19 +378,19 @@ const styles = StyleSheet.create({
   PageTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginTop: 10,
+    marginTop: 6,
     textAlign: 'center',
   },
   PageSubTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    marginTop: 20,
+    marginTop: 12,
     textAlign: 'center',
     marginHorizontal: 24,
   },
   PageSubSubTitle: {
     fontSize: 10,
-    marginTop: 2,
+    marginTop: 4,
     textAlign: 'center',
     fontStyle: 'italic',
     color: '#9d9d9d',

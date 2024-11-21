@@ -1,94 +1,165 @@
-import React, {useState} from 'react';
-import { View, StyleSheet, Text, ScrollView, TouchableOpacity, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useState } from 'react';
+import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useAuth } from '@/contexts/AuthContext';
+import { topUsCitiesByState, StateName, CityName } from '@/constants/topUsCities';
 import CityDropdown from '../components/CityDropdown';
 import StateDropdown from '../components/StateDropdown';
 import GenderDropdown from '../components/GenderDropdown';
-import FindMoreFriendsButton from '@/components/FindMoreFriendsButton';
-import FindFriendsButton from '@/components/FindMyFriendsButton';
-import FooterNavigation from '@/components/FooterNavigationIOS';
-import EmailInput from '@/components/EmailInput';
 import SmallYuOnboarding from '@/components/SmallYuOnboarding';
 import ProgressBar from '@/components/ProgressBar';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import SafeLayout from '@/components/SafeLayout';
 import UsernameInput from '@/components/UsernameInput';
+import AgePicker from '@/components/BirthdayDropdown';
+
+interface AgeData {
+  age: number;
+  birthDate: number;
+  isEligible: boolean;
+}
+
+interface Filters {
+  cities: CityName[];
+  states: StateName[];
+  genders: string[];
+}
 
 const OnboardingBasicQuestions = () => {
-    const router = useRouter();
-    const [selectedFilters, setSelectedFilters] = useState({
-      cities: [] as string[],
-      states: [] as string[],
-      genders: [] as string[],
-    });
-  
-    const [selectedState, setSelectedState] = useState('');
-  
-    const handleStateChange = (state: string) => {
-      setSelectedState(state);
-      setSelectedFilters(prev => ({
-        ...prev,
-        states: state ? [state] : []
-      }));
-    };
-  
-    const handleCityChange = (city: string) => {
-      setSelectedFilters(prev => ({ 
-        ...prev, 
-        cities: city ? [city] : [] 
-      }));
-    };
-  
-    const handleGendersChange = (gender: string) => {
-      setSelectedFilters(prev => ({ 
-        ...prev, 
-        genders: gender ? [gender] : [] 
-      }));
-    };
+  const router = useRouter();
+  const { updateDemographics } = useAuth();
+  const [username, setUsername] = useState('');
+  const [selectedFilters, setSelectedFilters] = useState<Filters>({
+    cities: [],
+    states: [],
+    genders: [],
+  });
+  const [error, setError] = useState('');
+  const [selectedState, setSelectedState] = useState<StateName | ''>('');
+  const [ageData, setAgeData] = useState<AgeData | null>(null);
+  const [selectedGenders, setSelectedGenders] = useState<string[]>([]);
+  const genderOptions = ['Male', 'Female', 'Non-binary'];
 
-    const handleEmailSubmit = (email: string) => {
-      console.log('Email submitted:', email);
+  const handleUsernameChange = (text: string) => {
+    setUsername(text);
+  };
+
+  const handleStateChange = (state: StateName) => {
+    setSelectedState(state);
+    setSelectedFilters(prev => ({
+      ...prev,
+      states: state ? [state] : [],
+      cities: [] // Reset cities when state changes
+    }));
+  };
+
+  function handleCityChange(city: CityName) {
+    setSelectedFilters(prev => ({
+      ...prev,
+      cities: city ? [city] : []
+    }));
+  }
+
+  const handleGendersChange = (gender: string) => {
+    setSelectedGenders(gender ? [gender] : []); // Wrap single gender in array
+    setSelectedFilters(prev => ({
+      ...prev,
+      genders: gender ? [gender] : []
+    }));
+  };
+
+  const handleAgeChange = (data: AgeData) => {
+    setAgeData(data);
+  };
+
+  const handleContinue = async () => {
+    try {
+      // Validate username
+      if (!username) {
+        setError('Please enter your username');
+        return;
+      }
+
+      // Validate age
+      if (!ageData || !ageData.isEligible) {
+        setError('You must be at least 13 years old to use this app');
+        return;
+      }
+      
+      // Validate other fields
+      if (!selectedFilters.genders[0] || !selectedFilters.states[0] || !selectedFilters.cities[0]) {
+        setError('Please fill in all fields');
+        return;
+      }
+
+      // Save demographics to Firebase
+      await updateDemographics(
+        ageData.age,
+        selectedFilters.genders[0],
+        selectedFilters.states[0],
+        selectedFilters.cities[0],
+        ageData.birthDate
+      );
+
+      // Continue to next screen
       router.push('/OnboardingQuestion1');
-    };
-  
-    return (
-      <SafeLayout style={styles.container}>
-        <ProgressBar progress={30} />
-        <View style={styles.contentContainer}>
-          <KeyboardAwareScrollView
-            style={styles.scrollContainer}
-            keyboardShouldPersistTaps="handled"
-            keyboardDismissMode="on-drag"
-            enableOnAndroid={true}
-            enableAutomaticScroll={true}
-            extraScrollHeight={20}
-          >
-            <SmallYuOnboarding text={'Before we jump in, please fill out the following information!'} />
-            <EmailInput />
-            <View style={styles.dropdownsContainer}>
-              <GenderDropdown onGendersChange={handleGendersChange} />
-              <StateDropdown onStatesChange={handleStateChange} />
-              <CityDropdown 
-                onCitiesChange={handleCityChange}
-                selectedState={selectedState}
-              />
-            </View>
-            <UsernameInput />
-          </KeyboardAwareScrollView>
-          
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity 
-              style={styles.button}
-              onPress={() => router.push('/OnboardingQuestion1')}
-            >
-              <Text style={styles.buttonText}>Continue</Text>
-            </TouchableOpacity>
+    } catch (err) {
+      setError('Failed to save information. Please try again.');
+      console.error('Error saving demographics:', err);
+    }
+  };
+
+  return (
+    <SafeLayout style={styles.container}>
+      <ProgressBar progress={30} />
+      <View style={styles.contentContainer}>
+        <KeyboardAwareScrollView
+          style={styles.scrollContainer}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          enableOnAndroid={true}
+          enableAutomaticScroll={true}
+          extraScrollHeight={20}
+        >
+          <SmallYuOnboarding text={'Before we jump in, please fill out the following information!'} />
+          <View style={styles.dropdownsContainer}>
+            <GenderDropdown
+              onGendersChange={handleGendersChange}
+              availableGenders={genderOptions}
+              selectedGenders={selectedGenders}
+            />
+            <StateDropdown 
+              onStatesChange={handleStateChange}
+              selectedState={selectedState}
+            />
+            <CityDropdown 
+              onCitiesChange={handleCityChange}
+              availableCities={selectedState ? topUsCitiesByState[selectedState] : []}
+              selectedCities={selectedFilters.cities}
+            />
+            <AgePicker onAgeChange={handleAgeChange} />
           </View>
+          <UsernameInput 
+            onUsernameChange={handleUsernameChange}
+          />
+          <Text style={styles.usernameNote}>
+            Note: You must wait six months to change your username again
+          </Text>
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+        </KeyboardAwareScrollView>
+        
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity 
+            style={styles.button}
+            onPress={handleContinue}
+          >
+            <Text style={styles.buttonText}>Continue</Text>
+          </TouchableOpacity>
         </View>
-      </SafeLayout>
-    );
-}
+      </View>
+    </SafeLayout>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -143,6 +214,36 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  errorText: {
+    color: 'red',
+    textAlign: 'center',
+    marginTop: 10,
+    paddingHorizontal: 16,
+  },
+  usernameNote: {
+    color: '#a9a9a9',
+    fontSize: 12,
+    textAlign: 'center',
+    marginBottom: 12,
+    marginTop: -8,
+  },
+  inputContainer: {
+    padding: 10,
+    width: '100%',
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 8,
+    color: '#333',
+  },
+  input: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 6,
+    fontSize: 14,
+    borderWidth: 1,
+    borderColor: '#ddd',
   },
 });
 

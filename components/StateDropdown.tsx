@@ -11,15 +11,20 @@ import {
 } from 'react-native';
 
 interface StateDropdownProps {
-    onStatesChange?: (state: string) => void;  // Changed from string[] to string
-  }
+  onStatesChange: (state: string) => void;
+  defaultValue?: string;
+  selectedState: string;  // Add this prop
+}
 
-const StateDropdown: React.FC<StateDropdownProps> = ({ onStatesChange }) => {
-    const [visible, setVisible] = useState(false);
-    const [selectedState, setSelectedState] = useState<string>('');  // Changed from string[] to string
-    const [dropdownTop, setDropdownTop] = useState(0);
-    const [dropdownLeft, setDropdownLeft] = useState(0);
-    const buttonRef = useRef<TouchableOpacity>(null);
+const StateDropdown: React.FC<StateDropdownProps> = ({ 
+  onStatesChange, 
+  defaultValue,
+  selectedState: externalSelectedState  // Rename to avoid confusion
+}) => {
+  const [visible, setVisible] = useState(false);
+  const [dropdownTop, setDropdownTop] = useState(0);
+  const [dropdownLeft, setDropdownLeft] = useState(0);
+  const buttonRef = useRef<TouchableOpacity>(null);
 
   const usStatesAndTerritories = [
     "Alabama",
@@ -91,15 +96,13 @@ const StateDropdown: React.FC<StateDropdownProps> = ({ onStatesChange }) => {
   };
 
   const handleStateSelect = (state: string) => {
-    setSelectedState(state);
-    onStatesChange?.([state]);
+    onStatesChange(state);
     setVisible(false);
-  };
+};
 
-  const removeState = () => {
-    setSelectedState('');
-    onStatesChange?.([]);
-  };
+const removeState = () => {
+    onStatesChange('');
+};
 
   const renderItem = ({ item }: { item: string }) => (
     <TouchableOpacity 
@@ -110,52 +113,59 @@ const StateDropdown: React.FC<StateDropdownProps> = ({ onStatesChange }) => {
     </TouchableOpacity>
   );
 
+  const handleStateChange = (state: string) => {
+    setSelectedState(state);
+    onStatesChange(state);
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.dropdownContainer}>
-        <TouchableOpacity 
-          ref={buttonRef} 
-          style={styles.button} 
-          onPress={toggleDropdown}
-        >
-        <Text style={styles.buttonText}>
-            Select a State  {/* Always show this text */}
-        </Text>
-        <Text style={styles.icon}>▼</Text>
-        </TouchableOpacity>
-
-        <Modal visible={visible} transparent animationType="none">
-          <TouchableOpacity 
-            style={styles.overlay} 
-            onPress={() => setVisible(false)}
-          >
-            <View style={[styles.dropdown, { top: dropdownTop, left: dropdownLeft }]}>
-              <FlatList
-                data={usStatesAndTerritories}
-                renderItem={renderItem}
-                keyExtractor={(item) => item}
-                style={styles.list}
-              />
-            </View>
-          </TouchableOpacity>
-        </Modal>
-      </View>
-
-      {selectedState !== '' && (
-        <View style={styles.selectedStatesContainer}>
-          <View style={styles.stateChip}>
-            <Text style={styles.stateChipText}>{selectedState}</Text>
-            <TouchableOpacity
-              onPress={removeState}
-              style={styles.removeButton}
+        <View style={styles.dropdownContainer}>
+            <TouchableOpacity 
+                ref={buttonRef} 
+                style={[styles.button, externalSelectedState && styles.buttonActive]}
+                onPress={toggleDropdown}
             >
-              <Text style={styles.removeButtonText}>×</Text>
+                <Text style={styles.buttonText}>
+                    {externalSelectedState 
+                        ? externalSelectedState  // Show the selected state
+                        : 'Select state'}
+                </Text>
+                <Text style={styles.icon}>▼</Text>
             </TouchableOpacity>
-          </View>
+
+            <Modal visible={visible} transparent animationType="none">
+                <TouchableOpacity 
+                    style={styles.overlay} 
+                    onPress={() => setVisible(false)}
+                >
+                    <View style={[styles.dropdown, { top: dropdownTop, left: dropdownLeft }]}>
+                        <FlatList
+                            data={usStatesAndTerritories}
+                            renderItem={renderItem}
+                            keyExtractor={(item) => item}
+                            style={styles.list}
+                        />
+                    </View>
+                </TouchableOpacity>
+            </Modal>
         </View>
-      )}
+
+        {externalSelectedState !== '' && (
+            <View style={styles.selectedStatesContainer}>
+                <View style={styles.stateChip}>
+                    <Text style={styles.stateChipText}>{externalSelectedState}</Text>
+                    <TouchableOpacity
+                        onPress={removeState}
+                        style={styles.removeButton}
+                    >
+                        <Text style={styles.removeButtonText}>×</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        )}
     </View>
-  );
+);
 };
 
 const styles = StyleSheet.create({
