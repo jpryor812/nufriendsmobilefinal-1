@@ -1,7 +1,10 @@
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { AuthProvider } from "../contexts/AuthContext";
+<<<<<<< HEAD
 
+=======
+>>>>>>> restore-point2
 
 export default function RootLayout() {
   return (
@@ -100,9 +103,15 @@ export default function RootLayout() {
       options={{ headerShown: false }} />
       <Stack.Screen name="OnboardingAvatarCustomization"
       options={{ headerShown: false }} />
+<<<<<<< HEAD
       <Stack.Screen name="Settings"
       options={{ headerShown: false }} />
       <Stack.Screen name="AccountManagement"
+=======
+       <Stack.Screen name="AccountManagement"
+      options={{ headerShown: false }} />
+        <Stack.Screen name="Settings"
+>>>>>>> restore-point2
       options={{ headerShown: false }} />
     </Stack>
     </>

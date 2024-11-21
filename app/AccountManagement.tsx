@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
+<<<<<<< HEAD
 import { View, StyleSheet, Modal, Text, TouchableOpacity, Alert, Image, TextInput } from 'react-native';
+=======
+import { View, StyleSheet, Text, TouchableOpacity, Alert, Image } from 'react-native';
+>>>>>>> restore-point2
 import { useRouter, Link } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import SafeLayout from '@/components/SafeLayout';
@@ -13,7 +17,11 @@ import ScrollSafeLayout from '@/components/ScrollSafeLayout';
 
 const AccountManagement = () => {
   const router = useRouter();
+<<<<<<< HEAD
   const { updateUserPassword, deleteUserAccount, updateProfile, user } = useAuth();
+=======
+  const { updateUserPassword, updateProfile, user } = useAuth();
+>>>>>>> restore-point2
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [username, setUsername] = useState('');
@@ -21,9 +29,12 @@ const AccountManagement = () => {
   const [selectedCity, setSelectedCity] = useState(user?.userData?.demographics?.city || '');
   const [error, setError] = useState('');
   const [isEditingLocation, setIsEditingLocation] = useState(false);
+<<<<<<< HEAD
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 const [deletePassword, setDeletePassword] = useState('');
 const [deleteEmail, setDeleteEmail] = useState('');
+=======
+>>>>>>> restore-point2
 
   const handleChangePassword = async () => {
     try {
@@ -37,9 +48,12 @@ const [deleteEmail, setDeleteEmail] = useState('');
     }
   };
 
+<<<<<<< HEAD
   const handleDeleteAccount = async () => {
     setShowDeleteModal(true);
   };
+=======
+>>>>>>> restore-point2
 
   const handleUpdateProfile = async () => {
     try {
@@ -167,7 +181,10 @@ const [deleteEmail, setDeleteEmail] = useState('');
           </Text>
           <TouchableOpacity
             style={[styles.button, styles.deleteButton]}
+<<<<<<< HEAD
             onPress={handleDeleteAccount}
+=======
+>>>>>>> restore-point2
           >
             <Text style={styles.buttonText}>Delete Account</Text>
           </TouchableOpacity>
@@ -175,6 +192,7 @@ const [deleteEmail, setDeleteEmail] = useState('');
 
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
       </ScrollSafeLayout>
+<<<<<<< HEAD
       <Modal
         visible={showDeleteModal}
         transparent
@@ -233,6 +251,8 @@ const [deleteEmail, setDeleteEmail] = useState('');
           </View>
         </View>
       </Modal>
+=======
+>>>>>>> restore-point2
     </SafeLayout>
   );
 };
@@ -275,6 +295,12 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginHorizontal: 56,
   },
+<<<<<<< HEAD
+=======
+  deleteButton: {
+    backgroundColor: '#FF5757',
+  },
+>>>>>>> restore-point2
   buttonText: {
     color: 'white',
     fontSize: 16,
@@ -335,6 +361,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333',
   },
+<<<<<<< HEAD
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -379,6 +406,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   
+=======
+>>>>>>> restore-point2
 });
 
 export default AccountManagement;

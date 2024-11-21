@@ -1,14 +1,22 @@
+<<<<<<< HEAD
 // app/Settings.tsx
+=======
+>>>>>>> restore-point2
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter, Link } from 'expo-router';
 import SafeLayout from '@/components/SafeLayout';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/assets/Colors';
+<<<<<<< HEAD
 
 const Settings = () => {
   const router = useRouter();
 
+=======
+const Settings = () => {
+  const router = useRouter();
+>>>>>>> restore-point2
   const SettingsItem = ({ 
     icon, 
     title, 
@@ -28,14 +36,20 @@ const Settings = () => {
       {showArrow && <Ionicons name="chevron-forward" size={24} color="#999" />}
     </TouchableOpacity>
   );
+<<<<<<< HEAD
 
+=======
+>>>>>>> restore-point2
   return (
     <SafeLayout style={styles.container}>
       <Link href="/ProfilePage" style={styles.backButton}>
         <Ionicons name="arrow-back" size={24} color={Colors.primary} />
       </Link>
       <Text style={styles.title}>Settings</Text>
+<<<<<<< HEAD
 
+=======
+>>>>>>> restore-point2
       <View style={styles.settingsSection}>
         <SettingsItem
           icon="person-circle-outline"
@@ -48,25 +62,37 @@ const Settings = () => {
           title="Notifications"
           onPress={() => console.log('Notifications')}
         />
+<<<<<<< HEAD
 
+=======
+>>>>>>> restore-point2
         <SettingsItem
           icon="help-circle-outline"
           title="Contact Us/Help"
           onPress={() => console.log('Help')}
         />
+<<<<<<< HEAD
 
+=======
+>>>>>>> restore-point2
         <SettingsItem
           icon="document-text-outline"
           title="Terms"
           onPress={() => console.log('Terms')}
         />
+<<<<<<< HEAD
 
+=======
+>>>>>>> restore-point2
         <SettingsItem
           icon="shield-outline"
           title="Privacy Policy"
           onPress={() => console.log('Privacy')}
         />
+<<<<<<< HEAD
 
+=======
+>>>>>>> restore-point2
         <SettingsItem
           icon="star-outline"
           title="Leave a Review!"
@@ -76,7 +102,10 @@ const Settings = () => {
     </SafeLayout>
   );
 };
+<<<<<<< HEAD
 
+=======
+>>>>>>> restore-point2
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -120,5 +149,8 @@ const styles = StyleSheet.create({
     color: '#333',
   },
 });
+<<<<<<< HEAD
 
+=======
+>>>>>>> restore-point2
 export default Settings;

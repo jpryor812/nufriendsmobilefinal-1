@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> restore-point2
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { auth, db } from '@/config/firebase';
 import { 
@@ -8,11 +12,18 @@ import {
   EmailAuthProvider,
   reauthenticateWithCredential,
   updatePassword,
+<<<<<<< HEAD
   deleteUser,
   getAuth,
   User as FirebaseUser
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, deleteDoc, serverTimestamp, updateDoc, where} from 'firebase/firestore';
+=======
+  getAuth,
+  User as FirebaseUser
+} from 'firebase/auth';
+import { doc, setDoc, getDoc, serverTimestamp, updateDoc, where } from 'firebase/firestore';
+>>>>>>> restore-point2
 
 
 // Define types
@@ -23,7 +34,11 @@ interface UserData {
   createdAt: Date;
   demographics: {
     age: number;
+<<<<<<< HEAD
     birthDate: string; 
+=======
+    birthDate: number; 
+>>>>>>> restore-point2
     gender: string;
     state: string;
     city: string;
@@ -53,6 +68,7 @@ type UserWithData = FirebaseUser & {
 };
 
 interface AuthContextType {
+<<<<<<< HEAD
   user: UserWithData | null; 
   loading: boolean;
   signup: (email: string, password: string, username: string) => Promise<void>;
@@ -76,6 +92,29 @@ interface AuthContextType {
     birthDate?: string  
   }) => Promise<void>;
 }
+=======
+    user: UserWithData | null; 
+    loading: boolean;
+    signup: (email: string, password: string, username: string) => Promise<void>;
+    login: (email: string, password: string) => Promise<void>;
+    logout: () => Promise<void>;
+    updateUserPassword: (currentPassword: string, newPassword: string) => Promise<void>;
+    updateDemographics: (
+      age: number, 
+      gender: string, 
+      state: string, 
+      city: string,
+      birthDate: number  // Changed from string to number
+    ) => Promise<void>;
+    updateProfile: (updates: {
+      username?: string,
+      city?: string,
+      state?: string
+      age?: number
+      birthDate?: number  // Changed from string to number
+    }) => Promise<void>;
+  }
+>>>>>>> restore-point2
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -125,7 +164,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         username,
         createdAt: serverTimestamp(),
         demographics: {  
+<<<<<<< HEAD
           age: 0,  
+=======
+          age: 0,
+          birthDate: 0,  
+>>>>>>> restore-point2
           gender: '',
           state: '',
           city: ''
@@ -195,6 +239,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+<<<<<<< HEAD
   const deleteUserAccount = async (password: string): Promise<void> => {
     try {
       const currentUser = auth.currentUser;
@@ -225,12 +270,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+=======
+>>>>>>> restore-point2
   const updateDemographics = async (
     age: number, 
     gender: string, 
     state: string, 
     city: string,
+<<<<<<< HEAD
     birthDate: string
+=======
+    birthDate: number
+>>>>>>> restore-point2
   ) => {
     try {
       if (!user) throw new Error('No user logged in');
@@ -253,7 +304,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     city?: string,
     state?: string
     age?: number
+<<<<<<< HEAD
     birthDate?: string  // Add this
+=======
+    birthDate?: number  // Add this
+>>>>>>> restore-point2
   }) => {
     try {
       if (!user) throw new Error('No user logged in');
@@ -281,7 +336,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         login,
         logout,
         updateUserPassword,
+<<<<<<< HEAD
         deleteUserAccount,
+=======
+>>>>>>> restore-point2
         updateDemographics,
         updateProfile,
       }}
@@ -298,4 +356,8 @@ export function useAuth(): AuthContextType {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> restore-point2

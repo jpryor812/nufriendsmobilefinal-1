@@ -15,6 +15,7 @@ import Colors from '@/assets/Colors';
 interface UsernameInputProps {
   onUsernameChange: (username: string) => void;
   defaultValue?: string;
+<<<<<<< HEAD
   editable?: boolean;
 }
 
@@ -30,10 +31,21 @@ const UsernameInput: React.FC<UsernameInputProps> = ({
       setUsername(text);
       onUsernameChange(text);
     }
+=======
+}
+
+const UsernameInput: React.FC<UsernameInputProps> = ({ onUsernameChange, defaultValue }) => {
+  const [username, setUsername] = useState(defaultValue || '');
+
+  const handleUsernameChange = (text: string) => {
+    setUsername(text);
+    onUsernameChange(text);
+>>>>>>> restore-point2
   };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+<<<<<<< HEAD
       <View style={[styles.container]}>
         <Text style={styles.label}>What Should Everyone Call You?</Text>
         <View pointerEvents={!editable ? 'none' : 'auto'}>
@@ -61,6 +73,29 @@ const UsernameInput: React.FC<UsernameInputProps> = ({
             renderActions={() => null}
           />
         </View>
+=======
+      <View style={styles.container}>
+        <Text style={styles.label}>What Should Everyone Call You?</Text>
+        <InputToolbar
+          containerStyle={styles.inputContainer}
+          primaryStyle={styles.inputPrimary}
+          renderComposer={(props) => (
+            <Composer
+              {...props}
+              textInputStyle={styles.input}
+              text={username}  // Changed from UserName to username
+              onTextChanged={handleUsernameChange}  // Changed from setUserName
+              placeholder="Enter your username"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              multiline={false}
+            />
+          )}
+          renderSend={() => null}
+          renderActions={() => null}
+        />
+>>>>>>> restore-point2
       </View>
     </TouchableWithoutFeedback>
   );
@@ -69,7 +104,7 @@ const UsernameInput: React.FC<UsernameInputProps> = ({
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 30,
-    paddingTop: 16,
+    paddingTop: 8,
     paddingBottom: 4,
   },
   label: {
@@ -83,6 +118,7 @@ const styles = StyleSheet.create({
     color: '#333',
     marginTop: -2,
     marginLeft: 12,
+    textAlign: 'center',
   },
   inputContainer: {
     backgroundColor: 'white',

@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 // components/PasswordInput.tsx
+=======
+>>>>>>> restore-point2
 import React, { useState } from 'react';
 import { View, TextInput, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';

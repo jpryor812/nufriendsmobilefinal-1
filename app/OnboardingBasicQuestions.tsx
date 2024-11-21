@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
+<<<<<<< HEAD
+=======
+import { topUsCitiesByState, StateName, CityName } from '@/constants/topUsCities';
+>>>>>>> restore-point2
 import CityDropdown from '../components/CityDropdown';
 import StateDropdown from '../components/StateDropdown';
 import GenderDropdown from '../components/GenderDropdown';
@@ -10,6 +14,7 @@ import ProgressBar from '@/components/ProgressBar';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import SafeLayout from '@/components/SafeLayout';
 import UsernameInput from '@/components/UsernameInput';
+<<<<<<< HEAD
 import AgePicker from '@/components/BirthdayDropdown';  // Import the new component
 
 interface AgeData {
@@ -17,11 +22,27 @@ interface AgeData {
   birthDate: Date;
   isEligible: boolean;
 }
+=======
+import AgePicker from '@/components/BirthdayDropdown';
+
+interface AgeData {
+  age: number;
+  birthDate: number;
+  isEligible: boolean;
+}
+
+interface Filters {
+  cities: CityName[];
+  states: StateName[];
+  genders: string[];
+}
+>>>>>>> restore-point2
 
 const OnboardingBasicQuestions = () => {
   const router = useRouter();
   const { updateDemographics } = useAuth();
   const [username, setUsername] = useState('');
+<<<<<<< HEAD
   const [selectedFilters, setSelectedFilters] = useState({
     cities: [] as string[],
     states: [] as string[],
@@ -30,11 +51,24 @@ const OnboardingBasicQuestions = () => {
   const [error, setError] = useState('');
   const [selectedState, setSelectedState] = useState('');
   const [ageData, setAgeData] = useState<AgeData | null>(null);  // Replace age state
+=======
+  const [selectedFilters, setSelectedFilters] = useState<Filters>({
+    cities: [],
+    states: [],
+    genders: [],
+  });
+  const [error, setError] = useState('');
+  const [selectedState, setSelectedState] = useState<StateName | ''>('');
+  const [ageData, setAgeData] = useState<AgeData | null>(null);
+  const [selectedGenders, setSelectedGenders] = useState<string[]>([]);
+  const genderOptions = ['Male', 'Female', 'Non-binary'];
+>>>>>>> restore-point2
 
   const handleUsernameChange = (text: string) => {
     setUsername(text);
   };
 
+<<<<<<< HEAD
   const handleStateChange = (state: string) => {
     setSelectedState(state);
     setSelectedFilters(prev => ({
@@ -54,6 +88,29 @@ const OnboardingBasicQuestions = () => {
     setSelectedFilters(prev => ({ 
       ...prev, 
       genders: gender ? [gender] : [] 
+=======
+  const handleStateChange = (state: StateName) => {
+    setSelectedState(state);
+    setSelectedFilters(prev => ({
+      ...prev,
+      states: state ? [state] : [],
+      cities: [] // Reset cities when state changes
+    }));
+  };
+
+  function handleCityChange(city: CityName) {
+    setSelectedFilters(prev => ({
+      ...prev,
+      cities: city ? [city] : []
+    }));
+  }
+
+  const handleGendersChange = (gender: string) => {
+    setSelectedGenders(gender ? [gender] : []); // Wrap single gender in array
+    setSelectedFilters(prev => ({
+      ...prev,
+      genders: gender ? [gender] : []
+>>>>>>> restore-point2
     }));
   };
 
@@ -87,7 +144,11 @@ const OnboardingBasicQuestions = () => {
         selectedFilters.genders[0],
         selectedFilters.states[0],
         selectedFilters.cities[0],
+<<<<<<< HEAD
         ageData.birthDate.toISOString()
+=======
+        ageData.birthDate
+>>>>>>> restore-point2
       );
 
       // Continue to next screen
@@ -112,18 +173,41 @@ const OnboardingBasicQuestions = () => {
         >
           <SmallYuOnboarding text={'Before we jump in, please fill out the following information!'} />
           <View style={styles.dropdownsContainer}>
+<<<<<<< HEAD
             <GenderDropdown onGendersChange={handleGendersChange} />
             <StateDropdown onStatesChange={handleStateChange} />
             <CityDropdown 
               onCitiesChange={handleCityChange}
               selectedState={selectedState}
             />
+=======
+            <GenderDropdown
+              onGendersChange={handleGendersChange}
+              availableGenders={genderOptions}
+              selectedGenders={selectedGenders}
+            />
+            <StateDropdown 
+              onStatesChange={handleStateChange}
+              selectedState={selectedState}
+            />
+            <CityDropdown 
+              onCitiesChange={handleCityChange}
+              availableCities={selectedState ? topUsCitiesByState[selectedState] : []}
+              selectedCities={selectedFilters.cities}
+            />
+>>>>>>> restore-point2
             <AgePicker onAgeChange={handleAgeChange} />
           </View>
           <UsernameInput 
             onUsernameChange={handleUsernameChange}
           />
+<<<<<<< HEAD
           <Text style={styles.usernameNote}>Note: You must wait six months to change your username again</Text>
+=======
+          <Text style={styles.usernameNote}>
+            Note: You must wait six months to change your username again
+          </Text>
+>>>>>>> restore-point2
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
         </KeyboardAwareScrollView>
         

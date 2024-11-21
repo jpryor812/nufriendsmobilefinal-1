@@ -1,24 +1,30 @@
-import { Text, View, StyleSheet } from "react-native";
-import { Link } from "expo-router";
+import React, { useState } from 'react';
+import { View, Button } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import SafeLayout from '@/components/SafeLayout';
 
-export default function AboutScreen() {
+const AgePicker = () => {
+  const [show, setShow] = useState(false);
+  const [date, setDate] = useState(new Date());
+
   return (
-    <View style={styles.container}>
-            <Text>About</Text>
-    <Link href={"/OnboardingRelationshipTracker"} style={styles.button}>
-      Home
-    </Link>
-    </View>
+    <SafeLayout>
+      <Button onPress={() => setShow(true)} title="Show date picker" />
+      {show && (
+        <DateTimePicker
+          testID="dateTimePicker"
+          value={date}
+          mode="date"
+          onChange={(event, selectedDate) => {
+            setShow(false);
+            if (selectedDate) {
+              setDate(selectedDate);
+            }
+          }}
+        />
+      )}
+    </SafeLayout>
   );
-}
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    button: {
-        fontSize: 24,
-        color: "blue",
-    },
-    });
+};
+
+export default AgePicker;

@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 interface StateDropdownProps {
+<<<<<<< HEAD
     onStatesChange: (state: string) => void;
     defaultValue?: string;
   }
@@ -21,6 +22,22 @@ interface StateDropdownProps {
     const [dropdownTop, setDropdownTop] = useState(0);
     const [dropdownLeft, setDropdownLeft] = useState(0);
     const buttonRef = useRef<TouchableOpacity>(null);
+=======
+  onStatesChange: (state: string) => void;
+  defaultValue?: string;
+  selectedState: string;  // Add this prop
+}
+
+const StateDropdown: React.FC<StateDropdownProps> = ({ 
+  onStatesChange, 
+  defaultValue,
+  selectedState: externalSelectedState  // Rename to avoid confusion
+}) => {
+  const [visible, setVisible] = useState(false);
+  const [dropdownTop, setDropdownTop] = useState(0);
+  const [dropdownLeft, setDropdownLeft] = useState(0);
+  const buttonRef = useRef<TouchableOpacity>(null);
+>>>>>>> restore-point2
 
   const usStatesAndTerritories = [
     "Alabama",
@@ -92,15 +109,25 @@ interface StateDropdownProps {
   };
 
   const handleStateSelect = (state: string) => {
+<<<<<<< HEAD
     setSelectedState(state);
     onStatesChange(state);  // Changed from onStatesChange?.([state])
+=======
+    onStatesChange(state);
+>>>>>>> restore-point2
     setVisible(false);
-  };
+};
 
+<<<<<<< HEAD
   const removeState = () => {
     setSelectedState('');
     onStatesChange('');  // Changed from onStatesChange?.([])
   };
+=======
+const removeState = () => {
+    onStatesChange('');
+};
+>>>>>>> restore-point2
 
   const renderItem = ({ item }: { item: string }) => (
     <TouchableOpacity 
@@ -118,50 +145,52 @@ interface StateDropdownProps {
 
   return (
     <View style={styles.container}>
-      <View style={styles.dropdownContainer}>
-        <TouchableOpacity 
-          ref={buttonRef} 
-          style={styles.button} 
-          onPress={toggleDropdown}
-        >
-        <Text style={styles.buttonText}>
-            Select a State  {/* Always show this text */}
-        </Text>
-        <Text style={styles.icon}>▼</Text>
-        </TouchableOpacity>
-
-        <Modal visible={visible} transparent animationType="none">
-          <TouchableOpacity 
-            style={styles.overlay} 
-            onPress={() => setVisible(false)}
-          >
-            <View style={[styles.dropdown, { top: dropdownTop, left: dropdownLeft }]}>
-              <FlatList
-                data={usStatesAndTerritories}
-                renderItem={renderItem}
-                keyExtractor={(item) => item}
-                style={styles.list}
-              />
-            </View>
-          </TouchableOpacity>
-        </Modal>
-      </View>
-
-      {selectedState !== '' && (
-        <View style={styles.selectedStatesContainer}>
-          <View style={styles.stateChip}>
-            <Text style={styles.stateChipText}>{selectedState}</Text>
-            <TouchableOpacity
-              onPress={removeState}
-              style={styles.removeButton}
+        <View style={styles.dropdownContainer}>
+            <TouchableOpacity 
+                ref={buttonRef} 
+                style={[styles.button, externalSelectedState && styles.buttonActive]}
+                onPress={toggleDropdown}
             >
-              <Text style={styles.removeButtonText}>×</Text>
+                <Text style={styles.buttonText}>
+                    {externalSelectedState 
+                        ? externalSelectedState  // Show the selected state
+                        : 'Select state'}
+                </Text>
+                <Text style={styles.icon}>▼</Text>
             </TouchableOpacity>
-          </View>
+
+            <Modal visible={visible} transparent animationType="none">
+                <TouchableOpacity 
+                    style={styles.overlay} 
+                    onPress={() => setVisible(false)}
+                >
+                    <View style={[styles.dropdown, { top: dropdownTop, left: dropdownLeft }]}>
+                        <FlatList
+                            data={usStatesAndTerritories}
+                            renderItem={renderItem}
+                            keyExtractor={(item) => item}
+                            style={styles.list}
+                        />
+                    </View>
+                </TouchableOpacity>
+            </Modal>
         </View>
-      )}
+
+        {externalSelectedState !== '' && (
+            <View style={styles.selectedStatesContainer}>
+                <View style={styles.stateChip}>
+                    <Text style={styles.stateChipText}>{externalSelectedState}</Text>
+                    <TouchableOpacity
+                        onPress={removeState}
+                        style={styles.removeButton}
+                    >
+                        <Text style={styles.removeButtonText}>×</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        )}
     </View>
-  );
+);
 };
 
 const styles = StyleSheet.create({

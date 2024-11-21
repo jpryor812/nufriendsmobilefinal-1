@@ -1,4 +1,3 @@
-//When we launch, only show countries/states/cities where we have active users
 import React, { useState, useRef } from 'react';
 import {
   View,
@@ -8,9 +7,10 @@ import {
   FlatList,
   StyleSheet,
 } from 'react-native';
-import { citiesByState } from './CitiesByState';
+import { CityName } from '@/constants/topUsCities'
 
 interface CityDropdownProps {
+<<<<<<< HEAD
   onCitiesChange: (city: string) => void;
   selectedState: string;  // Keep this as it's needed for city filtering
   defaultValue?: string;
@@ -22,14 +22,22 @@ const CityDropdown: React.FC<CityDropdownProps> = ({
   defaultValue 
 }) => {
   const [selectedCity, setSelectedCity] = useState(defaultValue || '');    const [visible, setVisible] = useState(false);
+=======
+  onCitiesChange: (city: CityName) => void;  // Changed to single city
+  availableCities: CityName[];
+  selectedCities: CityName[];  // Keep as array for state management compatibility
+}
+
+const CityDropdownFindFriends = ({ 
+  onCitiesChange, 
+  availableCities,
+  selectedCities: externalSelectedCities
+}: CityDropdownProps) => {
+    const [visible, setVisible] = useState(false);
+>>>>>>> restore-point2
     const [dropdownTop, setDropdownTop] = useState(0);
     const [dropdownLeft, setDropdownLeft] = useState(0);
     const buttonRef = useRef<TouchableOpacity>(null);
-
-    const getAvailableCities = () => {
-        if (!selectedState) return [];
-        return citiesByState[selectedState] || [];
-    };
 
     const toggleDropdown = () => {
         if (buttonRef.current) {
@@ -41,23 +49,21 @@ const CityDropdown: React.FC<CityDropdownProps> = ({
         setVisible(!visible);
     };
 
-    const handleCitySelect = (city: string) => {
-        setSelectedCity(city);
-        onCitiesChange?.(city);
+    const handleCitySelect = (city: CityName) => {
+        onCitiesChange(city);  // Just pass the single city
         setVisible(false);
     };
 
-    const removeCity = () => {
-        setSelectedCity('');
-        onCitiesChange?.('');
-    };
-
-    const renderItem = ({ item }: { item: string }) => (
+    const renderItem = ({ item }: { item: CityName }) => (
         <TouchableOpacity 
             style={styles.item} 
             onPress={() => handleCitySelect(item)}
         >
-            <Text>{item}</Text>
+            <View style={styles.itemContainer}>
+                <View style={styles.cityInfoContainer}>
+                    <Text style={styles.itemText}>{item}</Text>
+                </View>
+            </View>
         </TouchableOpacity>
     );
 
@@ -66,23 +72,16 @@ const CityDropdown: React.FC<CityDropdownProps> = ({
             <View style={styles.dropdownContainer}>
                 <TouchableOpacity 
                     ref={buttonRef} 
-                    style={[
-                        styles.button,
-                        !selectedState && styles.buttonDisabled
-                    ]} 
+                    style={[styles.button, externalSelectedCities.length > 0 && styles.buttonActive]}
                     onPress={toggleDropdown}
-                    disabled={!selectedState}
                 >
-    <Text style={[
-        styles.buttonText,
-        !selectedState && styles.buttonTextDisabled
-    ]}>
-        {!selectedState 
-            ? 'Select a state first'
-            : 'Select a city'}
-    </Text>
-    <Text style={styles.icon}>▼</Text>
-</TouchableOpacity>
+                    <Text style={styles.buttonText}>
+                        {externalSelectedCities.length > 0 
+                            ? externalSelectedCities[0]  // Show the single selected city
+                            : 'Select city'}  
+                    </Text>
+                    <Text style={styles.icon}>▼</Text>
+                </TouchableOpacity>
 
                 <Modal visible={visible} transparent animationType="none">
                     <TouchableOpacity 
@@ -90,30 +89,29 @@ const CityDropdown: React.FC<CityDropdownProps> = ({
                         onPress={() => setVisible(false)}
                     >
                         <View style={[styles.dropdown, { top: dropdownTop, left: dropdownLeft }]}>
-                            <FlatList
-                                data={getAvailableCities()}
-                                renderItem={renderItem}
-                                keyExtractor={(item) => item}
-                                style={styles.list}
-                            />
-                            
+                            {availableCities.length > 0 ? (
+                                <FlatList
+                                    data={availableCities}
+                                    renderItem={renderItem}
+                                    keyExtractor={(item) => item}
+                                    style={styles.list}
+                                />
+                            ) : (
+                                <View style={styles.noDataContainer}>
+                                    <Text style={styles.noDataText}>No cities available with current filters</Text>
+                                </View>
+                            )}
                         </View>
                     </TouchableOpacity>
                 </Modal>
             </View>
 
-            {selectedState && (
-            <Text style={styles.NoCityText}>
-               If you don't see your city, please select the closest one to you, or just leave it blank. 
-            </Text>
-        )}
-
-            {selectedCity !== '' && (
+            {externalSelectedCities.length > 0 && (
                 <View style={styles.selectedCitiesContainer}>
                     <View style={styles.cityChip}>
-                        <Text style={styles.cityChipText}>{selectedCity}</Text>
+                        <Text style={styles.cityChipText}>{externalSelectedCities[0]}</Text>
                         <TouchableOpacity
-                            onPress={removeCity}
+                            onPress={() => onCitiesChange('' as CityName)}  // Clear selection
                             style={styles.removeButton}
                         >
                             <Text style={styles.removeButtonText}>×</Text>
@@ -126,8 +124,7 @@ const CityDropdown: React.FC<CityDropdownProps> = ({
 };
 
 const styles = StyleSheet.create({
-
-container: {
+  container: {
     width: '100%',
   },
   dropdownContainer: {
@@ -177,17 +174,10 @@ container: {
   list: {
     maxHeight: 300,
   },
-  NoCityText: {
-    fontSize: 10,
-    marginTop: -8,
-    color: '#333',
-    textAlign: 'center',
-    marginHorizontal: 22,
-  },
   selectedCitiesContainer: {
     paddingHorizontal: 10,
-    paddingTop: 4,
-    paddingBottom: 2,
+    paddingTop: 1,
+    paddingBottom: 16,
     alignContent: 'center',
   },
   selectedCitiesTitle: {
@@ -218,25 +208,15 @@ container: {
     borderRadius: 20,
     paddingVertical: 2,
     paddingHorizontal: 12,
-    // Remove marginRight since we only have one chip
-    alignSelf: 'center', // Center the chip within its container
-    // Add this to ensure chip only takes up needed space:
+    alignSelf: 'center',
     flexShrink: 1,
-    maxWidth: '90%', // Optional: prevent chip from getting too wide
+    maxWidth: '90%',
   },
-  buttonDisabled: {
-    backgroundColor: '#f0f0f0',
-    borderColor: '#ccc',
-},
-buttonTextDisabled: {
-    color: '#999',
-},
   cityChipText: {
     fontSize: 14,
     color: '#fff',
     marginRight: 4,
     fontWeight: 'bold',
-    // Add these to handle long text properly:
     flexShrink: 1,
     flexWrap: 'wrap',
   },
@@ -250,4 +230,4 @@ buttonTextDisabled: {
   },
 });
 
-export default CityDropdown;
+export default CityDropdownFindFriends;
