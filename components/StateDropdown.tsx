@@ -11,18 +11,6 @@ import {
 } from 'react-native';
 
 interface StateDropdownProps {
-<<<<<<< HEAD
-    onStatesChange: (state: string) => void;
-    defaultValue?: string;
-  }
-
-  const StateDropdown: React.FC<StateDropdownProps> = ({ onStatesChange, defaultValue }) => {
-    const [selectedState, setSelectedState] = useState(defaultValue || '');
-    const [visible, setVisible] = useState(false);
-    const [dropdownTop, setDropdownTop] = useState(0);
-    const [dropdownLeft, setDropdownLeft] = useState(0);
-    const buttonRef = useRef<TouchableOpacity>(null);
-=======
   onStatesChange: (state: string) => void;
   defaultValue?: string;
   selectedState: string;  // Add this prop
@@ -37,7 +25,6 @@ const StateDropdown: React.FC<StateDropdownProps> = ({
   const [dropdownTop, setDropdownTop] = useState(0);
   const [dropdownLeft, setDropdownLeft] = useState(0);
   const buttonRef = useRef<TouchableOpacity>(null);
->>>>>>> restore-point2
 
   const usStatesAndTerritories = [
     "Alabama",
@@ -109,25 +96,13 @@ const StateDropdown: React.FC<StateDropdownProps> = ({
   };
 
   const handleStateSelect = (state: string) => {
-<<<<<<< HEAD
-    setSelectedState(state);
-    onStatesChange(state);  // Changed from onStatesChange?.([state])
-=======
     onStatesChange(state);
->>>>>>> restore-point2
     setVisible(false);
 };
 
-<<<<<<< HEAD
-  const removeState = () => {
-    setSelectedState('');
-    onStatesChange('');  // Changed from onStatesChange?.([])
-  };
-=======
 const removeState = () => {
     onStatesChange('');
 };
->>>>>>> restore-point2
 
   const renderItem = ({ item }: { item: string }) => (
     <TouchableOpacity 

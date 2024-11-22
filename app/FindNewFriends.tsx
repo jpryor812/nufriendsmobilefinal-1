@@ -303,10 +303,10 @@ const FindNewFriends = () => {
       />
       <Text style={styles.PageTitle}>Find Your New Friend!!</Text>
       <Text style={styles.PageSubTitle}>
-        Use the filters to find your new friend, or, leave it blank and search for anyone, anywehre!
+      Use the filters to find your new friend, or leave them blank and search for anyone, anywhere!
       </Text>
       <Text style={styles.PageSubSubTitle}>
-        Note: If you're not able to do certain searches, it's becasue we don't have any users that meet those criteria, but I'm sure we will soon! 
+      Note: If you're unable to do certain searches, it's because we don't have any users who meet those criteria, but I'm sure we will soon!  
       </Text>
       
       <View style={styles.dropdownsContainer}>

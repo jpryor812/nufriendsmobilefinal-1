@@ -6,7 +6,6 @@ import DatingToggle from '../components/DatingToggle';
 import MessagesChart from '../components/MessagesChart';
 import ActiveStreaks from '../components/ActiveStreaks';
 import StatsBar from '../components/UserStatsContainer';
-import AchievementsSection from '@/components/AchievementsSection';
 import FooterNavigation from '../components/FooterNavigationIOS';
 import SearchingDots from '@/components/SearchingDots';
 import MiniYuOnboarding from '@/components/MiniYuOnboarding';

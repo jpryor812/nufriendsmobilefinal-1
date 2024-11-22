@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-=======
-
->>>>>>> restore-point2
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { auth, db } from '@/config/firebase';
 import { 
@@ -12,87 +8,72 @@ import {
   EmailAuthProvider,
   reauthenticateWithCredential,
   updatePassword,
-<<<<<<< HEAD
-  deleteUser,
-  getAuth,
-  User as FirebaseUser
-} from 'firebase/auth';
-import { doc, setDoc, getDoc, deleteDoc, serverTimestamp, updateDoc, where} from 'firebase/firestore';
-=======
   getAuth,
   User as FirebaseUser
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp, updateDoc, where } from 'firebase/firestore';
->>>>>>> restore-point2
 
 
-// Define types
-interface UserData {
-  uid: string;
-  email: string | null;
-  username: string;
-  createdAt: Date;
-  demographics: {
-    age: number;
-<<<<<<< HEAD
-    birthDate: string; 
-=======
-    birthDate: number; 
->>>>>>> restore-point2
-    gender: string;
-    state: string;
-    city: string;
-  };
-  questionnaire: {
-    interests: string[];
-    preferences: Record<string, any>;
-    personalityTraits: string[];
-  };
-  stats: {
-    messagesSent: number;
-    conversationsStarted: number;
-    aiInteractions: number;
-  };
-  subscription: {
-    type: string;
-    validUntil: null | Date;
-  };
-  avatar: {
-    currentOutfit: Record<string, any>;
-    unlockedItems: string[];
-  };
-}
+interface OnboardingResponse {
+    answer: string;
+    updatedAt: Date | null;
+  }
+  
+  interface OnboardingResponses {
+    location: OnboardingResponse;
+    hobbies: OnboardingResponse;
+    relationships: OnboardingResponse;
+    music: OnboardingResponse;
+    entertainment: OnboardingResponse;
+    travel: OnboardingResponse;
+    aspirations: OnboardingResponse;
+  }
+  
+  interface UserData {
+    uid: string;
+    email: string | null;
+    username: string;
+    createdAt: Date;
+    demographics: {
+      age: number;
+      birthDate: number; 
+      gender: string;
+      state: string;
+      city: string;
+    };
+    questionnaire: {
+      interests: string[];
+      preferences: Record<string, any>;
+      personalityTraits: string[];
+      onboarding: {
+        responses: OnboardingResponses;
+        status: {
+          isComplete: boolean;
+          lastUpdated: Date | null;
+          completedAt: Date | null;
+        };
+      };
+    };
+    stats: {
+      messagesSent: number;
+      conversationsStarted: number;
+      aiInteractions: number;
+    };
+    subscription: {
+      type: string;
+      validUntil: null | Date;
+    };
+    avatar: {
+      currentOutfit: Record<string, any>;
+      unlockedItems: string[];
+    };
+  }
 
 type UserWithData = FirebaseUser & {
   userData?: UserData;
 };
 
 interface AuthContextType {
-<<<<<<< HEAD
-  user: UserWithData | null; 
-  loading: boolean;
-  signup: (email: string, password: string, username: string) => Promise<void>;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-  updateUserPassword: (currentPassword: string, newPassword: string) => Promise<void>;
-  deleteUserAccount: (email: string, password: string) => Promise<void>;
-  // Update this line to include birthDate parameter
-  updateDemographics: (
-    age: number, 
-    gender: string, 
-    state: string, 
-    city: string,
-    birthDate: string
-  ) => Promise<void>;
-  updateProfile: (updates: {
-    username?: string,
-    city?: string,
-    state?: string
-    age?: number
-    birthDate?: string  
-  }) => Promise<void>;
-}
-=======
     user: UserWithData | null; 
     loading: boolean;
     signup: (email: string, password: string, username: string) => Promise<void>;
@@ -113,8 +94,15 @@ interface AuthContextType {
       age?: number
       birthDate?: number  // Changed from string to number
     }) => Promise<void>;
+    updateOnboardingResponse: (
+        questionId: string,
+        answer: string
+      ) => Promise<void>;
+      getOnboardingStatus: () => Promise<{
+        isComplete: boolean;
+        completedResponses: string[];
+      }>;
   }
->>>>>>> restore-point2
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -147,6 +135,72 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return unsubscribe;
   }, []);
 
+  const updateOnboardingResponse = async (
+    questionId: keyof OnboardingResponses,
+    answer: string
+  ) => {
+    try {
+      if (!user) throw new Error('No user logged in');
+      
+      // Validate answer length
+      if (answer.length < 20 || answer.length > 400) {
+        throw new Error('Answer must be between 20 and 400 characters');
+      }
+
+      const userRef = doc(db, 'users', user.uid);
+      
+      const updates: any = {
+        [`questionnaire.onboarding.responses.${questionId}.answer`]: answer,
+        [`questionnaire.onboarding.responses.${questionId}.updatedAt`]: serverTimestamp(),
+        'questionnaire.onboarding.status.lastUpdated': serverTimestamp(),
+      };
+  
+      await updateDoc(userRef, updates);
+  
+      const userDoc = await getDoc(userRef);
+      const userData = userDoc.data() as UserData;
+      const responses = userData.questionnaire.onboarding.responses;
+      
+      const allQuestionsAnswered = Object.values(responses).every(
+        response => response.answer.length > 0
+      );
+  
+      if (allQuestionsAnswered) {
+        await updateDoc(userRef, {
+          'questionnaire.onboarding.status.isComplete': true,
+          'questionnaire.onboarding.status.completedAt': serverTimestamp()
+        });
+      }
+  
+    } catch (error) {
+      console.error('Error updating onboarding response:', error);
+      throw error;
+    }
+  };
+  
+  const getOnboardingStatus = async () => {
+    try {
+      if (!user) throw new Error('No user logged in');
+  
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      const userData = userDoc.data() as UserData;
+      
+      const responses = userData.questionnaire.onboarding.responses;
+      const completedResponses = Object.entries(responses)
+        .filter(([_, response]) => response.answer.length > 0)
+        .map(([key]) => key);
+  
+      return {
+        isComplete: userData.questionnaire.onboarding.status.isComplete,
+        completedResponses
+      };
+    } catch (error) {
+      console.error('Error getting onboarding status:', error);
+      throw error;
+    }
+  };
+
+  // Update your signup function to include the onboarding structure:
   const signup = async (email: string, password: string, username: string) => {
     try {
       console.log('Starting signup process...');
@@ -157,6 +211,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Create user document
       console.log('Attempting to create Firestore document...');
       const userDocRef = doc(db, 'users', user.uid);
+
+      const emptyResponse: OnboardingResponse = {
+        answer: '',
+        updatedAt: null
+      };
       
       const userData = {
         uid: user.uid,
@@ -164,21 +223,33 @@ export function AuthProvider({ children }: AuthProviderProps) {
         username,
         createdAt: serverTimestamp(),
         demographics: {  
-<<<<<<< HEAD
-          age: 0,  
-=======
           age: 0,
           birthDate: 0,  
->>>>>>> restore-point2
           gender: '',
           state: '',
           city: ''
         },
         questionnaire: {
-          interests: [],
-          preferences: {},
-          personalityTraits: []
-        },
+            interests: [],
+            preferences: {},
+            personalityTraits: [],
+            onboarding: {
+              responses: {
+                location: emptyResponse,
+                hobbies: emptyResponse,
+                relationships: emptyResponse,
+                music: emptyResponse,
+                entertainment: emptyResponse,
+                travel: emptyResponse,
+                aspirations: emptyResponse
+              },
+              status: {
+                isComplete: false,
+                lastUpdated: null,
+                completedAt: null
+              }
+            }
+          },
         stats: {
           messagesSent: 0,
           conversationsStarted: 0,
@@ -239,49 +310,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-<<<<<<< HEAD
-  const deleteUserAccount = async (password: string): Promise<void> => {
-    try {
-      const currentUser = auth.currentUser;
-      if (!currentUser || !currentUser.email) throw new Error('No user logged in');
-  
-      // Create credential with email and password
-      const credential = EmailAuthProvider.credential(currentUser.email, password);
-  
-      // Reauthenticate user
-      await reauthenticateWithCredential(currentUser, credential);
-  
-      // Delete user
-      await deleteUser(currentUser);
-  
-      // Delete user data from Firestore
-      await deleteDoc(doc(db, 'users', currentUser.uid));
-  
-      console.log('Account deleted successfully');
-    } catch (err: any) {
-      console.error('Error deleting account:', err);
-      if (err.code === 'auth/wrong-password') {
-        throw new Error('Incorrect password. Please try again.');
-      } else if (err.code === 'auth/requires-recent-login') {
-        throw new Error('Please log in again before deleting your account.');
-      } else {
-        throw new Error(err.message);
-      }
-    }
-  };
-
-=======
->>>>>>> restore-point2
   const updateDemographics = async (
     age: number, 
     gender: string, 
     state: string, 
     city: string,
-<<<<<<< HEAD
-    birthDate: string
-=======
     birthDate: number
->>>>>>> restore-point2
   ) => {
     try {
       if (!user) throw new Error('No user logged in');
@@ -304,11 +338,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     city?: string,
     state?: string
     age?: number
-<<<<<<< HEAD
-    birthDate?: string  // Add this
-=======
     birthDate?: number  // Add this
->>>>>>> restore-point2
   }) => {
     try {
       if (!user) throw new Error('No user logged in');
@@ -336,12 +366,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         login,
         logout,
         updateUserPassword,
-<<<<<<< HEAD
-        deleteUserAccount,
-=======
->>>>>>> restore-point2
         updateDemographics,
         updateProfile,
+        updateOnboardingResponse,
+        getOnboardingStatus,
       }}
     >
       {!loading && children}
@@ -356,8 +384,4 @@ export function useAuth(): AuthContextType {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> restore-point2

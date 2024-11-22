@@ -9,12 +9,8 @@ npm-debug.*
 *.mobileprovision
 *.orig.*
 web-build/
-<<<<<<< HEAD
-.env
-=======
-firebase.js
+config/firebase.js
 
->>>>>>> restore-point2
 
 # macOS
 .DS_Store

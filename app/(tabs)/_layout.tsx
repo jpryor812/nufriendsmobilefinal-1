@@ -1,22 +1,53 @@
 import { Tabs } from "expo-router";
 import { Image } from 'react-native';
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth, } from "../../contexts/AuthContext";
 import { Redirect } from "expo-router";
+import { useState, useEffect } from "react";
 
 export default function TabsLayout() {
-  const { user } = useAuth();
-<<<<<<< HEAD
-
-  if (!user) {
-    return <Redirect href="/OnboardingPage1" />;
-  }
+  const { user, getOnboardingStatus } = useAuth();
   
-=======
+  // If no user, redirect to login/signup
   if (!user) {
     return <Redirect href="/OnboardingPage1" />;
   }
 
->>>>>>> restore-point2
+  // Check onboarding completion
+  const [isChecking, setIsChecking] = useState(true);
+
+  useEffect(() => {
+    const checkOnboardingProgress = async () => {
+      try {
+        const status = await getOnboardingStatus();
+        
+        const questionOrder = [
+          'location',
+          'hobbies',
+          'relationships',
+          'music',
+          'entertainment',
+          'travel',
+          'aspirations'
+        ];
+
+        // Find first unanswered question
+        for (let i = 0; i < questionOrder.length; i++) {
+          if (!status.completedResponses.includes(questionOrder[i])) {
+            return <Redirect href={`/OnboardingQuestion${i + 1}`} />;
+          }
+        }
+        
+        setIsChecking(false);
+      } catch (err) {
+        console.error('Error checking onboarding:', err);
+        // On error, start from beginning
+        return <Redirect href="/OnboardingQuestion1" />;
+      }
+    };
+
+    checkOnboardingProgress();
+  }, []);
+
   return (
     <Tabs
       screenOptions={{

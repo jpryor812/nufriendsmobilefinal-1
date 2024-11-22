@@ -38,7 +38,7 @@ const MessagingYu = () => {
         },
         {
           id: '4',
-          text: "3. I sit next to this girl in class and I know she likes anime like me, but I can't get myself to start a conversation with her. How can I start a conversation with her about anime?",
+          text: "3. I sit next to this girl in class, and I know she likes anime like me, but I can't get myself to start a conversation with her. How can I start a conversation with her about anime?",
           isSent: false
         },
         {

@@ -10,19 +10,6 @@ import {
 import { CityName } from '@/constants/topUsCities'
 
 interface CityDropdownProps {
-<<<<<<< HEAD
-  onCitiesChange: (city: string) => void;
-  selectedState: string;  // Keep this as it's needed for city filtering
-  defaultValue?: string;
-}
-
-const CityDropdown: React.FC<CityDropdownProps> = ({ 
-  onCitiesChange, 
-  selectedState, 
-  defaultValue 
-}) => {
-  const [selectedCity, setSelectedCity] = useState(defaultValue || '');    const [visible, setVisible] = useState(false);
-=======
   onCitiesChange: (city: CityName) => void;  // Changed to single city
   availableCities: CityName[];
   selectedCities: CityName[];  // Keep as array for state management compatibility
@@ -34,7 +21,6 @@ const CityDropdownFindFriends = ({
   selectedCities: externalSelectedCities
 }: CityDropdownProps) => {
     const [visible, setVisible] = useState(false);
->>>>>>> restore-point2
     const [dropdownTop, setDropdownTop] = useState(0);
     const [dropdownLeft, setDropdownLeft] = useState(0);
     const buttonRef = useRef<TouchableOpacity>(null);

@@ -139,7 +139,7 @@ const ChatRoomFriendOnboarding = () => {
           setIsLoadingMessages(false);
           // Start typing animation after messages are loaded
           setTimeout(() => {
-            simulateTypingAndSend("I have college orientation coming up and I'm nervous about meeting new people. I'm afraid they'll think I'm weird because of my interests. Should I hide them and just try to fit in?");
+            simulateTypingAndSend("I have college orientation coming up and am nervous about meeting new people. I'm afraid they'll think I'm weird because of my interests. Should I hide them and just try to fit in?");
           }, 2000);
           return;
         }

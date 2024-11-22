@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-// app/OnboardingSignUp.tsx
-=======
->>>>>>> restore-point2
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -12,20 +8,12 @@ import PasswordInput from '@/components/PasswordInput';
 import SafeLayout from '@/components/SafeLayout';
 import SmallYuOnboarding from '@/components/SmallYuOnboarding';
 import ProgressBar from '@/components/ProgressBar';
-<<<<<<< HEAD
-
-=======
->>>>>>> restore-point2
 const OnboardingSignUp = () => {
   const router = useRouter();
   const { signup } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-<<<<<<< HEAD
-
-=======
->>>>>>> restore-point2
   const handleCreateAccount = async () => {
     try {
       if (!email || !password) {
@@ -60,10 +48,6 @@ const OnboardingSignUp = () => {
       console.error('Signup error:', err);
     }
   };
-<<<<<<< HEAD
-
-=======
->>>>>>> restore-point2
   return (
     <SafeLayout style={styles.container}>
       <ProgressBar progress={20} />
@@ -94,10 +78,6 @@ const OnboardingSignUp = () => {
     </SafeLayout>
   );
 };
-<<<<<<< HEAD
-
-=======
->>>>>>> restore-point2
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -147,8 +127,4 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
 });
-<<<<<<< HEAD
-
-=======
->>>>>>> restore-point2
 export default OnboardingSignUp;

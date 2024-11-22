@@ -265,9 +265,6 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-nufriendsmobilefinal1/Pods-nufriendsmobilefinal1-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-<<<<<<< HEAD
-		69A4E14D3B6C5A1182B6E9FC /* [Expo] Configure project */ = {
-=======
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -301,7 +298,6 @@
 			showEnvVarsInLog = 0;
 		};
 		EC179FEA04920DC929DA850C /* [Expo] Configure project */ = {
->>>>>>> restore-point2
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;

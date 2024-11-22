@@ -12,7 +12,7 @@ const OnboardingPreQuestions = () => (
     </View>
     
     <View style={styles.contentContainer}>
-    <BigYuOnboardingStatic text="There are many more awesome features we'll show you, but first, let's conclude this onboarding process by allowing me to get to know you better to begin those conversations." />
+    <BigYuOnboardingStatic text="We'll show you many more awesome features in the future, but first, let's conclude this onboarding process by allowing me to get to know you better so we can begin those conversations." />
     </View>
 
     <View style={styles.link_container}>
