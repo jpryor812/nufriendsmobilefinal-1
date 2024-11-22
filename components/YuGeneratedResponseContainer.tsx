@@ -5,9 +5,9 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Platform,
 } from 'react-native';
 import Colors from '@/assets/Colors';
+import { useAIMessaging } from '@/contexts/AIMessagingContext';
 
 interface YuGeneratedResponseContainerProps {
   selectedPrompt: string;
@@ -16,107 +16,122 @@ interface YuGeneratedResponseContainerProps {
   onSuggestChanges: (text: string) => void;
   onClose: () => void;
 }
- 
-const promptMap = {
-    "1": "Ask Jpp123 if he's ever played in a tournament before",
-    "2": "Ask Jpp123 if he has any favorite cards or strategies",
-    "3": "Talk about your past experiences with playing Magic",
-    "4": "Ask Jpp123 if he plays any other card or board games"
-  };
-
-  const preWrittenResponses = {
-    "1": "Oh nice, good luck defending your title! Have you played in many tournaments before? Was the last one your first win or have you won a few?",
-    "2": "Nice, good luck at the tournament! What's your favorite deck strategy to play? I always love hearing about other players' favorite cards and combos!",
-    "3": "That's awesome about your tournament! I haven't competed in a while, but I used to run a mono-black control deck back in the day that did pretty well at my local game store. Made it to the finals once but got absolutely crushed by this incredible angel deck! Are you playing any particular strategy for defending your title?",
-    "4": "That's exciting about your Magic tournament! Do you compete in any other card games or board game tournaments too? I've always wondered about trying some competitive Pokémon TCG or even chess tournaments myself."
-};
-  
-  // Then update the getPromptId function
-  const getPromptId = (prompt: string): string => {
-      for (const [id, promptText] of Object.entries(promptMap)) {
-          if (prompt.includes(promptText)) {
-              return id;
-          }
-      }
-      return "1"; // default fallback
-  };
 
 const YuGeneratedResponseContainer: React.FC<YuGeneratedResponseContainerProps> = ({
   selectedPrompt,
   onSendMessage,
-  onEditMessage,
-  onSuggestChanges,
   onClose
 }) => {
-    
-    const [messageText, setMessageText] = useState('');
-    const [suggestionText, setSuggestionText] = useState(''); // New state for suggestion input
+  const { generateResponse, modifyResponse } = useAIMessaging();
+  const [messageText, setMessageText] = useState('');
+  const [suggestionText, setSuggestionText] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-      useEffect(() => {
-        const promptId = getPromptId(selectedPrompt) as keyof typeof preWrittenResponses;
-        setMessageText(preWrittenResponses[promptId] || '');
-      }, [selectedPrompt]);
-  
-      const handleSendMessage = () => {
-          if (messageText.trim()) {
-            console.log('Sending message:', messageText);
-            onSendMessage(messageText);
-            setMessageText('');
-            onClose();
-          }
-      };
+  useEffect(() => {
+    const generateInitialResponse = async () => {
+      if (!selectedPrompt) return;
+      
+      setIsLoading(true);
+      try {
+        const response = await generateResponse(selectedPrompt);
+        setMessageText(response.content);
+      } catch (error) {
+        console.error('Error generating response:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    generateInitialResponse();
+  }, [selectedPrompt]);
+
+  const handleSendMessage = () => {
+    if (messageText.trim()) {
+      onSendMessage(messageText);
+      setMessageText('');
+      onClose();
+    }
+  };
+
+  const handleSuggestChanges = async () => {
+    if (!suggestionText.trim()) return;
+
+    setIsLoading(true);
+    try {
+      const modifiedResponse = await modifyResponse(messageText, suggestionText);
+      setMessageText(modifiedResponse.content);
+      setSuggestionText('');
+    } catch (error) {
+      console.error('Error modifying response:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
-
-      {/* Message Text Area */}
       <View style={styles.messageContainer}>
         <TextInput
           style={styles.messageInput}
           multiline
           value={messageText}
           onChangeText={setMessageText}
-          placeholder="Your message..."
-          placeholderTextColor={'#888888'}
+          placeholder={isLoading ? "Generating response..." : "Your message..."}
+          placeholderTextColor={Colors.gray}
           textAlignVertical="top"
+          editable={!isLoading}
         />
       </View>
 
-      {/* Action Buttons */}
       <View style={styles.buttonsContainer}>
         <View style={styles.mainButtons}>
           <TouchableOpacity 
             style={[styles.button, styles.secondaryButton]} 
-            onPress={() => onEditMessage(messageText)}
+            onPress={() => setMessageText('')}
+            disabled={isLoading}
           >
-            <Text style={styles.secondaryButtonText}>Edit Message</Text>
+            <Text style={styles.secondaryButtonText}>Clear</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
-            style={[styles.button, styles.primaryButton]} 
+            style={[
+              styles.button, 
+              styles.primaryButton,
+              isLoading && styles.disabledButton
+            ]} 
             onPress={handleSendMessage}
-        >
-            <Text style={styles.primaryButtonText}>Send Message</Text>
-        </TouchableOpacity>
+            disabled={isLoading || !messageText.trim()}
+          >
+            <Text style={styles.primaryButtonText}>
+              {isLoading ? "Generating..." : "Send Message"}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.suggestionContainer}>
-        <TextInput
-          style={styles.messageInput}
-          multiline
-          value={suggestionText}
-          onChangeText={setSuggestionText}
-          placeholder="Suggest changes for Yu to tweak the message..."
-          placeholderTextColor={'#888888'}
-          textAlignVertical="top"
-        />
-      </View>
+          <TextInput
+            style={styles.messageInput}
+            multiline
+            value={suggestionText}
+            onChangeText={setSuggestionText}
+            placeholder="Suggest changes for Yu to tweak the message..."
+            placeholderTextColor={Colors.gray}
+            textAlignVertical="top"
+            editable={!isLoading}
+          />
+        </View>
 
         <TouchableOpacity 
-          style={styles.suggestButton} 
-          onPress={() => onSuggestChanges(suggestionText)} // Pass suggestion text
+          style={[
+            styles.suggestButton,
+            (!suggestionText.trim() || isLoading) && styles.disabledButton
+          ]} 
+          onPress={handleSuggestChanges}
+          disabled={!suggestionText.trim() || isLoading}
         >
-          <Text style={styles.suggestButtonText}>Suggest Changes</Text>
+          <Text style={styles.suggestButtonText}>
+            {isLoading ? "Modifying..." : "Suggest Changes"}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -197,6 +212,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E0E0E0',
     height: 40, 
+  },
+  disabledButton: {
+    opacity: 0.5,
   },
 });
 

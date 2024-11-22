@@ -1,8 +1,6 @@
-import ChatMessageBox from '@/components/ChatMessageBox';
-import Colors from '@/assets/Colors';
-import { Ionicons } from '@expo/vector-icons';
 import React, { useState, useCallback, useEffect } from 'react';
-import { ImageBackground, StyleSheet, View, Image, Text, TouchableOpacity, Animated } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import {
   GiftedChat,
   Bubble,
@@ -11,84 +9,102 @@ import {
   SystemMessage,
   IMessage,
 } from 'react-native-gifted-chat';
-import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
-import messageData2 from '@/assets/messages2.json';
 import { useLocalSearchParams } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useMessaging } from '@/contexts/MessageContext'; 
+import { useAuth } from '@/contexts/AuthContext';
+import Colors from '@/assets/Colors';
+import ChatMessageBox from '@/components/ChatMessageBox';
 import FriendProfileMessageHeader from '@/components/FriendProfileMessageHeader';
 import YuSuggestions from '@/components/YuSuggestions';
 import AnimatedYuButton from '@/components/AnimatedYuButton';
 import SafeLayout from '@/components/SafeLayout';
-import { friendsData } from '@/constants/FriendsData';
 import ActionMenu from '@/components/ActionMenu';
-
-const generateMessageId = (() => {
-  let counter = 1;
-  return () => `m_${Date.now()}_${counter++}`;
-})();
+import { friendsData } from '@/constants/FriendsData';
+import { 
+  collection, 
+  query, 
+  orderBy, 
+  onSnapshot,
+  DocumentData,
+} from 'firebase/firestore';
+import { db } from '@/config/firebase';
 
 const ChatRoomFriend = () => {
-  const [text, setText] = useState('');
   const insets = useSafeAreaInsets();
+  const { user } = useAuth();
+  const { 
+    sendMessage, 
+    currentConversation,
+    markConversationAsRead,
+    setTypingStatus 
+  } = useMessaging();
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [isYuSuggestionsMode, setIsYuSuggestionsMode] = useState(false);
   const params = useLocalSearchParams();
   const friend = friendsData.find(f => f.id === Number(params.id));
 
-
   if (!friend) return null;
 
+  // Subscribe to messages from Firebase
   useEffect(() => {
-    console.log('Received params:', { id: params.id, name: friend.name });
-  }, [params.id, friend.name]);
+    if (!currentConversation?.id || !user?.uid) return;
 
-  useEffect(() => {
-    const formattedMessages = messageData2.map((message) => ({
-      _id: generateMessageId(),
-      text: message.msg,
-      createdAt: new Date(message.date),
-      user: {
-        _id: message.from,
-        name: message.from ? 'You' : friend.name,
-      },
-    }));
-    setMessages(formattedMessages.reverse());
-  }, [friend.name]);
+    const messagesRef = collection(db, `conversations/${currentConversation.id}/messages`);
+    const q = query(messagesRef, orderBy('timestamp', 'desc'));
 
-const onSend = useCallback((newMessages: IMessage[] = []) => {
-  console.log('Regular send triggered:', newMessages);
-  
-  try {
-    // Create a properly structured message similar to Yu messages
-    const formattedMessages = newMessages.map(msg => ({
-      _id: generateMessageId(),
-      text: msg.text,
-      createdAt: new Date(),
-      user: {
-        _id: 1,
-        name: 'You'
-      }
-    }));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const newMessages: IMessage[] = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          _id: doc.id,
+          text: data.content,
+          createdAt: data.timestamp.toDate(),
+          user: {
+            _id: data.senderId,
+            name: data.senderId === user.uid ? 'You' : friend?.name
+          },
+          messageType: data.type
+        };
+      });
 
-    console.log('Formatted messages:', formattedMessages);
-    setMessages(previousMessages => GiftedChat.append(previousMessages, formattedMessages));
-  } catch (error) {
-    console.error('Error in onSend:', error);
-  }
-}, []);
+      setMessages(newMessages);
+    });
 
-  // Combined handler for Yu-generated messages
-  const handleYuMessage = (text: string) => {
-    const newMessage: IMessage = {
-      _id: generateMessageId(),
-      text: text,
-      createdAt: new Date(),
-      user: {
-        _id: 1,
-        name: 'You',
-      },
-    };
-    setMessages(previousMessages => GiftedChat.append(previousMessages, [newMessage]));
-    setIsYuSuggestionsMode(false);
+    // Mark conversation as read when opened
+    markConversationAsRead(currentConversation.id);
+
+    return () => unsubscribe();
+  }, [currentConversation?.id, user?.uid]);
+
+  const onSend = useCallback(async (newMessages: IMessage[] = []) => {
+    if (!currentConversation?.id) return;
+
+    try {
+      const [firstMessage] = newMessages;
+      await sendMessage(
+        currentConversation.id,
+        firstMessage.text,
+        'text'
+      );
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
+  }, [currentConversation?.id, sendMessage]);
+
+  const handleYuMessage = async (text: string) => {
+    if (!currentConversation?.id) return;
+
+    try {
+      await sendMessage(
+        currentConversation.id,
+        text,
+        'ai_generated'
+      );
+      setIsYuSuggestionsMode(false);
+    } catch (error) {
+      console.error('Error sending Yu message:', error);
+    }
   };
 
   const renderInputToolbar = (props: any) => {
@@ -109,19 +125,12 @@ const onSend = useCallback((newMessages: IMessage[] = []) => {
           <AnimatedYuButton onPress={() => setIsYuSuggestionsMode(true)} />
         )}
         renderSend={(props) => (
-          <View style={{
-            height: 40,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 6,
-            paddingHorizontal: 6,
-          }}>
+          <View style={styles.sendContainer}>
             <Send {...props} containerStyle={{ justifyContent: 'center' }}>
               <Ionicons name="send" color={Colors.primary} size={22} />
             </Send>
-              <ActionMenu />
-              </View>
+            <ActionMenu />
+          </View>
         )}
       />
     );
@@ -129,53 +138,58 @@ const onSend = useCallback((newMessages: IMessage[] = []) => {
 
   return (
     <SafeLayout style={styles.container}>
-            <FriendProfileMessageHeader
-                id={friend.id}
-                name={friend.name}
-                avatar={friend.avatar}
-            />
-        
-        <GiftedChat
-          messages={messages}
-          onSend={onSend}
-          inverted={true}
-          user={{ _id: 1 }}
-          isKeyboardInternallyHandled={true}
-          keyboardShouldPersistTaps="handled"
-          listViewProps={{
-            scrollEnabled: true,
-            keyboardDismissMode: 'on-drag',
-            keyboardShouldPersistTaps: 'handled',
-          }}
-          minInputToolbarHeight={36}
-          maxInputToolbarHeight={100}
-          minComposerHeight={36}
-          renderSystemMessage={(props) => (
-            <SystemMessage {...props} textStyle={{ color: Colors.gray }} />
-          )}
-          bottomOffset={insets.bottom - 36}
-          renderAvatar={null}
-          maxComposerHeight={100}
-          textInputProps={styles.composer}
-          renderBubble={(props) => (
-            <Bubble
-              {...props}
-              textStyle={{
-                right: { color: '#fff' },
-              }}
-              wrapperStyle={{
-                left: { backgroundColor: '#eee' },
-                right: { backgroundColor: '#6ecfff' },
-              }}
-            />
-          )}
-          renderInputToolbar={renderInputToolbar}
-          renderMessage={(props) => (
-            <View style={{ paddingVertical: 4, paddingHorizontal: 6 }}>
-              <ChatMessageBox {...props} />
-            </View>
-          )}
-        />
+      <FriendProfileMessageHeader
+        id={friend.id}
+        name={friend.name}
+        avatar={friend.avatar}
+      />
+      
+      <GiftedChat
+        messages={messages}
+        onSend={onSend}
+        user={{ _id: user?.uid || '' }}
+        onInputTextChanged={(text) => {
+          if (currentConversation?.id) {
+            setTypingStatus(currentConversation.id, text.length > 0);
+          }
+        }}
+        inverted={true}
+        isKeyboardInternallyHandled={true}
+        keyboardShouldPersistTaps="handled"
+        listViewProps={{
+          scrollEnabled: true,
+          keyboardDismissMode: 'on-drag',
+          keyboardShouldPersistTaps: 'handled',
+        }}
+        minInputToolbarHeight={36}
+        maxInputToolbarHeight={100}
+        minComposerHeight={36}
+        maxComposerHeight={100}
+        bottomOffset={insets.bottom - 36}
+        renderAvatar={null}
+        textInputProps={styles.composer}
+        renderSystemMessage={(props) => (
+          <SystemMessage {...props} textStyle={{ color: Colors.gray }} />
+        )}
+        renderBubble={(props) => (
+          <Bubble
+            {...props}
+            textStyle={{
+              right: { color: '#fff' },
+            }}
+            wrapperStyle={{
+              left: { backgroundColor: '#eee' },
+              right: { backgroundColor: '#6ecfff' },
+            }}
+          />
+        )}
+        renderInputToolbar={renderInputToolbar}
+        renderMessage={(props) => (
+          <View style={styles.messageContainer}>
+            <ChatMessageBox {...props} />
+          </View>
+        )}
+      />
     </SafeLayout>
   );
 };
@@ -185,19 +199,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-  background: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  yuButton: {
-    height: 44,
-    justifyContent: 'center',
-    paddingLeft: 12,
-    marginTop: 4,
-  },
-  yuImage: {
-    width: 40,
+  sendContainer: {
     height: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingHorizontal: 6,
+  },
+  messageContainer: {
+    paddingVertical: 4,
+    paddingHorizontal: 6,
   },
   composer: {
     borderRadius: 18,

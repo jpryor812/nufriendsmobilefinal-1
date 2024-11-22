@@ -1,18 +1,19 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   View, 
   Text, 
   TouchableOpacity, 
-  ScrollView, 
   StyleSheet, 
   Image,
   Animated,
   Dimensions 
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Link } from 'expo-router';
 import Colors from '@/assets/Colors';
 import YuGeneratedResponseContainer from './YuGeneratedResponseContainer';
-import {Link} from 'expo-router';
+import { useAIMessaging } from '@/contexts/AIMessagingContext';
+import { useMessaging } from '@/contexts/MessageContext';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
@@ -21,23 +22,26 @@ interface YuSuggestionsProps {
   onClose: () => void;
 }
 
-const quickReplies = [
-  { id: '1', text: "Ask Jpp123 if he's ever played in a tournament before" },
-  { id: '2', text: "Ask Jpp123 if he has any favorite cards or strategies" },
-  { id: '3', text: "Talk about your past experiences with playing Magic" },
-  { id: '4', text: "Ask Jpp123 if he plays any other card or board games" },
-];
-
 const YuSuggestions: React.FC<YuSuggestionsProps> = ({ onSelectContent, onClose }) => {
+  const { currentConversation } = useMessaging();
+  const { getMessageSuggestions, aiUsageCount, aiUsageLimit } = useAIMessaging();
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [suggestions, setSuggestions] = useState<AISuggestion[]>([]);
   const [animationComplete, setAnimationComplete] = useState(false);
   const [animationPhase, setAnimationPhase] = useState(0);
   const replyAnimations = useRef<Animated.Value[]>(
-    quickReplies.map(() => new Animated.Value(0))
+    Array(4).fill(0).map(() => new Animated.Value(0))
   ).current;
   const selectedAnimation = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   const responseContainerAnimation = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
 
+  useEffect(() => {
+    if (currentConversation?.id) {
+      getMessageSuggestions(currentConversation.id)
+        .then(setSuggestions)
+        .catch(console.error);
+    }
+  }, [currentConversation?.id]);
 
   const resetState = () => {
     setSelectedId(null);
@@ -49,9 +53,9 @@ const YuSuggestions: React.FC<YuSuggestionsProps> = ({ onSelectContent, onClose 
     selectedAnimation.setValue(SCREEN_HEIGHT);
   };
   
-  const handleReplySelect = (id: string, text: string) => {
+  const handleReplySelect = (id: string) => {
     setSelectedId(id);
-    const selectedIndex = quickReplies.findIndex(reply => reply.id === id);
+    const selectedIndex = suggestions.findIndex(reply => reply.id === id);
     
     // Phase 1: Slide all items out
     const slideOutAnimations = replyAnimations.map((anim) => {
@@ -62,23 +66,18 @@ const YuSuggestions: React.FC<YuSuggestionsProps> = ({ onSelectContent, onClose 
       });
     });
 
-    // Run all animations in sequence
     Animated.parallel(slideOutAnimations).start(() => {
       setAnimationPhase(1);
       
-      // Then do the rest of the animations in sequence
       Animated.sequence([
-        // Wait a brief moment
         Animated.delay(200),
         
-        // Move selected item from bottom to slightly above final position
         Animated.timing(selectedAnimation, {
           toValue: -20,
           duration: 600,
           useNativeDriver: true,
         }),
         
-        // Settle into final position with a small bounce
         Animated.spring(selectedAnimation, {
           toValue: 0,
           friction: 6,
@@ -86,10 +85,8 @@ const YuSuggestions: React.FC<YuSuggestionsProps> = ({ onSelectContent, onClose 
           useNativeDriver: true,
         }),
         
-        // Add delay before response container
         Animated.delay(200),
         
-        // Slide in response container
         Animated.spring(responseContainerAnimation, {
           toValue: 0,
           friction: 6,
@@ -101,29 +98,16 @@ const YuSuggestions: React.FC<YuSuggestionsProps> = ({ onSelectContent, onClose 
         setAnimationComplete(true);
       });
     });
-};
-const handleSendMessage = (text: string) => {
-  console.log('YuSuggestions received message:', text); // Debug log
-  onSelectContent(text); // Pass to ChatRoomFriend
-  onClose();
-};
-
-  const handleEditMessage = (text: string) => {
-    // Handle editing the message
-    console.log('Editing message:', text);
   };
 
-  const handleSuggestChanges = () => {
-    // Handle suggesting changes
-    console.log('Suggesting changes');
+  const handleSendMessage = (text: string) => {
+    onSelectContent(text);
+    onClose();
   };
 
   return (
     <View style={styles.container}>
-      <View style={[
-        styles.header,
-        animationComplete && styles.headerCompleted
-      ]}>
+      <View style={[styles.header, animationComplete && styles.headerCompleted]}>
         <Image source={require('../assets/images/yu_progress_bar.png')} style={styles.Yu} />
         <Text style={styles.title}>Suggestions From Yu</Text>
         <TouchableOpacity 
@@ -142,40 +126,36 @@ const handleSendMessage = (text: string) => {
           </View>
         </TouchableOpacity>
       </View>
+
       <View style={styles.lowerHeader}>
-                <Text style={styles.YuUseCounter}>0/20 used this week</Text>
+        <Text style={styles.YuUseCounter}>{aiUsageCount}/{aiUsageLimit} used this week</Text>
         <Link href="/UpgradeToPremium">
-        <Text style={styles.MoreYu}>Want more?</Text>
+          <Text style={styles.MoreYu}>Want more?</Text>
         </Link>
       </View>
+
       <View style={styles.content}>
-        {/* Regular replies that slide out */}
-        {quickReplies.map((reply, index) => (
+        {suggestions.map((suggestion, index) => (
           <Animated.View
-            key={reply.id}
+            key={suggestion.id}
             style={[
               styles.replyButtonContainer,
               {
-                transform: [
-                  { 
-                    translateY: replyAnimations[index]
-                  }
-                ],
+                transform: [{ translateY: replyAnimations[index] }],
                 opacity: animationPhase === 0 ? 1 : 0,
               },
             ]}
           >
             <TouchableOpacity
               style={styles.replyButton}
-              onPress={() => handleReplySelect(reply.id, reply.text)}
+              onPress={() => handleReplySelect(suggestion.id)}
               disabled={selectedId !== null}
             >
-              <Text style={styles.replyText}>{reply.text}</Text>
+              <Text style={styles.replyText}>{suggestion.preview}</Text>
             </TouchableOpacity>
           </Animated.View>
         ))}
 
-        {/* Selected reply that slides back in */}
         {selectedId && (
           <Animated.View
             style={[
@@ -192,13 +172,13 @@ const handleSendMessage = (text: string) => {
               disabled={true}
             >
               <Text style={styles.replyText}>
-                {quickReplies.find(reply => reply.id === selectedId)?.text}
+                {suggestions.find(s => s.id === selectedId)?.preview}
               </Text>
             </TouchableOpacity>
           </Animated.View>
         )}
-                {/* Generated Response Container */}
-                {selectedId && (
+
+        {selectedId && (
           <Animated.View
             style={[
               styles.responseContainer,
@@ -208,16 +188,16 @@ const handleSendMessage = (text: string) => {
               },
             ]}
           >
-          <YuGeneratedResponseContainer
-            selectedPrompt={quickReplies.find(reply => reply.id === selectedId)?.text || ''}
-            onSendMessage={handleSendMessage}
-            onEditMessage={handleEditMessage}
-            onSuggestChanges={handleSuggestChanges}
-            onClose={onClose}
-          />
-        </Animated.View>
-      )}
-    </View>
+            <YuGeneratedResponseContainer
+              selectedPrompt={suggestions.find(s => s.id === selectedId)?.preview || ''}
+              onSendMessage={handleSendMessage}
+              onEditMessage={() => {}}
+              onSuggestChanges={() => {}}
+              onClose={onClose}
+            />
+          </Animated.View>
+        )}
+      </View>
     </View>
   );
 };

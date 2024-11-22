@@ -1,8 +1,6 @@
-import ChatMessageBox from '@/components/ChatMessageBox';
-import Colors from '@/assets/Colors';
-import { Ionicons } from '@expo/vector-icons';
 import React, { useState, useCallback, useEffect } from 'react';
-import { ImageBackground, StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Image, } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import {
   GiftedChat,
   Bubble,
@@ -11,126 +9,139 @@ import {
   SystemMessage,
   IMessage,
 } from 'react-native-gifted-chat';
-import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
-import messageDataYu from '@/assets/messagesYu.json';
-import { Link } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/config/firebase';
+import { useAuth } from '@/contexts/AuthContext';
+import Colors from '@/assets/Colors';
+import ChatMessageBox from '@/components/ChatMessageBox';
 import FriendProfileMessageHeader from '@/components/FriendProfileMessageHeader';
 import SafeLayout from '@/components/SafeLayout';
 
+const YU_ID = 'yu_companion';
 
 const ChatRoomYu = () => {
+  const { user } = useAuth();
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [text, setText] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
-    setMessages([
-      ...messageDataYu.map((message) => {
+    if (!user?.uid) return;
+
+    const yuChatRef = collection(db, `users/${user.uid}/yu_chat`);
+    const q = query(yuChatRef, orderBy('timestamp', 'desc'));
+
+    return onSnapshot(q, (snapshot) => {
+      const newMessages = snapshot.docs.map(doc => {
+        const data = doc.data();
         return {
-          _id: message.id,
-          text: message.msg,
-          createdAt: new Date(message.date),
+          _id: doc.id,
+          text: data.content,
+          createdAt: data.timestamp.toDate(),
           user: {
-            _id: message.from,
-            name: message.from ? 'You' : 'Bob',
-          },
+            _id: data.senderId,
+            name: data.senderId === YU_ID ? 'Yu' : 'You'
+          }
         };
-      }),
-    ]);
-  }, []);
+      });
+      setMessages(newMessages);
+    });
+  }, [user?.uid]);
 
-  const onSend = useCallback((messages = []) => {
-    setMessages((previousMessages: any[]) => GiftedChat.append(previousMessages, messages));
-  }, []);
+  const onSend = useCallback(async (newMessages: IMessage[] = []) => {
+    if (!user?.uid || isLoading) return;
 
-  const renderInputToolbar = (props: any) => {
-    return (
-      <InputToolbar
-        {...props}
-        containerStyle={{ backgroundColor: Colors.background }}
-        renderActions={null}  // Remove the + sign from left
-        renderSend={(props) => (
-          <View style={{
-            height: 40,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 6,
-            paddingHorizontal: 6,
-          }}>
-            <Ionicons name="add" color={Colors.primary} size={28} />
-            {text === '' && (
-              <>
-              </>
-            )}
-            {text !== '' && (
-              <Send {...props} containerStyle={{ justifyContent: 'center' }}>
-                <Ionicons name="send" color={Colors.primary} size={28} />
-              </Send>
-            )}
-          </View>
-        )}
-      />
-    );
-  };
+    try {
+      setIsLoading(true);
+      const [userMessage] = newMessages;
+      
+      // Store user message
+      const yuChatRef = collection(db, `users/${user.uid}/yu_chat`);
+      await addDoc(yuChatRef, {
+        content: userMessage.text,
+        timestamp: serverTimestamp(),
+        senderId: user.uid,
+      });
+
+      // Get AI response
+      const aiResponse = await generateYuResponse(userMessage.text, user.uid);
+      
+      // Store AI response
+      await addDoc(yuChatRef, {
+        content: aiResponse,
+        timestamp: serverTimestamp(),
+        senderId: YU_ID,
+      });
+
+    } catch (error) {
+      console.error('Error in chat:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user?.uid, isLoading]);
+
+  const renderInputToolbar = (props: any) => (
+    <InputToolbar
+      {...props}
+      containerStyle={{ backgroundColor: Colors.background }}
+      renderSend={(props) => (
+        <View style={styles.inputContainer}>
+          {text !== '' && (
+            <Send {...props} containerStyle={{ justifyContent: 'center' }}>
+              <Ionicons 
+                name="send" 
+                color={Colors.primary} 
+                size={28} 
+                style={{ opacity: isLoading ? 0.5 : 1 }} 
+              />
+            </Send>
+          )}
+        </View>
+      )}
+    />
+  );
 
   return (
-    <SafeLayout 
-    style={styles.container} 
-    hasTabBar // Add this since it's a tabbed screen
-  >
-        <FriendProfileMessageHeader 
-          imageSource={require('../../assets/images/yu_progress_bar.png')} // or whatever your image path is
-          name="Yu :)" // or whatever name you want to display
-        />
-        <GiftedChat
-          messages={messages}
-          inverted={false}
-          onSend={(messages: any) => onSend(messages)}
-          onInputTextChanged={setText}
-          user={{ _id: 1 }}
-          isKeyboardInternallyHandled={true}
-          keyboardShouldPersistTaps="handled"
-          listViewProps={{
-            scrollEnabled: true,
-            keyboardDismissMode: 'on-drag',
-            keyboardShouldPersistTaps: 'handled',
-          }}
-          minInputToolbarHeight={36}
-          maxInputToolbarHeight={100}
-          minComposerHeight={36}
-          renderSystemMessage={(props) => (
-            <SystemMessage {...props} textStyle={{ color: Colors.gray }} />
-          )}
-          bottomOffset={insets.bottom - 36} // Adjusted bottomOffset to move the input container up slightly
-          renderAvatar={null}
-          maxComposerHeight={100}
-          textInputProps={styles.composer}
-          renderBubble={(props) => (
-            <Bubble
-              {...props}
-              textStyle={{
-                right: {
-                  color: '#fff',
-                },
-              }}
-              wrapperStyle={{
-                left: {
-                  backgroundColor: '#eee',
-                },
-                right: {
-                  backgroundColor: '#6ecfff',
-                },
-              }}
-            />
-          )}
-          renderInputToolbar={renderInputToolbar}
-          renderMessage={(props) => (
-            <View style={{ paddingVertical: 4, paddingHorizontal: 6 }}>
+    <SafeLayout style={styles.container} hasTabBar>
+      <FriendProfileMessageHeader 
+        imageSource={require('@/assets/images/yu_progress_bar.png')}
+        name="Yu :)"
+      />
+      <GiftedChat
+        messages={messages}
+        onSend={onSend}
+        user={{ _id: user?.uid || '' }}
+        onInputTextChanged={setText}
+        renderInputToolbar={renderInputToolbar}
+        renderBubble={(props) => (
+          <Bubble
+            {...props}
+            textStyle={{ right: { color: '#fff' } }}
+            wrapperStyle={{
+              left: { backgroundColor: '#eee' },
+              right: { backgroundColor: '#6ecfff' },
+            }}
+          />
+        )}
+        renderMessage={(props) => (
+          <View style={styles.messageContainer}>
             <ChatMessageBox {...props} />
-            </View>
-          )}
-        />
+          </View>
+        )}
+        renderSystemMessage={(props) => (
+          <SystemMessage {...props} textStyle={{ color: Colors.gray }} />
+        )}
+        isKeyboardInternallyHandled={true}
+        bottomOffset={insets.bottom - 36}
+        renderAvatar={null}
+        minInputToolbarHeight={36}
+        maxInputToolbarHeight={100}
+        minComposerHeight={36}
+        maxComposerHeight={100}
+        textInputProps={styles.composer}
+      />
     </SafeLayout>
   );
 };
@@ -140,9 +151,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-  chatContainer: {
-    flex: 1,
-    backgroundColor: Colors.background,
+  inputContainer: {
+    height: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingHorizontal: 6,
   },
   messageContainer: {
     paddingVertical: 4,
