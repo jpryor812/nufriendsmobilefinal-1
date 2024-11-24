@@ -21,7 +21,7 @@ const UpgradeToPremium = () => {
       icon: require('@/assets/images/Yu_excited_no_speech.png'), 
       isImage: true,
       highlight: 'Use Yu',
-      primary: '250',
+      primary: '200',
       text: 'times per week',
       primaryTwo: '',
       textTwo: '',
@@ -29,40 +29,30 @@ const UpgradeToPremium = () => {
     },
     {
         icon: '🫂', 
-        isImage: false,
-        highlight: 'Find',
-        primary: '4',
-        text: 'new friends per day',
-        primaryTwo: '',
-        textTwo: '',
-        subtext: '90 more friends per month than free plan'
-      },
-      {
-        icon: '🏃', 
-        isImage: false,
+        isImage: false, 
         highlight: '',
-        primary: 'Skip',
-        text: 'the line when finding new friends',
-        primaryTwo: '',
-        textTwo: '',
-        subtext: '4-12x faster friend matching than free plan' 
+        primary: 'Search',
+        text: 'for up to',
+        primaryTwo: '4',
+        textTwo: 'new friends per day',
+        subtext: "Free users can't search for friends; they must wait to be randomly matched."
       },
       {
         icon: '💰', 
         isImage: false,
         highlight: 'Unlock',
         primary: 'premium',
-        text: 'accessories and',
-        primaryTwo: '2x',
-        textTwo: 'coin boosts',
-        subtext: 'Twice the items twice as fast'
+        text: 'accessories',
+        primaryTwo: '',
+        textTwo: '',
+        subtext: 'Twice the items twice the style'
       },
       {
         icon: '⚡️', 
         isImage: false,
         highlight: 'Get',
-        primary: billingPeriod === 'monthly' ? 'one' : 'three',
-        text: billingPeriod === 'monthly' ? 'new friend' : 'new friends',
+        primary: billingPeriod === 'monthly' ? 'two' : 'five',
+        text: billingPeriod === 'monthly' ? 'new friends' : 'new friends',
         primaryTwo: 'instantly',
         textTwo: '',
         subtext: ''

@@ -1,0 +1,467 @@
+[debug] [2024-11-23T15:35:23.496Z] ----------------------------------------------------------------------
+[debug] [2024-11-23T15:35:23.497Z] Command:       /opt/homebrew/Cellar/node/22.10.0/bin/node /Users/justinpryor/.npm-global/bin/firebase deploy --only functions
+[debug] [2024-11-23T15:35:23.498Z] CLI Version:   13.27.0
+[debug] [2024-11-23T15:35:23.498Z] Platform:      darwin
+[debug] [2024-11-23T15:35:23.498Z] Node Version:  v22.10.0
+[debug] [2024-11-23T15:35:23.498Z] Time:          Sat Nov 23 2024 10:35:23 GMT-0500 (Eastern Standard Time)
+[debug] [2024-11-23T15:35:23.498Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2024-11-23T15:35:23.530Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-11-23T15:35:23.530Z] > authorizing via signed-in user (justin@nufriends.app)
+[debug] [2024-11-23T15:35:23.530Z] [iam] checking project nufriends-1aba1 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2024-11-23T15:35:23.531Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:23.531Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:23.531Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/nufriends-1aba1:testIamPermissions [none]
+[debug] [2024-11-23T15:35:23.531Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/nufriends-1aba1:testIamPermissions x-goog-quota-user=projects/nufriends-1aba1
+[debug] [2024-11-23T15:35:23.531Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/nufriends-1aba1:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2024-11-23T15:35:23.769Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/nufriends-1aba1:testIamPermissions 200
+[debug] [2024-11-23T15:35:23.769Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/nufriends-1aba1:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2024-11-23T15:35:23.770Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:23.770Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:23.770Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/nufriends-1aba1/serviceAccounts/nufriends-1aba1@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2024-11-23T15:35:23.770Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/nufriends-1aba1/serviceAccounts/nufriends-1aba1@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2024-11-23T15:35:23.899Z] <<< [apiv2][status] POST https://iam.googleapis.com/v1/projects/nufriends-1aba1/serviceAccounts/nufriends-1aba1@appspot.gserviceaccount.com:testIamPermissions 200
+[debug] [2024-11-23T15:35:23.899Z] <<< [apiv2][body] POST https://iam.googleapis.com/v1/projects/nufriends-1aba1/serviceAccounts/nufriends-1aba1@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[info] 
+[info] === Deploying to 'nufriends-1aba1'...
+[info] 
+[info] i  deploying functions 
+[info] Running command: npm --prefix "$RESOURCE_DIR" run lint
+[info] Running command: npm --prefix "$RESOURCE_DIR" run build
+[info] ✔  functions: Finished running predeploy script. 
+[debug] [2024-11-23T15:35:26.958Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:26.958Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:26.958Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/nufriends-1aba1 [none]
+[debug] [2024-11-23T15:35:27.051Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/nufriends-1aba1 200
+[debug] [2024-11-23T15:35:27.051Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/nufriends-1aba1 {"projectNumber":"792301576889","projectId":"nufriends-1aba1","lifecycleState":"ACTIVE","name":"nufriends","labels":{"firebase":"enabled"},"createTime":"2024-11-18T13:04:31.525832Z","parent":{"type":"organization","id":"377027212609"}}
+[info] i  functions: preparing codebase default for deployment 
+[info] i  functions: ensuring required API cloudfunctions.googleapis.com is enabled... 
+[debug] [2024-11-23T15:35:27.052Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:27.052Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:27.052Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:27.052Z] Checked if tokens are valid: true, expires at: 1732378233060
+[info] i  functions: ensuring required API cloudbuild.googleapis.com is enabled... 
+[debug] [2024-11-23T15:35:27.053Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:27.053Z] Checked if tokens are valid: true, expires at: 1732378233060
+[info] i  artifactregistry: ensuring required API artifactregistry.googleapis.com is enabled... 
+[debug] [2024-11-23T15:35:27.053Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:27.053Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:27.053Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/cloudfunctions.googleapis.com [none]
+[debug] [2024-11-23T15:35:27.053Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/nufriends-1aba1
+[debug] [2024-11-23T15:35:27.054Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/runtimeconfig.googleapis.com [none]
+[debug] [2024-11-23T15:35:27.054Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/runtimeconfig.googleapis.com x-goog-quota-user=projects/nufriends-1aba1
+[debug] [2024-11-23T15:35:27.054Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/cloudbuild.googleapis.com [none]
+[debug] [2024-11-23T15:35:27.054Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/cloudbuild.googleapis.com x-goog-quota-user=projects/nufriends-1aba1
+[debug] [2024-11-23T15:35:27.055Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/artifactregistry.googleapis.com [none]
+[debug] [2024-11-23T15:35:27.055Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/artifactregistry.googleapis.com x-goog-quota-user=projects/nufriends-1aba1
+[debug] [2024-11-23T15:35:27.525Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/runtimeconfig.googleapis.com 200
+[debug] [2024-11-23T15:35:27.525Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/runtimeconfig.googleapis.com [omitted]
+[debug] [2024-11-23T15:35:27.526Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/cloudbuild.googleapis.com 200
+[debug] [2024-11-23T15:35:27.526Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/cloudbuild.googleapis.com [omitted]
+[info] ✔  functions: required API cloudbuild.googleapis.com is enabled 
+[debug] [2024-11-23T15:35:27.528Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/artifactregistry.googleapis.com 200
+[debug] [2024-11-23T15:35:27.528Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/artifactregistry.googleapis.com [omitted]
+[info] ✔  artifactregistry: required API artifactregistry.googleapis.com is enabled 
+[debug] [2024-11-23T15:35:27.529Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/cloudfunctions.googleapis.com 200
+[debug] [2024-11-23T15:35:27.529Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/cloudfunctions.googleapis.com [omitted]
+[info] ✔  functions: required API cloudfunctions.googleapis.com is enabled 
+[debug] [2024-11-23T15:35:27.530Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:27.530Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:27.530Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/nufriends-1aba1/adminSdkConfig [none]
+[debug] [2024-11-23T15:35:27.927Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/nufriends-1aba1/adminSdkConfig 200
+[debug] [2024-11-23T15:35:27.928Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/nufriends-1aba1/adminSdkConfig {"projectId":"nufriends-1aba1","storageBucket":"nufriends-1aba1.firebasestorage.app"}
+[debug] [2024-11-23T15:35:27.928Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:27.928Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:27.929Z] >>> [apiv2][query] GET https://runtimeconfig.googleapis.com/v1beta1/projects/nufriends-1aba1/configs [none]
+[debug] [2024-11-23T15:35:28.104Z] <<< [apiv2][status] GET https://runtimeconfig.googleapis.com/v1beta1/projects/nufriends-1aba1/configs 200
+[debug] [2024-11-23T15:35:28.104Z] <<< [apiv2][body] GET https://runtimeconfig.googleapis.com/v1beta1/projects/nufriends-1aba1/configs {}
+[debug] [2024-11-23T15:35:28.108Z] Validating nodejs source
+[debug] [2024-11-23T15:35:28.521Z] > [functions] package.json contents: {
+  "name": "functions",
+  "scripts": {
+    "lint": "eslint --ext .js,.ts .",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "@google-cloud/secret-manager": "^5.6.0",
+    "firebase-admin": "^12.6.0",
+    "firebase-functions": "^6.0.1",
+    "openai": "^4.73.0"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.12.0",
+    "@typescript-eslint/parser": "^5.12.0",
+    "eslint": "^8.9.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-import": "^2.25.4",
+    "firebase-functions-test": "^3.1.0",
+    "typescript": "^4.9.0"
+  },
+  "private": true
+}
+[debug] [2024-11-23T15:35:28.521Z] Building nodejs source
+[info] i  functions: Loading and analyzing source code for codebase default to determine what to deploy 
+[debug] [2024-11-23T15:35:28.522Z] Could not find functions.yaml. Must use http discovery
+[debug] [2024-11-23T15:35:28.527Z] Found firebase-functions binary at '/Users/justinpryor/Desktop/nufriendsmobilefinal-1/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8182
+
+[error] (node:51973) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+[debug] [2024-11-23T15:35:28.807Z] Got response from /__/functions.yaml {"endpoints":{"checkKey":{"availableMemoryMb":256,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"checkKey"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[info] i  extensions: ensuring required API firebaseextensions.googleapis.com is enabled... 
+[debug] [2024-11-23T15:35:32.829Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:32.829Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:32.829Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/firebaseextensions.googleapis.com [none]
+[debug] [2024-11-23T15:35:32.829Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/firebaseextensions.googleapis.com x-goog-quota-user=projects/nufriends-1aba1
+[debug] [2024-11-23T15:35:33.470Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/firebaseextensions.googleapis.com 200
+[debug] [2024-11-23T15:35:33.471Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/firebaseextensions.googleapis.com [omitted]
+[info] ✔  extensions: required API firebaseextensions.googleapis.com is enabled 
+[debug] [2024-11-23T15:35:33.471Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-11-23T15:35:33.471Z] > authorizing via signed-in user (justin@nufriends.app)
+[debug] [2024-11-23T15:35:33.471Z] [iam] checking project nufriends-1aba1 for permissions ["firebase.projects.get","firebaseextensions.instances.list"]
+[debug] [2024-11-23T15:35:33.472Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:33.472Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:33.472Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/nufriends-1aba1:testIamPermissions [none]
+[debug] [2024-11-23T15:35:33.472Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/nufriends-1aba1:testIamPermissions x-goog-quota-user=projects/nufriends-1aba1
+[debug] [2024-11-23T15:35:33.472Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/nufriends-1aba1:testIamPermissions {"permissions":["firebase.projects.get","firebaseextensions.instances.list"]}
+[debug] [2024-11-23T15:35:33.655Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/nufriends-1aba1:testIamPermissions 200
+[debug] [2024-11-23T15:35:33.656Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/nufriends-1aba1:testIamPermissions {"permissions":["firebase.projects.get","firebaseextensions.instances.list"]}
+[debug] [2024-11-23T15:35:33.657Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:33.657Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:33.658Z] >>> [apiv2][query] GET https://firebaseextensions.googleapis.com/v1beta/projects/nufriends-1aba1/instances pageSize=100&pageToken=
+[debug] [2024-11-23T15:35:33.977Z] <<< [apiv2][status] GET https://firebaseextensions.googleapis.com/v1beta/projects/nufriends-1aba1/instances 200
+[debug] [2024-11-23T15:35:33.977Z] <<< [apiv2][body] GET https://firebaseextensions.googleapis.com/v1beta/projects/nufriends-1aba1/instances {}
+[info] i  functions: preparing functions directory for uploading... 
+[info] i  functions: packaged /Users/justinpryor/Desktop/nufriendsmobilefinal-1/functions (89.25 KB) for uploading 
+[debug] [2024-11-23T15:35:34.013Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:34.013Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:34.013Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v1/projects/nufriends-1aba1/locations/-/functions [none]
+[debug] [2024-11-23T15:35:34.594Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v1/projects/nufriends-1aba1/locations/-/functions 200
+[debug] [2024-11-23T15:35:34.595Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v1/projects/nufriends-1aba1/locations/-/functions {}
+[debug] [2024-11-23T15:35:34.595Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:34.595Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:34.595Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/-/functions filter=environment%3D%22GEN_2%22
+[debug] [2024-11-23T15:35:34.996Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/-/functions 200
+[debug] [2024-11-23T15:35:34.997Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/-/functions {"functions":[{"name":"projects/nufriends-1aba1/locations/us-central1/functions/testSecretAccess","buildConfig":{"build":"projects/792301576889/locations/us-central1/builds/ac1d1f73-3ebe-4cb5-ba0f-da6cfc883512","runtime":"nodejs18","entryPoint":"testSecretAccess","source":{"storageSource":{"bucket":"gcf-v2-sources-792301576889-us-central1","object":"testSecretAccess/function-source.zip","generation":"1732375076310226"}},"environmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""},"dockerRepository":"projects/nufriends-1aba1/locations/us-central1/repositories/gcf-artifacts","sourceProvenance":{"resolvedStorageSource":{"bucket":"gcf-v2-sources-792301576889-us-central1","object":"testSecretAccess/function-source.zip","generation":"1732375076310226"}},"dockerRegistry":"ARTIFACT_REGISTRY","serviceAccount":"projects/nufriends-1aba1/serviceAccounts/792301576889-compute@developer.gserviceaccount.com","automaticUpdatePolicy":{}},"serviceConfig":{"service":"projects/nufriends-1aba1/locations/us-central1/services/testsecretaccess","timeoutSeconds":60,"environmentVariables":{"FIREBASE_CONFIG":"{\"projectId\":\"nufriends-1aba1\",\"storageBucket\":\"nufriends-1aba1.firebasestorage.app\"}","GCLOUD_PROJECT":"nufriends-1aba1","EVENTARC_CLOUD_EVENT_SOURCE":"projects/nufriends-1aba1/locations/us-central1/services/testSecretAccess","FUNCTION_TARGET":"testSecretAccess","LOG_EXECUTION_ID":"true"},"maxInstanceCount":100,"ingressSettings":"ALLOW_ALL","uri":"https://testsecretaccess-uiupfc765q-uc.a.run.app","serviceAccountEmail":"792301576889-compute@developer.gserviceaccount.com","availableMemory":"256Mi","allTrafficOnLatestRevision":true,"revision":"testsecretaccess-00001-miw","maxInstanceRequestConcurrency":80,"availableCpu":"1"},"state":"ACTIVE","updateTime":"2024-11-23T15:18:48.880134299Z","labels":{"deployment-tool":"cli-firebase","deployment-callable":"true","firebase-functions-hash":"115aaa3d7c4186a3894f3fd3928de43fc69e1dad"},"environment":"GEN_2","url":"https://us-central1-nufriends-1aba1.cloudfunctions.net/testSecretAccess","createTime":"2024-11-23T15:17:56.637899670Z"}]}
+[info] i  functions: ensuring required API run.googleapis.com is enabled... 
+[debug] [2024-11-23T15:35:35.000Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:35.000Z] Checked if tokens are valid: true, expires at: 1732378233060
+[info] i  functions: ensuring required API eventarc.googleapis.com is enabled... 
+[debug] [2024-11-23T15:35:35.001Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:35.001Z] Checked if tokens are valid: true, expires at: 1732378233060
+[info] i  functions: ensuring required API pubsub.googleapis.com is enabled... 
+[debug] [2024-11-23T15:35:35.001Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:35.001Z] Checked if tokens are valid: true, expires at: 1732378233060
+[info] i  functions: ensuring required API storage.googleapis.com is enabled... 
+[debug] [2024-11-23T15:35:35.001Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:35.001Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:35.001Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/run.googleapis.com [none]
+[debug] [2024-11-23T15:35:35.001Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/run.googleapis.com x-goog-quota-user=projects/nufriends-1aba1
+[debug] [2024-11-23T15:35:35.001Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/eventarc.googleapis.com [none]
+[debug] [2024-11-23T15:35:35.001Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/eventarc.googleapis.com x-goog-quota-user=projects/nufriends-1aba1
+[debug] [2024-11-23T15:35:35.003Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/pubsub.googleapis.com [none]
+[debug] [2024-11-23T15:35:35.003Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/pubsub.googleapis.com x-goog-quota-user=projects/nufriends-1aba1
+[debug] [2024-11-23T15:35:35.003Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/storage.googleapis.com [none]
+[debug] [2024-11-23T15:35:35.003Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/storage.googleapis.com x-goog-quota-user=projects/nufriends-1aba1
+[debug] [2024-11-23T15:35:35.405Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/run.googleapis.com 200
+[debug] [2024-11-23T15:35:35.405Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/run.googleapis.com [omitted]
+[info] ✔  functions: required API run.googleapis.com is enabled 
+[debug] [2024-11-23T15:35:35.406Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/pubsub.googleapis.com 200
+[debug] [2024-11-23T15:35:35.406Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/pubsub.googleapis.com [omitted]
+[info] ✔  functions: required API pubsub.googleapis.com is enabled 
+[debug] [2024-11-23T15:35:35.407Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/eventarc.googleapis.com 200
+[debug] [2024-11-23T15:35:35.407Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/eventarc.googleapis.com [omitted]
+[info] ✔  functions: required API eventarc.googleapis.com is enabled 
+[debug] [2024-11-23T15:35:35.408Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/storage.googleapis.com 200
+[debug] [2024-11-23T15:35:35.408Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/nufriends-1aba1/services/storage.googleapis.com [omitted]
+[info] ✔  functions: required API storage.googleapis.com is enabled 
+[info] i  functions: generating the service identity for pubsub.googleapis.com... 
+[debug] [2024-11-23T15:35:35.408Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:35.409Z] Checked if tokens are valid: true, expires at: 1732378233060
+[info] i  functions: generating the service identity for eventarc.googleapis.com... 
+[debug] [2024-11-23T15:35:35.409Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:35.409Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:35.409Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1beta1/projects/792301576889/services/pubsub.googleapis.com:generateServiceIdentity [none]
+[debug] [2024-11-23T15:35:35.409Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1beta1/projects/792301576889/services/eventarc.googleapis.com:generateServiceIdentity [none]
+[debug] [2024-11-23T15:35:35.674Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1beta1/projects/792301576889/services/eventarc.googleapis.com:generateServiceIdentity 200
+[debug] [2024-11-23T15:35:35.675Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1beta1/projects/792301576889/services/eventarc.googleapis.com:generateServiceIdentity {"name":"operations/finished.DONE_OPERATION","done":true,"response":{"@type":"type.googleapis.com/google.api.serviceusage.v1beta1.ServiceIdentity","email":"service-792301576889@gcp-sa-eventarc.iam.gserviceaccount.com","uniqueId":"117203318993028748477"}}
+[debug] [2024-11-23T15:35:35.779Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1beta1/projects/792301576889/services/pubsub.googleapis.com:generateServiceIdentity 200
+[debug] [2024-11-23T15:35:35.779Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1beta1/projects/792301576889/services/pubsub.googleapis.com:generateServiceIdentity {"name":"operations/finished.DONE_OPERATION","done":true,"response":{"@type":"type.googleapis.com/google.api.serviceusage.v1beta1.ServiceIdentity","email":"service-792301576889@gcp-sa-pubsub.iam.gserviceaccount.com","uniqueId":"109637028432140673720"}}
+[debug] [2024-11-23T15:35:35.782Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:35.782Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:35.782Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/nufriends-1aba1 [none]
+[debug] [2024-11-23T15:35:35.893Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/nufriends-1aba1 200
+[debug] [2024-11-23T15:35:35.893Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/nufriends-1aba1 {"projectNumber":"792301576889","projectId":"nufriends-1aba1","lifecycleState":"ACTIVE","name":"nufriends","labels":{"firebase":"enabled"},"createTime":"2024-11-18T13:04:31.525832Z","parent":{"type":"organization","id":"377027212609"}}
+[debug] [2024-11-23T15:35:35.896Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:35.896Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:35.896Z] >>> [apiv2][query] GET https://cloudbilling.googleapis.com/v1/projects/nufriends-1aba1/billingInfo [none]
+[debug] [2024-11-23T15:35:36.106Z] <<< [apiv2][status] GET https://cloudbilling.googleapis.com/v1/projects/nufriends-1aba1/billingInfo 200
+[debug] [2024-11-23T15:35:36.106Z] <<< [apiv2][body] GET https://cloudbilling.googleapis.com/v1/projects/nufriends-1aba1/billingInfo {"name":"projects/nufriends-1aba1/billingInfo","projectId":"nufriends-1aba1","billingAccountName":"billingAccounts/01E777-68EAB1-090536","billingEnabled":true}
+[debug] [2024-11-23T15:35:36.110Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:36.110Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:36.110Z] >>> [apiv2][query] POST https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/functions:generateUploadUrl [none]
+[debug] [2024-11-23T15:35:36.410Z] <<< [apiv2][status] POST https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/functions:generateUploadUrl 200
+[debug] [2024-11-23T15:35:36.410Z] <<< [apiv2][body] POST https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/functions:generateUploadUrl {"uploadUrl":"https://storage.googleapis.com/gcf-v2-uploads-792301576889.us-central1.cloudfunctions.appspot.com/f92a0a5d-a867-4f40-8d3d-892a598d2132.zip?GoogleAccessId=service-792301576889@gcf-admin-robot.iam.gserviceaccount.com&Expires=1732377936&Signature=OJaSUZmRBCSFfd3MP61CDDO3gRAsnuCZLWOerH%2BR9SLrpx%2FcdrNVAyiejhgQdnOc%2BmoR9tQzzNjfqurUG0EtC%2FTUHzwqhzYVdgvvUrwncdHiVbRByWLAkZNiZwTX6Cu58pDVNIruw5RvxePN2BXP8QDwgJwJOOCTMta2pp6NorteROHXQomR2zw0%2BvzjVzWuobOEv%2FUoS30bqE0o7laH%2BnMSr8eA6EtANOHAEPtp9bKEdyw%2BMrBcwUYPgAc29dVrAVHJHn6wP8gWYmVlSs1rmH2h4Y37fc4FVgvzIuwYWvSSjaPQjLQYSnWguJga6CLOASNV%2BeH2fjH2Ts4kvnKX1A%3D%3D","storageSource":{"bucket":"gcf-v2-uploads-792301576889.us-central1.cloudfunctions.appspot.com","object":"f92a0a5d-a867-4f40-8d3d-892a598d2132.zip"}}
+[debug] [2024-11-23T15:35:36.412Z] >>> [apiv2][query] PUT https://storage.googleapis.com/gcf-v2-uploads-792301576889.us-central1.cloudfunctions.appspot.com/f92a0a5d-a867-4f40-8d3d-892a598d2132.zip GoogleAccessId=service-792301576889%40gcf-admin-robot.iam.gserviceaccount.com&Expires=1732377936&Signature=OJaSUZmRBCSFfd3MP61CDDO3gRAsnuCZLWOerH%2BR9SLrpx%2FcdrNVAyiejhgQdnOc%2BmoR9tQzzNjfqurUG0EtC%2FTUHzwqhzYVdgvvUrwncdHiVbRByWLAkZNiZwTX6Cu58pDVNIruw5RvxePN2BXP8QDwgJwJOOCTMta2pp6NorteROHXQomR2zw0%2BvzjVzWuobOEv%2FUoS30bqE0o7laH%2BnMSr8eA6EtANOHAEPtp9bKEdyw%2BMrBcwUYPgAc29dVrAVHJHn6wP8gWYmVlSs1rmH2h4Y37fc4FVgvzIuwYWvSSjaPQjLQYSnWguJga6CLOASNV%2BeH2fjH2Ts4kvnKX1A%3D%3D
+[debug] [2024-11-23T15:35:36.412Z] >>> [apiv2][body] PUT https://storage.googleapis.com/gcf-v2-uploads-792301576889.us-central1.cloudfunctions.appspot.com/f92a0a5d-a867-4f40-8d3d-892a598d2132.zip [stream]
+[debug] [2024-11-23T15:35:36.656Z] <<< [apiv2][status] PUT https://storage.googleapis.com/gcf-v2-uploads-792301576889.us-central1.cloudfunctions.appspot.com/f92a0a5d-a867-4f40-8d3d-892a598d2132.zip 200
+[debug] [2024-11-23T15:35:36.656Z] <<< [apiv2][body] PUT https://storage.googleapis.com/gcf-v2-uploads-792301576889.us-central1.cloudfunctions.appspot.com/f92a0a5d-a867-4f40-8d3d-892a598d2132.zip [omitted]
+[info] ✔  functions: functions folder uploaded successfully 
+[info] 
+The following functions are found in your project but do not exist in your local source code:
+	testSecretAccess(us-central1)
+
+If you are renaming a function or changing its region, it is recommended that you create the new function first before deleting the old one to prevent event loss. For more info, visit https://firebase.google.com/docs/functions/manage-functions#modify
+
+[info] i  functions: creating Node.js 18 (2nd Gen) function checkKey(us-central1)... 
+[debug] [2024-11-23T15:35:48.125Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:48.125Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:48.125Z] >>> [apiv2][query] POST https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/functions functionId=checkKey
+[debug] [2024-11-23T15:35:48.125Z] >>> [apiv2][body] POST https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/functions {"name":"projects/nufriends-1aba1/locations/us-central1/functions/checkKey","buildConfig":{"runtime":"nodejs18","entryPoint":"checkKey","source":{"storageSource":{"bucket":"gcf-v2-uploads-792301576889.us-central1.cloudfunctions.appspot.com","object":"f92a0a5d-a867-4f40-8d3d-892a598d2132.zip"}},"environmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""}},"serviceConfig":{"environmentVariables":{"FIREBASE_CONFIG":"{\"projectId\":\"nufriends-1aba1\",\"storageBucket\":\"nufriends-1aba1.firebasestorage.app\"}","GCLOUD_PROJECT":"nufriends-1aba1","EVENTARC_CLOUD_EVENT_SOURCE":"projects/nufriends-1aba1/locations/us-central1/services/checkKey","FUNCTION_TARGET":"checkKey"},"ingressSettings":null,"timeoutSeconds":null,"serviceAccountEmail":null,"availableMemory":"256Mi","minInstanceCount":null,"maxInstanceCount":null,"maxInstanceRequestConcurrency":80,"availableCpu":"1","vpcConnector":null,"vpcConnectorEgressSettings":null},"labels":{"deployment-tool":"cli-firebase","deployment-callable":"true","firebase-functions-hash":"7e0fa7731e46f2ca8dae434de4e01823a92ca84c"}}
+[debug] [2024-11-23T15:35:49.023Z] <<< [apiv2][status] POST https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/functions 200
+[debug] [2024-11-23T15:35:49.024Z] <<< [apiv2][body] POST https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/functions {"name":"projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d","metadata":{"@type":"type.googleapis.com/google.cloud.functions.v2.OperationMetadata","createTime":"2024-11-23T15:35:48.903836993Z","target":"projects/nufriends-1aba1/locations/us-central1/functions/checkKey","verb":"create","cancelRequested":false,"apiVersion":"v2"},"done":false}
+[debug] [2024-11-23T15:35:49.025Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:49.025Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:49.025Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d [none]
+[debug] [2024-11-23T15:35:49.222Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d 200
+[debug] [2024-11-23T15:35:49.222Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d {"name":"projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d","metadata":{"@type":"type.googleapis.com/google.cloud.functions.v2.OperationMetadata","createTime":"2024-11-23T15:35:48.903836993Z","target":"projects/nufriends-1aba1/locations/us-central1/functions/checkKey","verb":"create","cancelRequested":false,"apiVersion":"v2","requestResource":{"@type":"type.googleapis.com/google.cloud.functions.v2.Function","name":"projects/nufriends-1aba1/locations/us-central1/functions/checkKey","buildConfig":{"runtime":"nodejs18","entryPoint":"checkKey","source":{"storageSource":{"bucket":"gcf-v2-sources-792301576889-us-central1","object":"checkKey/function-source.zip","generation":"1732376148672243"}},"environmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""},"serviceAccount":"projects/nufriends-1aba1/serviceAccounts/792301576889-compute@developer.gserviceaccount.com","automaticUpdatePolicy":{}},"serviceConfig":{"service":"projects/nufriends-1aba1/locations/us-central1/services/checkkey","timeoutSeconds":60,"environmentVariables":{"FIREBASE_CONFIG":"{\"projectId\":\"nufriends-1aba1\",\"storageBucket\":\"nufriends-1aba1.firebasestorage.app\"}","GCLOUD_PROJECT":"nufriends-1aba1","EVENTARC_CLOUD_EVENT_SOURCE":"projects/nufriends-1aba1/locations/us-central1/services/checkKey","FUNCTION_TARGET":"checkKey","LOG_EXECUTION_ID":"true"},"ingressSettings":"ALLOW_ALL","serviceAccountEmail":"792301576889-compute@developer.gserviceaccount.com","availableMemory":"256Mi","maxInstanceRequestConcurrency":80,"availableCpu":"1"},"labels":{"deployment-tool":"cli-firebase","deployment-callable":"true","firebase-functions-hash":"7e0fa7731e46f2ca8dae434de4e01823a92ca84c"},"environment":"GEN_2"},"stages":[{"name":"BUILD","state":"NOT_STARTED"},{"name":"SERVICE","state":"NOT_STARTED"}],"operationType":"CREATE_FUNCTION"},"done":false}
+[debug] [2024-11-23T15:35:49.724Z] [create-default-us-central1-checkKey] Retrying task index 0
+[debug] [2024-11-23T15:35:49.725Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:49.725Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:49.725Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d [none]
+[debug] [2024-11-23T15:35:49.932Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d 200
+[debug] [2024-11-23T15:35:49.932Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d {"name":"projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d","metadata":{"@type":"type.googleapis.com/google.cloud.functions.v2.OperationMetadata","createTime":"2024-11-23T15:35:48.903836993Z","target":"projects/nufriends-1aba1/locations/us-central1/functions/checkKey","verb":"create","cancelRequested":false,"apiVersion":"v2","requestResource":{"@type":"type.googleapis.com/google.cloud.functions.v2.Function","name":"projects/nufriends-1aba1/locations/us-central1/functions/checkKey","buildConfig":{"runtime":"nodejs18","entryPoint":"checkKey","source":{"storageSource":{"bucket":"gcf-v2-sources-792301576889-us-central1","object":"checkKey/function-source.zip","generation":"1732376148672243"}},"environmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""},"serviceAccount":"projects/nufriends-1aba1/serviceAccounts/792301576889-compute@developer.gserviceaccount.com","automaticUpdatePolicy":{}},"serviceConfig":{"service":"projects/nufriends-1aba1/locations/us-central1/services/checkkey","timeoutSeconds":60,"environmentVariables":{"FIREBASE_CONFIG":"{\"projectId\":\"nufriends-1aba1\",\"storageBucket\":\"nufriends-1aba1.firebasestorage.app\"}","GCLOUD_PROJECT":"nufriends-1aba1","EVENTARC_CLOUD_EVENT_SOURCE":"projects/nufriends-1aba1/locations/us-central1/services/checkKey","FUNCTION_TARGET":"checkKey","LOG_EXECUTION_ID":"true"},"ingressSettings":"ALLOW_ALL","serviceAccountEmail":"792301576889-compute@developer.gserviceaccount.com","availableMemory":"256Mi","maxInstanceRequestConcurrency":80,"availableCpu":"1"},"labels":{"deployment-tool":"cli-firebase","deployment-callable":"true","firebase-functions-hash":"7e0fa7731e46f2ca8dae434de4e01823a92ca84c"},"environment":"GEN_2"},"stages":[{"name":"BUILD","message":"Creating build","state":"IN_PROGRESS","resource":"projects/792301576889/locations/us-central1/builds/1abf6af4-1457-4d03-a224-1971553b2d68","resourceUri":"https://console.cloud.google.com/cloud-build/builds;region=us-central1/1abf6af4-1457-4d03-a224-1971553b2d68?project=792301576889"},{"name":"SERVICE","state":"NOT_STARTED"}],"operationType":"CREATE_FUNCTION","buildName":"projects/792301576889/locations/us-central1/builds/1abf6af4-1457-4d03-a224-1971553b2d68"},"done":false}
+[debug] [2024-11-23T15:35:50.934Z] [create-default-us-central1-checkKey] Retrying task index 0
+[debug] [2024-11-23T15:35:50.935Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:50.935Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:50.935Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d [none]
+[debug] [2024-11-23T15:35:51.275Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d 200
+[debug] [2024-11-23T15:35:51.275Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d {"name":"projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d","metadata":{"@type":"type.googleapis.com/google.cloud.functions.v2.OperationMetadata","createTime":"2024-11-23T15:35:48.903836993Z","target":"projects/nufriends-1aba1/locations/us-central1/functions/checkKey","verb":"create","cancelRequested":false,"apiVersion":"v2","requestResource":{"@type":"type.googleapis.com/google.cloud.functions.v2.Function","name":"projects/nufriends-1aba1/locations/us-central1/functions/checkKey","buildConfig":{"runtime":"nodejs18","entryPoint":"checkKey","source":{"storageSource":{"bucket":"gcf-v2-sources-792301576889-us-central1","object":"checkKey/function-source.zip","generation":"1732376148672243"}},"environmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""},"serviceAccount":"projects/nufriends-1aba1/serviceAccounts/792301576889-compute@developer.gserviceaccount.com","automaticUpdatePolicy":{}},"serviceConfig":{"service":"projects/nufriends-1aba1/locations/us-central1/services/checkkey","timeoutSeconds":60,"environmentVariables":{"FIREBASE_CONFIG":"{\"projectId\":\"nufriends-1aba1\",\"storageBucket\":\"nufriends-1aba1.firebasestorage.app\"}","GCLOUD_PROJECT":"nufriends-1aba1","EVENTARC_CLOUD_EVENT_SOURCE":"projects/nufriends-1aba1/locations/us-central1/services/checkKey","FUNCTION_TARGET":"checkKey","LOG_EXECUTION_ID":"true"},"ingressSettings":"ALLOW_ALL","serviceAccountEmail":"792301576889-compute@developer.gserviceaccount.com","availableMemory":"256Mi","maxInstanceRequestConcurrency":80,"availableCpu":"1"},"labels":{"deployment-tool":"cli-firebase","deployment-callable":"true","firebase-functions-hash":"7e0fa7731e46f2ca8dae434de4e01823a92ca84c"},"environment":"GEN_2"},"stages":[{"name":"BUILD","message":"Build in progress","state":"IN_PROGRESS","resource":"projects/792301576889/locations/us-central1/builds/1abf6af4-1457-4d03-a224-1971553b2d68","resourceUri":"https://console.cloud.google.com/cloud-build/builds;region=us-central1/1abf6af4-1457-4d03-a224-1971553b2d68?project=792301576889"},{"name":"SERVICE","state":"NOT_STARTED"}],"operationType":"CREATE_FUNCTION","buildName":"projects/792301576889/locations/us-central1/builds/1abf6af4-1457-4d03-a224-1971553b2d68"},"done":false}
+[debug] [2024-11-23T15:35:53.276Z] [create-default-us-central1-checkKey] Retrying task index 0
+[debug] [2024-11-23T15:35:53.277Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:53.277Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:53.277Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d [none]
+[debug] [2024-11-23T15:35:53.383Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d 200
+[debug] [2024-11-23T15:35:53.384Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d {"name":"projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d","metadata":{"@type":"type.googleapis.com/google.cloud.functions.v2.OperationMetadata","createTime":"2024-11-23T15:35:48.903836993Z","target":"projects/nufriends-1aba1/locations/us-central1/functions/checkKey","verb":"create","cancelRequested":false,"apiVersion":"v2","requestResource":{"@type":"type.googleapis.com/google.cloud.functions.v2.Function","name":"projects/nufriends-1aba1/locations/us-central1/functions/checkKey","buildConfig":{"runtime":"nodejs18","entryPoint":"checkKey","source":{"storageSource":{"bucket":"gcf-v2-sources-792301576889-us-central1","object":"checkKey/function-source.zip","generation":"1732376148672243"}},"environmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""},"serviceAccount":"projects/nufriends-1aba1/serviceAccounts/792301576889-compute@developer.gserviceaccount.com","automaticUpdatePolicy":{}},"serviceConfig":{"service":"projects/nufriends-1aba1/locations/us-central1/services/checkkey","timeoutSeconds":60,"environmentVariables":{"FIREBASE_CONFIG":"{\"projectId\":\"nufriends-1aba1\",\"storageBucket\":\"nufriends-1aba1.firebasestorage.app\"}","GCLOUD_PROJECT":"nufriends-1aba1","EVENTARC_CLOUD_EVENT_SOURCE":"projects/nufriends-1aba1/locations/us-central1/services/checkKey","FUNCTION_TARGET":"checkKey","LOG_EXECUTION_ID":"true"},"ingressSettings":"ALLOW_ALL","serviceAccountEmail":"792301576889-compute@developer.gserviceaccount.com","availableMemory":"256Mi","maxInstanceRequestConcurrency":80,"availableCpu":"1"},"labels":{"deployment-tool":"cli-firebase","deployment-callable":"true","firebase-functions-hash":"7e0fa7731e46f2ca8dae434de4e01823a92ca84c"},"environment":"GEN_2"},"stages":[{"name":"BUILD","message":"Build in progress","state":"IN_PROGRESS","resource":"projects/792301576889/locations/us-central1/builds/1abf6af4-1457-4d03-a224-1971553b2d68","resourceUri":"https://console.cloud.google.com/cloud-build/builds;region=us-central1/1abf6af4-1457-4d03-a224-1971553b2d68?project=792301576889"},{"name":"SERVICE","state":"NOT_STARTED"}],"operationType":"CREATE_FUNCTION","buildName":"projects/792301576889/locations/us-central1/builds/1abf6af4-1457-4d03-a224-1971553b2d68"},"done":false}
+[debug] [2024-11-23T15:35:57.385Z] [create-default-us-central1-checkKey] Retrying task index 0
+[debug] [2024-11-23T15:35:57.385Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:57.385Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:35:57.386Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d [none]
+[debug] [2024-11-23T15:35:57.598Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d 200
+[debug] [2024-11-23T15:35:57.599Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d {"name":"projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d","metadata":{"@type":"type.googleapis.com/google.cloud.functions.v2.OperationMetadata","createTime":"2024-11-23T15:35:48.903836993Z","target":"projects/nufriends-1aba1/locations/us-central1/functions/checkKey","verb":"create","cancelRequested":false,"apiVersion":"v2","requestResource":{"@type":"type.googleapis.com/google.cloud.functions.v2.Function","name":"projects/nufriends-1aba1/locations/us-central1/functions/checkKey","buildConfig":{"runtime":"nodejs18","entryPoint":"checkKey","source":{"storageSource":{"bucket":"gcf-v2-sources-792301576889-us-central1","object":"checkKey/function-source.zip","generation":"1732376148672243"}},"environmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""},"serviceAccount":"projects/nufriends-1aba1/serviceAccounts/792301576889-compute@developer.gserviceaccount.com","automaticUpdatePolicy":{}},"serviceConfig":{"service":"projects/nufriends-1aba1/locations/us-central1/services/checkkey","timeoutSeconds":60,"environmentVariables":{"FIREBASE_CONFIG":"{\"projectId\":\"nufriends-1aba1\",\"storageBucket\":\"nufriends-1aba1.firebasestorage.app\"}","GCLOUD_PROJECT":"nufriends-1aba1","EVENTARC_CLOUD_EVENT_SOURCE":"projects/nufriends-1aba1/locations/us-central1/services/checkKey","FUNCTION_TARGET":"checkKey","LOG_EXECUTION_ID":"true"},"ingressSettings":"ALLOW_ALL","serviceAccountEmail":"792301576889-compute@developer.gserviceaccount.com","availableMemory":"256Mi","maxInstanceRequestConcurrency":80,"availableCpu":"1"},"labels":{"deployment-tool":"cli-firebase","deployment-callable":"true","firebase-functions-hash":"7e0fa7731e46f2ca8dae434de4e01823a92ca84c"},"environment":"GEN_2"},"stages":[{"name":"BUILD","message":"Build in progress","state":"IN_PROGRESS","resource":"projects/792301576889/locations/us-central1/builds/1abf6af4-1457-4d03-a224-1971553b2d68","resourceUri":"https://console.cloud.google.com/cloud-build/builds;region=us-central1/1abf6af4-1457-4d03-a224-1971553b2d68?project=792301576889"},{"name":"SERVICE","state":"NOT_STARTED"}],"operationType":"CREATE_FUNCTION","buildName":"projects/792301576889/locations/us-central1/builds/1abf6af4-1457-4d03-a224-1971553b2d68"},"done":false}
+[debug] [2024-11-23T15:36:05.599Z] [create-default-us-central1-checkKey] Retrying task index 0
+[debug] [2024-11-23T15:36:05.600Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:36:05.600Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:36:05.601Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d [none]
+[debug] [2024-11-23T15:36:05.819Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d 200
+[debug] [2024-11-23T15:36:05.819Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d {"name":"projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d","metadata":{"@type":"type.googleapis.com/google.cloud.functions.v2.OperationMetadata","createTime":"2024-11-23T15:35:48.903836993Z","target":"projects/nufriends-1aba1/locations/us-central1/functions/checkKey","verb":"create","cancelRequested":false,"apiVersion":"v2","requestResource":{"@type":"type.googleapis.com/google.cloud.functions.v2.Function","name":"projects/nufriends-1aba1/locations/us-central1/functions/checkKey","buildConfig":{"runtime":"nodejs18","entryPoint":"checkKey","source":{"storageSource":{"bucket":"gcf-v2-sources-792301576889-us-central1","object":"checkKey/function-source.zip","generation":"1732376148672243"}},"environmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""},"serviceAccount":"projects/nufriends-1aba1/serviceAccounts/792301576889-compute@developer.gserviceaccount.com","automaticUpdatePolicy":{}},"serviceConfig":{"service":"projects/nufriends-1aba1/locations/us-central1/services/checkkey","timeoutSeconds":60,"environmentVariables":{"FIREBASE_CONFIG":"{\"projectId\":\"nufriends-1aba1\",\"storageBucket\":\"nufriends-1aba1.firebasestorage.app\"}","GCLOUD_PROJECT":"nufriends-1aba1","EVENTARC_CLOUD_EVENT_SOURCE":"projects/nufriends-1aba1/locations/us-central1/services/checkKey","FUNCTION_TARGET":"checkKey","LOG_EXECUTION_ID":"true"},"ingressSettings":"ALLOW_ALL","serviceAccountEmail":"792301576889-compute@developer.gserviceaccount.com","availableMemory":"256Mi","maxInstanceRequestConcurrency":80,"availableCpu":"1"},"labels":{"deployment-tool":"cli-firebase","deployment-callable":"true","firebase-functions-hash":"7e0fa7731e46f2ca8dae434de4e01823a92ca84c"},"environment":"GEN_2"},"stages":[{"name":"BUILD","message":"Build in progress","state":"IN_PROGRESS","resource":"projects/792301576889/locations/us-central1/builds/1abf6af4-1457-4d03-a224-1971553b2d68","resourceUri":"https://console.cloud.google.com/cloud-build/builds;region=us-central1/1abf6af4-1457-4d03-a224-1971553b2d68?project=792301576889"},{"name":"SERVICE","state":"NOT_STARTED"}],"operationType":"CREATE_FUNCTION","buildName":"projects/792301576889/locations/us-central1/builds/1abf6af4-1457-4d03-a224-1971553b2d68"},"done":false}
+[debug] [2024-11-23T15:36:15.820Z] [create-default-us-central1-checkKey] Retrying task index 0
+[debug] [2024-11-23T15:36:15.821Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:36:15.821Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:36:15.821Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d [none]
+[debug] [2024-11-23T15:36:16.071Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d 200
+[debug] [2024-11-23T15:36:16.071Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d {"name":"projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d","metadata":{"@type":"type.googleapis.com/google.cloud.functions.v2.OperationMetadata","createTime":"2024-11-23T15:35:48.903836993Z","target":"projects/nufriends-1aba1/locations/us-central1/functions/checkKey","verb":"create","cancelRequested":false,"apiVersion":"v2","requestResource":{"@type":"type.googleapis.com/google.cloud.functions.v2.Function","name":"projects/nufriends-1aba1/locations/us-central1/functions/checkKey","buildConfig":{"runtime":"nodejs18","entryPoint":"checkKey","source":{"storageSource":{"bucket":"gcf-v2-sources-792301576889-us-central1","object":"checkKey/function-source.zip","generation":"1732376148672243"}},"environmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""},"serviceAccount":"projects/nufriends-1aba1/serviceAccounts/792301576889-compute@developer.gserviceaccount.com","automaticUpdatePolicy":{}},"serviceConfig":{"service":"projects/nufriends-1aba1/locations/us-central1/services/checkkey","timeoutSeconds":60,"environmentVariables":{"FIREBASE_CONFIG":"{\"projectId\":\"nufriends-1aba1\",\"storageBucket\":\"nufriends-1aba1.firebasestorage.app\"}","GCLOUD_PROJECT":"nufriends-1aba1","EVENTARC_CLOUD_EVENT_SOURCE":"projects/nufriends-1aba1/locations/us-central1/services/checkKey","FUNCTION_TARGET":"checkKey","LOG_EXECUTION_ID":"true"},"ingressSettings":"ALLOW_ALL","serviceAccountEmail":"792301576889-compute@developer.gserviceaccount.com","availableMemory":"256Mi","maxInstanceRequestConcurrency":80,"availableCpu":"1"},"labels":{"deployment-tool":"cli-firebase","deployment-callable":"true","firebase-functions-hash":"7e0fa7731e46f2ca8dae434de4e01823a92ca84c"},"environment":"GEN_2"},"stages":[{"name":"BUILD","message":"Build in progress","state":"IN_PROGRESS","resource":"projects/792301576889/locations/us-central1/builds/1abf6af4-1457-4d03-a224-1971553b2d68","resourceUri":"https://console.cloud.google.com/cloud-build/builds;region=us-central1/1abf6af4-1457-4d03-a224-1971553b2d68?project=792301576889"},{"name":"SERVICE","state":"NOT_STARTED"}],"operationType":"CREATE_FUNCTION","buildName":"projects/792301576889/locations/us-central1/builds/1abf6af4-1457-4d03-a224-1971553b2d68"},"done":false}
+[debug] [2024-11-23T15:36:26.073Z] [create-default-us-central1-checkKey] Retrying task index 0
+[debug] [2024-11-23T15:36:26.074Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:36:26.074Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:36:26.074Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d [none]
+[debug] [2024-11-23T15:36:26.309Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d 200
+[debug] [2024-11-23T15:36:26.310Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d {"name":"projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d","metadata":{"@type":"type.googleapis.com/google.cloud.functions.v2.OperationMetadata","createTime":"2024-11-23T15:35:48.903836993Z","target":"projects/nufriends-1aba1/locations/us-central1/functions/checkKey","verb":"create","cancelRequested":false,"apiVersion":"v2","requestResource":{"@type":"type.googleapis.com/google.cloud.functions.v2.Function","name":"projects/nufriends-1aba1/locations/us-central1/functions/checkKey","buildConfig":{"runtime":"nodejs18","entryPoint":"checkKey","source":{"storageSource":{"bucket":"gcf-v2-sources-792301576889-us-central1","object":"checkKey/function-source.zip","generation":"1732376148672243"}},"environmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""},"serviceAccount":"projects/nufriends-1aba1/serviceAccounts/792301576889-compute@developer.gserviceaccount.com","automaticUpdatePolicy":{}},"serviceConfig":{"service":"projects/nufriends-1aba1/locations/us-central1/services/checkkey","timeoutSeconds":60,"environmentVariables":{"FIREBASE_CONFIG":"{\"projectId\":\"nufriends-1aba1\",\"storageBucket\":\"nufriends-1aba1.firebasestorage.app\"}","GCLOUD_PROJECT":"nufriends-1aba1","EVENTARC_CLOUD_EVENT_SOURCE":"projects/nufriends-1aba1/locations/us-central1/services/checkKey","FUNCTION_TARGET":"checkKey","LOG_EXECUTION_ID":"true"},"ingressSettings":"ALLOW_ALL","serviceAccountEmail":"792301576889-compute@developer.gserviceaccount.com","availableMemory":"256Mi","maxInstanceRequestConcurrency":80,"availableCpu":"1"},"labels":{"deployment-tool":"cli-firebase","deployment-callable":"true","firebase-functions-hash":"7e0fa7731e46f2ca8dae434de4e01823a92ca84c"},"environment":"GEN_2"},"stages":[{"name":"BUILD","message":"Build in progress","state":"IN_PROGRESS","resource":"projects/792301576889/locations/us-central1/builds/1abf6af4-1457-4d03-a224-1971553b2d68","resourceUri":"https://console.cloud.google.com/cloud-build/builds;region=us-central1/1abf6af4-1457-4d03-a224-1971553b2d68?project=792301576889"},{"name":"SERVICE","state":"NOT_STARTED"}],"operationType":"CREATE_FUNCTION","buildName":"projects/792301576889/locations/us-central1/builds/1abf6af4-1457-4d03-a224-1971553b2d68"},"done":false}
+[debug] [2024-11-23T15:36:36.312Z] [create-default-us-central1-checkKey] Retrying task index 0
+[debug] [2024-11-23T15:36:36.313Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:36:36.313Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:36:36.313Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d [none]
+[debug] [2024-11-23T15:36:36.530Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d 200
+[debug] [2024-11-23T15:36:36.531Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d {"name":"projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d","metadata":{"@type":"type.googleapis.com/google.cloud.functions.v2.OperationMetadata","createTime":"2024-11-23T15:35:48.903836993Z","target":"projects/nufriends-1aba1/locations/us-central1/functions/checkKey","verb":"create","cancelRequested":false,"apiVersion":"v2","requestResource":{"@type":"type.googleapis.com/google.cloud.functions.v2.Function","name":"projects/nufriends-1aba1/locations/us-central1/functions/checkKey","buildConfig":{"runtime":"nodejs18","entryPoint":"checkKey","source":{"storageSource":{"bucket":"gcf-v2-sources-792301576889-us-central1","object":"checkKey/function-source.zip","generation":"1732376148672243"}},"environmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""},"serviceAccount":"projects/nufriends-1aba1/serviceAccounts/792301576889-compute@developer.gserviceaccount.com","automaticUpdatePolicy":{}},"serviceConfig":{"service":"projects/nufriends-1aba1/locations/us-central1/services/checkkey","timeoutSeconds":60,"environmentVariables":{"FIREBASE_CONFIG":"{\"projectId\":\"nufriends-1aba1\",\"storageBucket\":\"nufriends-1aba1.firebasestorage.app\"}","GCLOUD_PROJECT":"nufriends-1aba1","EVENTARC_CLOUD_EVENT_SOURCE":"projects/nufriends-1aba1/locations/us-central1/services/checkKey","FUNCTION_TARGET":"checkKey","LOG_EXECUTION_ID":"true"},"ingressSettings":"ALLOW_ALL","serviceAccountEmail":"792301576889-compute@developer.gserviceaccount.com","availableMemory":"256Mi","maxInstanceRequestConcurrency":80,"availableCpu":"1"},"labels":{"deployment-tool":"cli-firebase","deployment-callable":"true","firebase-functions-hash":"7e0fa7731e46f2ca8dae434de4e01823a92ca84c"},"environment":"GEN_2"},"stages":[{"name":"BUILD","message":"Build finished","state":"COMPLETE","resource":"projects/792301576889/locations/us-central1/builds/1abf6af4-1457-4d03-a224-1971553b2d68","resourceUri":"https://console.cloud.google.com/cloud-build/builds;region=us-central1/1abf6af4-1457-4d03-a224-1971553b2d68?project=792301576889"},{"name":"SERVICE","message":"Creating Cloud Run service","state":"IN_PROGRESS","resource":"projects/nufriends-1aba1/locations/us-central1/services/checkkey","resourceUri":"https://console.cloud.google.com/run/detail/us-central1/checkkey?project=nufriends-1aba1"}],"sourceToken":"Cldwcm9qZWN0cy83OTIzMDE1NzY4ODkvbG9jYXRpb25zL3VzLWNlbnRyYWwxL2J1aWxkcy8xYWJmNmFmNC0xNDU3LTRkMDMtYTIyNC0xOTcxNTUzYjJkNjgSbHVzLWNlbnRyYWwxLWRvY2tlci5wa2cuZGV2L251ZnJpZW5kcy0xYWJhMS9nY2YtYXJ0aWZhY3RzL251ZnJpZW5kcy0tMWFiYTFfX3VzLS1jZW50cmFsMV9fY2hlY2tfa2V5OnZlcnNpb25fMRi5xerGhxciQXByb2plY3RzL251ZnJpZW5kcy0xYWJhMS9sb2NhdGlvbnMvdXMtY2VudHJhbDEvZnVuY3Rpb25zL2NoZWNrS2V5KgwIge2HugYQ4KTOkwEyCG5vZGVqczE4OnYKI2djci5pby9nYWUtcnVudGltZXMvbm9kZWpzMTg6c3RhYmxlEk91cy1jZW50cmFsMS1kb2NrZXIucGtnLmRldi9zZXJ2ZXJsZXNzLXJ1bnRpbWVzL2dvb2dsZS0yMi1mdWxsL3J1bnRpbWVzL25vZGVqczE4QAE=","operationType":"CREATE_FUNCTION","buildName":"projects/792301576889/locations/us-central1/builds/1abf6af4-1457-4d03-a224-1971553b2d68"},"done":false}
+[debug] [2024-11-23T15:36:36.531Z] Got source token Cldwcm9qZWN0cy83OTIzMDE1NzY4ODkvbG9jYXRpb25zL3VzLWNlbnRyYWwxL2J1aWxkcy8xYWJmNmFmNC0xNDU3LTRkMDMtYTIyNC0xOTcxNTUzYjJkNjgSbHVzLWNlbnRyYWwxLWRvY2tlci5wa2cuZGV2L251ZnJpZW5kcy0xYWJhMS9nY2YtYXJ0aWZhY3RzL251ZnJpZW5kcy0tMWFiYTFfX3VzLS1jZW50cmFsMV9fY2hlY2tfa2V5OnZlcnNpb25fMRi5xerGhxciQXByb2plY3RzL251ZnJpZW5kcy0xYWJhMS9sb2NhdGlvbnMvdXMtY2VudHJhbDEvZnVuY3Rpb25zL2NoZWNrS2V5KgwIge2HugYQ4KTOkwEyCG5vZGVqczE4OnYKI2djci5pby9nYWUtcnVudGltZXMvbm9kZWpzMTg6c3RhYmxlEk91cy1jZW50cmFsMS1kb2NrZXIucGtnLmRldi9zZXJ2ZXJsZXNzLXJ1bnRpbWVzL2dvb2dsZS0yMi1mdWxsL3J1bnRpbWVzL25vZGVqczE4QAE= for region us-central1
+[debug] [2024-11-23T15:36:46.533Z] [create-default-us-central1-checkKey] Retrying task index 0
+[debug] [2024-11-23T15:36:46.534Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:36:46.534Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:36:46.534Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d [none]
+[debug] [2024-11-23T15:36:46.792Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d 200
+[debug] [2024-11-23T15:36:46.793Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d {"name":"projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d","metadata":{"@type":"type.googleapis.com/google.cloud.functions.v2.OperationMetadata","createTime":"2024-11-23T15:35:48.903836993Z","target":"projects/nufriends-1aba1/locations/us-central1/functions/checkKey","verb":"create","cancelRequested":false,"apiVersion":"v2","requestResource":{"@type":"type.googleapis.com/google.cloud.functions.v2.Function","name":"projects/nufriends-1aba1/locations/us-central1/functions/checkKey","buildConfig":{"runtime":"nodejs18","entryPoint":"checkKey","source":{"storageSource":{"bucket":"gcf-v2-sources-792301576889-us-central1","object":"checkKey/function-source.zip","generation":"1732376148672243"}},"environmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""},"serviceAccount":"projects/nufriends-1aba1/serviceAccounts/792301576889-compute@developer.gserviceaccount.com","automaticUpdatePolicy":{}},"serviceConfig":{"service":"projects/nufriends-1aba1/locations/us-central1/services/checkkey","timeoutSeconds":60,"environmentVariables":{"FIREBASE_CONFIG":"{\"projectId\":\"nufriends-1aba1\",\"storageBucket\":\"nufriends-1aba1.firebasestorage.app\"}","GCLOUD_PROJECT":"nufriends-1aba1","EVENTARC_CLOUD_EVENT_SOURCE":"projects/nufriends-1aba1/locations/us-central1/services/checkKey","FUNCTION_TARGET":"checkKey","LOG_EXECUTION_ID":"true"},"ingressSettings":"ALLOW_ALL","serviceAccountEmail":"792301576889-compute@developer.gserviceaccount.com","availableMemory":"256Mi","maxInstanceRequestConcurrency":80,"availableCpu":"1"},"labels":{"deployment-tool":"cli-firebase","deployment-callable":"true","firebase-functions-hash":"7e0fa7731e46f2ca8dae434de4e01823a92ca84c"},"environment":"GEN_2"},"stages":[{"name":"BUILD","message":"Build finished","state":"COMPLETE","resource":"projects/792301576889/locations/us-central1/builds/1abf6af4-1457-4d03-a224-1971553b2d68","resourceUri":"https://console.cloud.google.com/cloud-build/builds;region=us-central1/1abf6af4-1457-4d03-a224-1971553b2d68?project=792301576889"},{"name":"SERVICE","message":"Creating Cloud Run service","state":"IN_PROGRESS","resource":"projects/nufriends-1aba1/locations/us-central1/services/checkkey","resourceUri":"https://console.cloud.google.com/run/detail/us-central1/checkkey?project=nufriends-1aba1"}],"sourceToken":"Cldwcm9qZWN0cy83OTIzMDE1NzY4ODkvbG9jYXRpb25zL3VzLWNlbnRyYWwxL2J1aWxkcy8xYWJmNmFmNC0xNDU3LTRkMDMtYTIyNC0xOTcxNTUzYjJkNjgSbHVzLWNlbnRyYWwxLWRvY2tlci5wa2cuZGV2L251ZnJpZW5kcy0xYWJhMS9nY2YtYXJ0aWZhY3RzL251ZnJpZW5kcy0tMWFiYTFfX3VzLS1jZW50cmFsMV9fY2hlY2tfa2V5OnZlcnNpb25fMRi5xerGhxciQXByb2plY3RzL251ZnJpZW5kcy0xYWJhMS9sb2NhdGlvbnMvdXMtY2VudHJhbDEvZnVuY3Rpb25zL2NoZWNrS2V5KgwIge2HugYQ4KTOkwEyCG5vZGVqczE4OnYKI2djci5pby9nYWUtcnVudGltZXMvbm9kZWpzMTg6c3RhYmxlEk91cy1jZW50cmFsMS1kb2NrZXIucGtnLmRldi9zZXJ2ZXJsZXNzLXJ1bnRpbWVzL2dvb2dsZS0yMi1mdWxsL3J1bnRpbWVzL25vZGVqczE4QAE=","operationType":"CREATE_FUNCTION","buildName":"projects/792301576889/locations/us-central1/builds/1abf6af4-1457-4d03-a224-1971553b2d68"},"done":false}
+[debug] [2024-11-23T15:36:46.793Z] Got source token Cldwcm9qZWN0cy83OTIzMDE1NzY4ODkvbG9jYXRpb25zL3VzLWNlbnRyYWwxL2J1aWxkcy8xYWJmNmFmNC0xNDU3LTRkMDMtYTIyNC0xOTcxNTUzYjJkNjgSbHVzLWNlbnRyYWwxLWRvY2tlci5wa2cuZGV2L251ZnJpZW5kcy0xYWJhMS9nY2YtYXJ0aWZhY3RzL251ZnJpZW5kcy0tMWFiYTFfX3VzLS1jZW50cmFsMV9fY2hlY2tfa2V5OnZlcnNpb25fMRi5xerGhxciQXByb2plY3RzL251ZnJpZW5kcy0xYWJhMS9sb2NhdGlvbnMvdXMtY2VudHJhbDEvZnVuY3Rpb25zL2NoZWNrS2V5KgwIge2HugYQ4KTOkwEyCG5vZGVqczE4OnYKI2djci5pby9nYWUtcnVudGltZXMvbm9kZWpzMTg6c3RhYmxlEk91cy1jZW50cmFsMS1kb2NrZXIucGtnLmRldi9zZXJ2ZXJsZXNzLXJ1bnRpbWVzL2dvb2dsZS0yMi1mdWxsL3J1bnRpbWVzL25vZGVqczE4QAE= for region us-central1
+[debug] [2024-11-23T15:36:56.794Z] [create-default-us-central1-checkKey] Retrying task index 0
+[debug] [2024-11-23T15:36:56.795Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:36:56.795Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:36:56.795Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d [none]
+[debug] [2024-11-23T15:36:57.029Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d 200
+[debug] [2024-11-23T15:36:57.029Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v2/projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d {"name":"projects/nufriends-1aba1/locations/us-central1/operations/operation-1732376148343-6279640f07b1e-0ab3fe21-82530f1d","metadata":{"@type":"type.googleapis.com/google.cloud.functions.v2.OperationMetadata","createTime":"2024-11-23T15:35:48.903836993Z","endTime":"2024-11-23T15:36:46.604489195Z","target":"projects/nufriends-1aba1/locations/us-central1/functions/checkKey","verb":"create","cancelRequested":false,"apiVersion":"v2","requestResource":{"@type":"type.googleapis.com/google.cloud.functions.v2.Function","name":"projects/nufriends-1aba1/locations/us-central1/functions/checkKey","buildConfig":{"runtime":"nodejs18","entryPoint":"checkKey","source":{"storageSource":{"bucket":"gcf-v2-sources-792301576889-us-central1","object":"checkKey/function-source.zip","generation":"1732376148672243"}},"environmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""},"serviceAccount":"projects/nufriends-1aba1/serviceAccounts/792301576889-compute@developer.gserviceaccount.com","automaticUpdatePolicy":{}},"serviceConfig":{"service":"projects/nufriends-1aba1/locations/us-central1/services/checkkey","timeoutSeconds":60,"environmentVariables":{"FIREBASE_CONFIG":"{\"projectId\":\"nufriends-1aba1\",\"storageBucket\":\"nufriends-1aba1.firebasestorage.app\"}","GCLOUD_PROJECT":"nufriends-1aba1","EVENTARC_CLOUD_EVENT_SOURCE":"projects/nufriends-1aba1/locations/us-central1/services/checkKey","FUNCTION_TARGET":"checkKey","LOG_EXECUTION_ID":"true"},"ingressSettings":"ALLOW_ALL","serviceAccountEmail":"792301576889-compute@developer.gserviceaccount.com","availableMemory":"256Mi","maxInstanceRequestConcurrency":80,"availableCpu":"1"},"labels":{"deployment-tool":"cli-firebase","deployment-callable":"true","firebase-functions-hash":"7e0fa7731e46f2ca8dae434de4e01823a92ca84c"},"environment":"GEN_2"},"stages":[{"name":"BUILD","message":"Build finished","state":"COMPLETE","resource":"projects/792301576889/locations/us-central1/builds/1abf6af4-1457-4d03-a224-1971553b2d68","resourceUri":"https://console.cloud.google.com/cloud-build/builds;region=us-central1/1abf6af4-1457-4d03-a224-1971553b2d68?project=792301576889"},{"name":"SERVICE","message":"Creating Cloud Run service","state":"COMPLETE","resource":"projects/nufriends-1aba1/locations/us-central1/services/checkkey","resourceUri":"https://console.cloud.google.com/run/detail/us-central1/checkkey?project=nufriends-1aba1"}],"sourceToken":"Cldwcm9qZWN0cy83OTIzMDE1NzY4ODkvbG9jYXRpb25zL3VzLWNlbnRyYWwxL2J1aWxkcy8xYWJmNmFmNC0xNDU3LTRkMDMtYTIyNC0xOTcxNTUzYjJkNjgSbHVzLWNlbnRyYWwxLWRvY2tlci5wa2cuZGV2L251ZnJpZW5kcy0xYWJhMS9nY2YtYXJ0aWZhY3RzL251ZnJpZW5kcy0tMWFiYTFfX3VzLS1jZW50cmFsMV9fY2hlY2tfa2V5OnZlcnNpb25fMRi5xerGhxciQXByb2plY3RzL251ZnJpZW5kcy0xYWJhMS9sb2NhdGlvbnMvdXMtY2VudHJhbDEvZnVuY3Rpb25zL2NoZWNrS2V5KgwIge2HugYQ4KTOkwEyCG5vZGVqczE4OnYKI2djci5pby9nYWUtcnVudGltZXMvbm9kZWpzMTg6c3RhYmxlEk91cy1jZW50cmFsMS1kb2NrZXIucGtnLmRldi9zZXJ2ZXJsZXNzLXJ1bnRpbWVzL2dvb2dsZS0yMi1mdWxsL3J1bnRpbWVzL25vZGVqczE4QAE=","operationType":"CREATE_FUNCTION","buildName":"projects/792301576889/locations/us-central1/builds/1abf6af4-1457-4d03-a224-1971553b2d68"},"done":true,"response":{"@type":"type.googleapis.com/google.cloud.functions.v2.Function","name":"projects/nufriends-1aba1/locations/us-central1/functions/checkKey","buildConfig":{"build":"projects/792301576889/locations/us-central1/builds/1abf6af4-1457-4d03-a224-1971553b2d68","runtime":"nodejs18","entryPoint":"checkKey","source":{"storageSource":{"bucket":"gcf-v2-sources-792301576889-us-central1","object":"checkKey/function-source.zip","generation":"1732376148672243"}},"environmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""},"dockerRepository":"projects/nufriends-1aba1/locations/us-central1/repositories/gcf-artifacts","sourceProvenance":{"resolvedStorageSource":{"bucket":"gcf-v2-sources-792301576889-us-central1","object":"checkKey/function-source.zip","generation":"1732376148672243"}},"dockerRegistry":"ARTIFACT_REGISTRY","serviceAccount":"projects/nufriends-1aba1/serviceAccounts/792301576889-compute@developer.gserviceaccount.com","automaticUpdatePolicy":{}},"serviceConfig":{"service":"projects/nufriends-1aba1/locations/us-central1/services/checkkey","timeoutSeconds":60,"environmentVariables":{"FIREBASE_CONFIG":"{\"projectId\":\"nufriends-1aba1\",\"storageBucket\":\"nufriends-1aba1.firebasestorage.app\"}","GCLOUD_PROJECT":"nufriends-1aba1","EVENTARC_CLOUD_EVENT_SOURCE":"projects/nufriends-1aba1/locations/us-central1/services/checkKey","FUNCTION_TARGET":"checkKey","LOG_EXECUTION_ID":"true"},"maxInstanceCount":100,"ingressSettings":"ALLOW_ALL","uri":"https://checkkey-uiupfc765q-uc.a.run.app","serviceAccountEmail":"792301576889-compute@developer.gserviceaccount.com","availableMemory":"256Mi","allTrafficOnLatestRevision":true,"revision":"checkkey-00001-kid","maxInstanceRequestConcurrency":80,"availableCpu":"1"},"state":"ACTIVE","updateTime":"2024-11-23T15:35:48.899193794Z","labels":{"deployment-tool":"cli-firebase","deployment-callable":"true","firebase-functions-hash":"7e0fa7731e46f2ca8dae434de4e01823a92ca84c"},"environment":"GEN_2","url":"https://us-central1-nufriends-1aba1.cloudfunctions.net/checkKey","createTime":"2024-11-23T15:35:48.899193794Z"}}
+[debug] [2024-11-23T15:36:57.029Z] Got source token Cldwcm9qZWN0cy83OTIzMDE1NzY4ODkvbG9jYXRpb25zL3VzLWNlbnRyYWwxL2J1aWxkcy8xYWJmNmFmNC0xNDU3LTRkMDMtYTIyNC0xOTcxNTUzYjJkNjgSbHVzLWNlbnRyYWwxLWRvY2tlci5wa2cuZGV2L251ZnJpZW5kcy0xYWJhMS9nY2YtYXJ0aWZhY3RzL251ZnJpZW5kcy0tMWFiYTFfX3VzLS1jZW50cmFsMV9fY2hlY2tfa2V5OnZlcnNpb25fMRi5xerGhxciQXByb2plY3RzL251ZnJpZW5kcy0xYWJhMS9sb2NhdGlvbnMvdXMtY2VudHJhbDEvZnVuY3Rpb25zL2NoZWNrS2V5KgwIge2HugYQ4KTOkwEyCG5vZGVqczE4OnYKI2djci5pby9nYWUtcnVudGltZXMvbm9kZWpzMTg6c3RhYmxlEk91cy1jZW50cmFsMS1kb2NrZXIucGtnLmRldi9zZXJ2ZXJsZXNzLXJ1bnRpbWVzL2dvb2dsZS0yMi1mdWxsL3J1bnRpbWVzL25vZGVqczE4QAE= for region us-central1
+[debug] [2024-11-23T15:36:57.030Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:36:57.031Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:36:57.031Z] >>> [apiv2][query] POST https://run.googleapis.com/v1/projects/nufriends-1aba1/locations/us-central1/services/checkkey:setIamPolicy [none]
+[debug] [2024-11-23T15:36:57.031Z] >>> [apiv2][body] POST https://run.googleapis.com/v1/projects/nufriends-1aba1/locations/us-central1/services/checkkey:setIamPolicy {"policy":{"bindings":[{"role":"roles/run.invoker","members":["allUsers"]}],"etag":"","version":3},"updateMask":"bindings,etag,version"}
+[debug] [2024-11-23T15:36:57.455Z] <<< [apiv2][status] POST https://run.googleapis.com/v1/projects/nufriends-1aba1/locations/us-central1/services/checkkey:setIamPolicy 400
+[debug] [2024-11-23T15:36:57.455Z] <<< [apiv2][body] POST https://run.googleapis.com/v1/projects/nufriends-1aba1/locations/us-central1/services/checkkey:setIamPolicy {"error":{"code":400,"message":"One or more users named in the policy do not belong to a permitted customer,  perhaps due to an organization policy.","status":"FAILED_PRECONDITION"}}
+[error] Failed to set the IAM Policy on the Service projects/nufriends-1aba1/locations/us-central1/services/checkkey
+[debug] [2024-11-23T15:36:57.464Z] Total Function Deployment time: 69335
+[debug] [2024-11-23T15:36:57.464Z] 2 Functions Deployed
+[debug] [2024-11-23T15:36:57.464Z] 1 Functions Errored
+[debug] [2024-11-23T15:36:57.464Z] 1 Function Deployments Aborted
+[debug] [2024-11-23T15:36:57.464Z] Average Function Deployment time: 69334
+[info] 
+[info] Functions deploy had errors with the following functions:
+	checkKey(us-central1)
+[info] 
+[info] Unable to set the invoker for the IAM policy on the following functions:
+	checkKey(us-central1)
+[info] 
+[info] Some common causes of this:
+[info] 
+[info] - You may not have the roles/functions.admin IAM role. Note that roles/functions.developer does not allow you to change IAM policies.
+[info] 
+[info] - An organization policy that restricts Network Access on your project.
+[info] 
+[info] Because there were errors creating or updating functions, the following functions were not deleted
+	testSecretAccess(us-central1)
+[info] To delete these, use firebase functions:delete
+[info] i  functions: cleaning up build files... 
+[debug] [2024-11-23T15:36:57.527Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:36:57.528Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:36:57.528Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:36:57.528Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:36:57.528Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:36:57.528Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:36:57.528Z] >>> [apiv2][query] DELETE https://artifactregistry.googleapis.com/v1beta2/projects/nufriends-1aba1/locations/us-central1/repositories/gcf-artifacts/packages/check_key [none]
+[debug] [2024-11-23T15:36:57.528Z] >>> [apiv2][query] DELETE https://artifactregistry.googleapis.com/v1beta2/projects/nufriends-1aba1/locations/us-central1/repositories/gcf-artifacts/packages/test_secret_access [none]
+[debug] [2024-11-23T15:36:57.529Z] >>> [apiv2][query] GET https://us.gcr.io/v2/nufriends-1aba1/gcf/us-central1/tags/list [none]
+[debug] [2024-11-23T15:36:57.841Z] <<< [apiv2][status] DELETE https://artifactregistry.googleapis.com/v1beta2/projects/nufriends-1aba1/locations/us-central1/repositories/gcf-artifacts/packages/test_secret_access 404
+[debug] [2024-11-23T15:36:57.842Z] <<< [apiv2][body] DELETE https://artifactregistry.googleapis.com/v1beta2/projects/nufriends-1aba1/locations/us-central1/repositories/gcf-artifacts/packages/test_secret_access {"error":{"code":404,"message":"Package \"projects/nufriends-1aba1/locations/us-central1/repositories/gcf-artifacts/packages/test_secret_access\" was not found.","status":"NOT_FOUND"}}
+[debug] [2024-11-23T15:36:57.850Z] <<< [apiv2][status] GET https://us.gcr.io/v2/nufriends-1aba1/gcf/us-central1/tags/list 404
+[debug] [2024-11-23T15:36:57.850Z] <<< [apiv2][body] GET https://us.gcr.io/v2/nufriends-1aba1/gcf/us-central1/tags/list {"errors":[{"code":"NAME_UNKNOWN","message":"Repository \"us.gcr.io\" not found"}]}
+[debug] [2024-11-23T15:36:57.850Z] Failed docker command with error  Request to https://us.gcr.io/v2/nufriends-1aba1/gcf/us-central1/tags/list had HTTP Error: 404, Not Found {"name":"FirebaseError","children":[],"context":{"body":{"errors":[{"code":"NAME_UNKNOWN","message":"Repository \"us.gcr.io\" not found"}],"error":{"message":"Not Found"}},"response":{"statusCode":404}},"exit":1,"message":"Request to https://us.gcr.io/v2/nufriends-1aba1/gcf/us-central1/tags/list had HTTP Error: 404, Not Found","status":404}
+[debug] [2024-11-23T15:36:57.854Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:36:57.854Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:36:57.854Z] >>> [apiv2][query] GET https://us.gcr.io/v2/nufriends-1aba1/gcf/us-central1/tags/list [none]
+[debug] [2024-11-23T15:36:57.864Z] <<< [apiv2][status] DELETE https://artifactregistry.googleapis.com/v1beta2/projects/nufriends-1aba1/locations/us-central1/repositories/gcf-artifacts/packages/check_key 404
+[debug] [2024-11-23T15:36:57.864Z] <<< [apiv2][body] DELETE https://artifactregistry.googleapis.com/v1beta2/projects/nufriends-1aba1/locations/us-central1/repositories/gcf-artifacts/packages/check_key {"error":{"code":404,"message":"Package \"projects/nufriends-1aba1/locations/us-central1/repositories/gcf-artifacts/packages/check_key\" was not found.","status":"NOT_FOUND"}}
+[debug] [2024-11-23T15:36:58.021Z] <<< [apiv2][status] GET https://us.gcr.io/v2/nufriends-1aba1/gcf/us-central1/tags/list 404
+[debug] [2024-11-23T15:36:58.021Z] <<< [apiv2][body] GET https://us.gcr.io/v2/nufriends-1aba1/gcf/us-central1/tags/list {"errors":[{"code":"NAME_UNKNOWN","message":"Repository \"us.gcr.io\" not found"}]}
+[debug] [2024-11-23T15:36:58.021Z] Failed docker command with error  Request to https://us.gcr.io/v2/nufriends-1aba1/gcf/us-central1/tags/list had HTTP Error: 404, Not Found {"name":"FirebaseError","children":[],"context":{"body":{"errors":[{"code":"NAME_UNKNOWN","message":"Repository \"us.gcr.io\" not found"}],"error":{"message":"Not Found"}},"response":{"statusCode":404}},"exit":1,"message":"Request to https://us.gcr.io/v2/nufriends-1aba1/gcf/us-central1/tags/list had HTTP Error: 404, Not Found","status":404}
+[debug] [2024-11-23T15:36:58.123Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:36:58.123Z] Checked if tokens are valid: true, expires at: 1732378233060
+[debug] [2024-11-23T15:36:58.124Z] >>> [apiv2][query] GET https://us.gcr.io/v2/nufriends-1aba1/gcf/us-central1/tags/list [none]
+[debug] [2024-11-23T15:36:58.294Z] <<< [apiv2][status] GET https://us.gcr.io/v2/nufriends-1aba1/gcf/us-central1/tags/list 404
+[debug] [2024-11-23T15:36:58.294Z] <<< [apiv2][body] GET https://us.gcr.io/v2/nufriends-1aba1/gcf/us-central1/tags/list {"errors":[{"code":"NAME_UNKNOWN","message":"Repository \"us.gcr.io\" not found"}]}
+[debug] [2024-11-23T15:36:58.295Z] Failed docker command with error  Request to https://us.gcr.io/v2/nufriends-1aba1/gcf/us-central1/tags/list had HTTP Error: 404, Not Found {"name":"FirebaseError","children":[],"context":{"body":{"errors":[{"code":"NAME_UNKNOWN","message":"Repository \"us.gcr.io\" not found"}],"error":{"message":"Not Found"}},"response":{"statusCode":404}},"exit":1,"message":"Request to https://us.gcr.io/v2/nufriends-1aba1/gcf/us-central1/tags/list had HTTP Error: 404, Not Found","status":404}
+[warn] ⚠  functions: Unhandled error cleaning up build images. This could result in a small monthly bill if not corrected. You can attempt to delete these images by redeploying or you can delete them manually at https://console.cloud.google.com/gcr/images/nufriends-1aba1/us/gcf 
+[debug] [2024-11-23T15:36:58.296Z] Functions deploy failed.
+[debug] [2024-11-23T15:36:58.296Z] {
+  "endpoint": {
+    "id": "checkKey",
+    "project": "nufriends-1aba1",
+    "region": "us-central1",
+    "entryPoint": "checkKey",
+    "platform": "gcfv2",
+    "runtime": "nodejs18",
+    "callableTrigger": {},
+    "labels": {
+      "deployment-tool": "cli-firebase"
+    },
+    "ingressSettings": null,
+    "availableMemoryMb": 256,
+    "serviceAccount": null,
+    "timeoutSeconds": null,
+    "maxInstances": null,
+    "minInstances": null,
+    "concurrency": 80,
+    "vpc": null,
+    "environmentVariables": {
+      "FIREBASE_CONFIG": "{\"projectId\":\"nufriends-1aba1\",\"storageBucket\":\"nufriends-1aba1.firebasestorage.app\"}",
+      "GCLOUD_PROJECT": "nufriends-1aba1",
+      "EVENTARC_CLOUD_EVENT_SOURCE": "projects/nufriends-1aba1/locations/us-central1/services/checkKey"
+    },
+    "codebase": "default",
+    "cpu": 1,
+    "targetedByOnly": false,
+    "hash": "7e0fa7731e46f2ca8dae434de4e01823a92ca84c",
+    "uri": "https://us-central1-nufriends-1aba1.cloudfunctions.net/checkKey",
+    "runServiceId": "checkkey"
+  },
+  "op": "set invoker",
+  "original": {
+    "name": "FirebaseError",
+    "children": [],
+    "exit": 1,
+    "message": "Failed to set the IAM Policy on the Service projects/nufriends-1aba1/locations/us-central1/services/checkkey",
+    "original": {
+      "name": "FirebaseError",
+      "children": [],
+      "context": {
+        "body": {
+          "error": {
+            "code": 400,
+            "message": "One or more users named in the policy do not belong to a permitted customer,  perhaps due to an organization policy.",
+            "status": "FAILED_PRECONDITION"
+          }
+        },
+        "response": {
+          "statusCode": 400
+        }
+      },
+      "exit": 1,
+      "message": "Request to https://run.googleapis.com/v1/projects/nufriends-1aba1/locations/us-central1/services/checkkey:setIamPolicy had HTTP Error: 400, One or more users named in the policy do not belong to a permitted customer,  perhaps due to an organization policy.",
+      "status": 400
+    },
+    "status": 400,
+    "code": 400
+  }
+}
+[debug] [2024-11-23T15:36:58.296Z] {
+  "endpoint": {
+    "platform": "gcfv2",
+    "id": "testSecretAccess",
+    "project": "nufriends-1aba1",
+    "region": "us-central1",
+    "callableTrigger": {},
+    "entryPoint": "testSecretAccess",
+    "runtime": "nodejs18",
+    "source": {
+      "storageSource": {
+        "bucket": "gcf-v2-sources-792301576889-us-central1",
+        "object": "testSecretAccess/function-source.zip",
+        "generation": "1732375076310226"
+      }
+    },
+    "ingressSettings": "ALLOW_ALL",
+    "environmentVariables": {
+      "FIREBASE_CONFIG": "{\"projectId\":\"nufriends-1aba1\",\"storageBucket\":\"nufriends-1aba1.firebasestorage.app\"}",
+      "GCLOUD_PROJECT": "nufriends-1aba1",
+      "EVENTARC_CLOUD_EVENT_SOURCE": "projects/nufriends-1aba1/locations/us-central1/services/testSecretAccess",
+      "FUNCTION_TARGET": "testSecretAccess",
+      "LOG_EXECUTION_ID": "true"
+    },
+    "timeoutSeconds": 60,
+    "uri": "https://us-central1-nufriends-1aba1.cloudfunctions.net/testSecretAccess",
+    "serviceAccount": "792301576889-compute@developer.gserviceaccount.com",
+    "availableMemoryMb": 256,
+    "cpu": 1,
+    "maxInstances": 100,
+    "concurrency": 80,
+    "labels": {
+      "deployment-tool": "cli-firebase",
+      "deployment-callable": "true",
+      "firebase-functions-hash": "115aaa3d7c4186a3894f3fd3928de43fc69e1dad"
+    },
+    "runServiceId": "testsecretaccess",
+    "codebase": "default",
+    "hash": "115aaa3d7c4186a3894f3fd3928de43fc69e1dad"
+  },
+  "op": "delete",
+  "original": {}
+}
+[error] Error: There was an error deploying functions:
+[error] - Error Failed to set invoker function checkKey in region us-central1
+[error] - Error Failed to delete function testSecretAccess in region us-central1
