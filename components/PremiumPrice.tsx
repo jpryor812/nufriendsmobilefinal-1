@@ -3,46 +3,43 @@ import { View, Text, StyleSheet } from 'react-native';
 
 interface PremiumPriceProps {
   billingPeriod: 'monthly' | 'annual';
+  premiumType: 'premium' | 'social-butterfly';
 }
 
-const PremiumPrice: React.FC<PremiumPriceProps> = ({ billingPeriod }) => {
-    const monthlyPrice = 6.99;
-    const annualEquivalent = 2.79;
-    const twoYearTotal = 66.99;
-  
+const PremiumPrice: React.FC<PremiumPriceProps> = ({ billingPeriod, premiumType }) => {
+    const prices = {
+        premium: { monthly: 6.99, annual: 2.79 }, // Annual is equivalent per month
+        'social-butterfly': { monthly: 9.99, annual: 3.25 }, // Example pricing
+    };
+
+    const twoYearTotal = premiumType === 'premium' ? 66.99 : 77.99; // Adjust for premium type
+
     return (
-      <View style={styles.container}>
-        {billingPeriod === 'annual' && (
-          <View style={styles.totalContainer}>
-            <Text style={styles.totalPayment}>
-              ${twoYearTotal} payment for a two-year subscription
-            </Text>
-          </View>
-        )}
-        <View style={styles.priceSection}>
-          <Text style={styles.equivalentText}>
-            {billingPeriod === 'annual' ? 'Equivalent to:' : 'All of these amazing features for:'}
-          </Text>
-          <View style={styles.priceContainer}>
-            <Text style={[
-              styles.price,
-              billingPeriod === 'annual' ? styles.annualPrice : styles.monthlyPrice
-            ]}>
-              ${billingPeriod === 'monthly' ? monthlyPrice : annualEquivalent}
-            </Text>
-            <Text style={styles.period}>/month</Text>
-          </View>
-          {billingPeriod === 'monthly' && (
-            <View style={styles.bottomTextContainer}>
-              <Text style={styles.bottomText}>
-                Just one less cup of Starbucks per month! 😄
-              </Text>
+        <View style={styles.container}>
+            {billingPeriod === 'annual' && (
+                <View style={styles.totalContainer}>
+                    <Text style={styles.totalPayment}>
+                        ${twoYearTotal} payment for a two-year subscription
+                    </Text>
+                </View>
+            )}
+            <View style={styles.priceSection}>
+                <Text style={styles.equivalentText}>
+                    {billingPeriod === 'annual' ? 'Equivalent to:' : 'All of these amazing features for:'}
+                </Text>
+                <View style={styles.priceContainer}>
+                    <Text style={[
+                        styles.price,
+                        billingPeriod === 'annual' ? styles.annualPrice : styles.monthlyPrice
+                    ]}>
+                        ${prices[premiumType][billingPeriod]}
+                    </Text>
+                    <Text style={styles.period}>/month</Text>
+                </View>
             </View>
-          )}
         </View>
-      </View>
     );
-  };
+};
   
   const styles = StyleSheet.create({
     container: {
@@ -53,7 +50,7 @@ const PremiumPrice: React.FC<PremiumPriceProps> = ({ billingPeriod }) => {
       backgroundColor: '#fff',
         borderRadius: 30,
         marginHorizontal: 32,
-        marginTop: 2,
+        marginTop: 12,
     },
     totalContainer: {
       backgroundColor: '#F3F4F6',

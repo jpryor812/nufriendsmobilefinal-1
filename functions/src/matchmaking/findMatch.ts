@@ -2,44 +2,215 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 import OpenAI from 'openai';
 import * as admin from 'firebase-admin';
+import { Timestamp } from 'firebase-admin/firestore';
+
 
 if (!admin.apps.length) {
-  admin.initializeApp();
-}
+    admin.initializeApp({
+      credential: admin.credential.applicationDefault()
+    });
+  }
 
 const db = admin.firestore();
 const MINIMUM_COMPATIBILITY = 65;
 
 interface UserProfile {
-  id: string;
-  demographics: {
-    age: number;
-  };
-  onboarding: {
-    responses: {
-      [key: string]: {
-        answer: string;
-        updatedAt: number | null;
+    uid: string;
+    username: string;
+    demographics: {
+      age: number;
+      birthDate: number;
+      city: string;
+      gender: string;
+      state: string;
+    };
+    onboarding: {
+      responses: {
+        aspirations: { answer: string; updatedAt: null };
+        entertainment: { answer: string; updatedAt: null };
+        hobbies: { answer: string; updatedAt: null };
+        location: { answer: string; updatedAt: null };
+        music: { answer: string; updatedAt: null };
+        relationships: { answer: string; updatedAt: null };
+        travel: { answer: string; updatedAt: null };
+      };
+      status: {
+        completedAt: Timestamp;
+        isComplete: boolean;
+        lastUpdated: Timestamp;
       };
     };
-  };
-  lastMatchTimestamp: number;
-  matchCount: number;
-}
+    stats: {
+      aiInteractions: number;
+      conversationsStarted: number;
+      messagesSent: number;
+    };
+    matches?: {  // Added this field
+        [matchId: string]: {
+          userId: string;
+          timestamp: number;
+          status: 'active' | 'archived';
+        };
+    };
+  }
+  
+  interface MatchRecord {
+    users: [string, string];
+    timestamp: number;
+    compatibilityScore: number;
+    waitingScore: number;
+    finalScore: number;
+    matchNumber: number;
+    isInitialMatch: boolean;
+    matchQuality: {
+      messageCount: number;
+      conversationLength: number;
+      lastMessageTimestamp: number | null;
+    };
+  }
+  interface MatchResponse {
+    match: {
+      userId: string;
+      compatibilityScore: number;
+    };
+  }
+  export const testFunction = onCall({}, async (request) => {
+    // Log everything about the request
+    console.log('Test function received request:', {
+      hasAuth: !!request.auth,
+      uid: request.auth?.uid,
+      headers: request.rawRequest.headers
+    });
+  
+    // Don't even check auth, just return success
+    return { 
+      message: "hello",
+      receivedAuth: !!request.auth,
+      receivedUid: request.auth?.uid
+    };
+  });
 
-interface MatchRecord {
-  users: [string, string];
-  timestamp: number;
-  compatibilityScore: number;
-  waitingScore: number;
-  finalScore: number;
-  matchNumber: number;
-  isInitialMatch: boolean;
-  matchQuality: {
-    messageCount: number;
-    conversationLength: number;
-    lastMessageTimestamp: number | null;
-  };
+  export const findMatch = onCall({ 
+    memory: "1GiB",
+    timeoutSeconds: 300,
+  }, async (request) => {
+    console.log('Request auth:', {
+      hasAuth: !!request.auth,
+      authUid: request.auth?.uid,
+      rawHeaders: request.rawRequest.headers,
+    });
+      
+    try {
+      if (!request.auth) {
+        console.log("No auth found in request");
+        throw new HttpsError(
+          'unauthenticated',
+          'Must be authenticated to use this function'
+        );
+      }
+  
+      const { userId } = request.data;
+      console.log("Processing for user:", userId);
+  
+      // Verify the requesting user matches the userId
+      if (request.auth.uid !== userId) {
+        console.log("UID mismatch:", {
+          requestUid: request.auth.uid,
+          providedUserId: userId
+        });
+        throw new HttpsError(
+          'permission-denied',
+          'User ID does not match authenticated user'
+        );
+      }
+  
+        console.log("Processing for user:", userId);
+  
+    const userRef = db.collection('users').doc(userId);
+    const userDoc = await userRef.get();
+    const userData = userDoc.data() as UserProfile;
+    if (!userData) {
+      throw new HttpsError(  // Changed from functions.https.HttpsError
+        'not-found',
+        'User profile not found'
+      );
+    }
+
+  const potentialMatches = await getPotentialMatches(userId, userData.demographics.age);
+
+  let attempts = 0;
+  const maxAttempts = 3;
+  let match: MatchResponse | undefined;
+
+  while (attempts < maxAttempts) {
+    try {
+        match = await findMatchWithGPT(userData, potentialMatches as UserProfile[]);
+        break;
+    } catch (error) {
+      attempts++;
+      if (attempts === maxAttempts) {
+        throw error;
+      }
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  }
+
+  if (!match || !match.match) {
+    throw new HttpsError(  // Changed from functions.https.HttpsError
+      'internal',
+      'No valid match found'
+    );
+  }
+
+// Calculate last match time from matches object
+const lastMatchTimestamp = userData.matches ? 
+Math.max(...Object.values(userData.matches).map(m => m.timestamp)) :
+0;
+
+const hoursSinceLastMatch = lastMatchTimestamp ? 
+(Date.now() - lastMatchTimestamp) / (1000 * 60 * 60) :
+48; // If no matches yet, set to 48 hours
+
+const waitingScore = calculateWaitingScore(hoursSinceLastMatch);
+const finalScore = (match.match.compatibilityScore * 0.7) + (waitingScore * 0.3);
+
+// Calculate match number from existing matches
+const currentMatchCount = userData.matches ? Object.keys(userData.matches).length : 0;
+
+const matchId = await recordMatch(userId, match.match.userId, {
+compatibilityScore: match.match.compatibilityScore,
+waitingScore,
+finalScore,
+matchNumber: currentMatchCount + 1,
+isInitialMatch: currentMatchCount < 5
+});
+
+return {
+matchId,
+userId: match.match.userId,
+scores: {
+compatibility: match.match.compatibilityScore,
+waiting: waitingScore,
+final: finalScore
+}
+};
+
+} catch (error) {
+    console.error('Friend matching error:', error);
+    throw new HttpsError(  // Changed from functions.https.HttpsError
+      'internal',
+      'Error processing friend match',
+      error instanceof Error ? error.message : 'Unknown error'
+    );
+  }
+});
+
+function shuffleArray<T>(array: T[]): T[] {
+for (let i = array.length - 1; i > 0; i--) {
+  const j = Math.floor(Math.random() * (i + 1));
+  [array[i], array[j]] = [array[j], array[i]];
+}
+return array;
 }
 
 // Age range helper
@@ -70,46 +241,47 @@ function calculateWaitingScore(hoursSinceLastMatch: number): number {
 
 // Profile preparation for GPT
 function prepareProfileForGPT(user: UserProfile) {
-  const { responses } = user.onboarding;
-  return {
-    userId: user.id,
-    age: user.demographics.age,
-    interests: {
-      creative: responses.hobbies?.answer,
-      lifestyle: responses.location?.answer,
-      relationships: responses.relationships?.answer,
-      music: responses.music?.answer,
-      entertainment: responses.entertainment?.answer,
-      travel: responses.travel?.answer,
-      goals: responses.aspirations?.answer
-    }
-  };
-}
+    const { responses } = user.onboarding;
+    return {
+      userId: user.uid,  // Changed from user.id to user.uid
+      username: user.username,
+      demographics: user.demographics,
+      interests: {
+        creative: responses.hobbies?.answer,
+        lifestyle: responses.location?.answer,
+        relationships: responses.relationships?.answer,
+        music: responses.music?.answer,
+        entertainment: responses.entertainment?.answer,
+        travel: responses.travel?.answer,
+        goals: responses.aspirations?.answer
+      }
+    };
+  }
 
 // Get potential matches
 async function getPotentialMatches(userId: string, userAge: number) {
-  const { minAge, maxAge } = getAgeRange(userAge);
-  const usersRef = db.collection('users');
-
-  const eligibleMatches = await usersRef
-    .where('demographics.age', '>=', minAge)
-    .where('demographics.age', '<=', maxAge)
-    .where(admin.firestore.FieldPath.documentId(), '!=', userId)
-    .where('lastMatchTimestamp', '<', Date.now() - (24 * 60 * 60 * 1000))
-    .get();
-
-  let potentialMatches = eligibleMatches.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  }));
-
-  // Limit to 40 users
-  if (potentialMatches.length > 40) {
-    potentialMatches = shuffleArray(potentialMatches).slice(0, 40);
+    const { minAge, maxAge } = getAgeRange(userAge);
+    const usersRef = db.collection('users');
+  
+    const eligibleMatches = await usersRef
+      .where('demographics.age', '>=', minAge)
+      .where('demographics.age', '<=', maxAge)
+      .where('onboarding.status.isComplete', '==', true)  
+      .where(admin.firestore.FieldPath.documentId(), '!=', userId)
+      .get();
+  
+    let potentialMatches = eligibleMatches.docs.map(doc => ({
+      uid: doc.id,  
+      ...doc.data()
+    }));
+  
+    // Limit to 40 users
+    if (potentialMatches.length > 40) {
+      potentialMatches = shuffleArray(potentialMatches).slice(0, 40);
+    }
+  
+    return potentialMatches;
   }
-
-  return potentialMatches;
-}
 
 // GPT matching functions
 async function getOpenAIKey() {
@@ -186,28 +358,27 @@ async function findMatchWithGPT(
 
   // Check minimum compatibility
   if (match.compatibilityScore < MINIMUM_COMPATIBILITY) {
-    const hoursSinceLastMatch = (Date.now() - userProfile.lastMatchTimestamp) / (1000 * 60 * 60);
-    
-    if (hoursSinceLastMatch > 46) {
-      return match;
-    }
-
-    const newPotentialMatches = potentialMatches.filter(p => p.id !== match.match.userId);
-    
-    if (newPotentialMatches.length > 0) {
-      return findMatchWithGPT(userProfile, newPotentialMatches);
-    }
+    const lastMatchTimestamp = userProfile.matches ? 
+    Math.max(...Object.values(userProfile.matches).map(m => m.timestamp)) :
+    0;
+  
+  const hoursSinceLastMatch = lastMatchTimestamp ? 
+    (Date.now() - lastMatchTimestamp) / (1000 * 60 * 60) :
+    48; // If no matches yet, set to 48 hours to allow matching
+  
+  if (hoursSinceLastMatch > 46) {
+    return match;
   }
 
-  return match;
+  const newPotentialMatches = potentialMatches.filter(p => p.uid !== match.match.userId);
+  
+  if (newPotentialMatches.length > 0) {
+    return findMatchWithGPT(userProfile, newPotentialMatches);
+  }
 }
-// Record match in database
-interface MatchResponse {
-    match: {
-      userId: string;
-      compatibilityScore: number;
-    };
-  }
+
+return match;
+}
   
   async function recordMatch(userId1: string, userId2: string, matchDetails: {
     compatibilityScore: number;
@@ -233,122 +404,31 @@ interface MatchResponse {
     
     batch.set(matchRef, matchRecord);
   
-    // Update both users
-    const user1Ref = db.collection('users').doc(userId1);
-    const user2Ref = db.collection('users').doc(userId2);
-  
-    batch.update(user1Ref, {
-      matchCount: admin.firestore.FieldValue.increment(1),
-      lastMatchTimestamp: timestamp,
-      matches: admin.firestore.FieldValue.arrayUnion({
-        matchId: matchRef.id,
+    // Update both users' stats
+    const matchData = {
         userId: userId2,
-        timestamp
-      })
-    });
-  
-    batch.update(user2Ref, {
-      matchCount: admin.firestore.FieldValue.increment(1),
-      lastMatchTimestamp: timestamp,
-      matches: admin.firestore.FieldValue.arrayUnion({
-        matchId: matchRef.id,
-        userId: userId1,
-        timestamp
-      })
-    });
-  
-    await batch.commit();
-    return matchRef.id;
-  }
-  
-  export const findMatch = onCall(
-    { 
-      memory: "1GiB",
-      timeoutSeconds: 300
-    }, 
-    async (request) => {  // We use 'request' instead of separate data/context
-      try {
-        if (!request.auth) {  // Use request.auth instead of context.auth
-          throw new HttpsError(  // Use HttpsError directly, not functions.https.HttpsError
-            'unauthenticated',
-            'Must be authenticated to use this function'
-          );
-        }
-  
-        const { userId } = request.data; 
-      
-        const userRef = db.collection('users').doc(userId);
-        const userDoc = await userRef.get();
-        const userData = userDoc.data() as UserProfile;
-        if (!userData) {
-          throw new HttpsError(  // Changed from functions.https.HttpsError
-            'not-found',
-            'User profile not found'
-          );
-        }
-  
-      const potentialMatches = await getPotentialMatches(userId, userData.demographics.age);
-  
-      let attempts = 0;
-      const maxAttempts = 3;
-      let match: MatchResponse | undefined;
-  
-      while (attempts < maxAttempts) {
-        try {
-            match = await findMatchWithGPT(userData, potentialMatches as UserProfile[]);
-            break;
-        } catch (error) {
-          attempts++;
-          if (attempts === maxAttempts) {
-            throw error;
-          }
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-      }
-  
-      if (!match || !match.match) {
-        throw new HttpsError(  // Changed from functions.https.HttpsError
-          'internal',
-          'No valid match found'
-        );
-      }
-  
-      const hoursSinceLastMatch = (Date.now() - userData.lastMatchTimestamp) / (1000 * 60 * 60);
-      const waitingScore = calculateWaitingScore(hoursSinceLastMatch);
-      const finalScore = (match.match.compatibilityScore * 0.7) + (waitingScore * 0.3);
-  
-      const matchId = await recordMatch(userId, match.match.userId, {
-        compatibilityScore: match.match.compatibilityScore,
-        waitingScore,
-        finalScore,
-        matchNumber: userData.matchCount + 1,
-        isInitialMatch: userData.matchCount < 5
-      });
-  
-      return {
-        matchId,
-        userId: match.match.userId,
-        scores: {
-          compatibility: match.match.compatibilityScore,
-          waiting: waitingScore,
-          final: finalScore
-        }
+        timestamp: timestamp,
+        status: 'active' as const
       };
-  
-    } catch (error) {
-        console.error('Friend matching error:', error);
-        throw new HttpsError(  // Changed from functions.https.HttpsError
-          'internal',
-          'Error processing friend match',
-          error instanceof Error ? error.message : 'Unknown error'
-        );
-      }
-    });
-  
-  function shuffleArray<T>(array: T[]): T[] {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
+    
+      const matchData2 = {
+        userId: userId1,
+        timestamp: timestamp,
+        status: 'active' as const
+      };
+    
+      // Update first user
+      batch.update(db.collection('users').doc(userId1), {
+        'stats.conversationsStarted': admin.firestore.FieldValue.increment(1),
+        [`matches.${matchRef.id}`]: matchData
+      });
+    
+      // Update second user
+      batch.update(db.collection('users').doc(userId2), {
+        'stats.conversationsStarted': admin.firestore.FieldValue.increment(1),
+        [`matches.${matchRef.id}`]: matchData2
+      });
+    
+      await batch.commit();
+      return matchRef.id;
     }
-    return array;
-  }

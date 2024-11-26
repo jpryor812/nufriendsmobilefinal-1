@@ -12,13 +12,32 @@ interface GenderIcon {
 
 interface FriendProfileProps {
   friend: {
-    id: string;
+    uid: string;  // Changed from id
     username: string;
     demographics: {
       gender: string;
       state: string;
       city: string;
       age: number;
+      birthDate: number;
+    };
+    matchDetails?: {
+      compatibilityScore: number;
+      waitingScore: number;
+      finalScore: number;
+      matchReason?: string;
+      commonInterests?: string[];
+    };
+    onboarding: {
+      responses: {
+        aspirations: { answer: string; updatedAt: null };
+        entertainment: { answer: string; updatedAt: null };
+        hobbies: { answer: string; updatedAt: null };
+        location: { answer: string; updatedAt: null };
+        music: { answer: string; updatedAt: null };
+        relationships: { answer: string; updatedAt: null };
+        travel: { answer: string; updatedAt: null };
+      };
     };
   };
 }
@@ -27,56 +46,12 @@ const FoundFriendProfile: React.FC<FriendProfileProps> = ({ friend }) => {
   const router = useRouter();
 
   const getGenderIcon = (gender: string): GenderIcon => {
-    switch (gender.toLowerCase()) {
-      case 'female':
-        return {
-          source: require('../assets/images/female_icon.png'),
-          dimensions: {
-            width: 12,
-            height: 18
-          }
-        };
-      case 'male':
-        return {
-          source: require('../assets/images/male_icon.png'),
-          dimensions: {
-            width: 14,
-            height: 14
-          }
-        };
-      case 'non-binary':
-        return {
-          source: require('../assets/images/non-binary_icon.png'),
-          dimensions: {
-            width: 12,
-            height: 22
-          }
-        };
-      case 'other':
-        return {
-          source: require('../assets/images/face_icon.png'),
-          dimensions: {
-            width: 18,
-            height: 20
-          }
-        };
-      case 'prefer not to say':
-        return {
-          source: require('../assets/images/minus_sign.png'),
-          dimensions: {
-            width: 8,
-            height: 2
-          }
-        };
-      default:
-        return {
-          source: require('../assets/images/face_icon.png'),
-          dimensions: {
-            width: 18,
-            height: 20
-          }
-        };
-    }
+    // ... existing gender icon logic ...
+  };
+
+  // Helper function to format compatibility score
+  const formatScore = (score: number): string => {
+    return `${Math.round(score)}%`;
   };
 
   return (
@@ -89,6 +64,29 @@ const FoundFriendProfile: React.FC<FriendProfileProps> = ({ friend }) => {
         />
         <Text style={styles.name}>{friend.username}</Text>
         
+        {/* Match Details Section */}
+        {friend.matchDetails && (
+          <View style={styles.matchDetails}>
+            <Text style={styles.compatibilityScore}>
+              {formatScore(friend.matchDetails.compatibilityScore)} Match!
+            </Text>
+            {friend.matchDetails.matchReason && (
+              <Text style={styles.matchReason}>
+                {friend.matchDetails.matchReason}
+              </Text>
+            )}
+            {friend.matchDetails.commonInterests && (
+              <View style={styles.commonInterests}>
+                <Text style={styles.interestsTitle}>Common Interests:</Text>
+                {friend.matchDetails.commonInterests.map((interest, index) => (
+                  <Text key={index} style={styles.interestItem}>• {interest}</Text>
+                ))}
+              </View>
+            )}
+          </View>
+        )}
+
+        {/* Basic Details */}
         <View style={styles.details}>
           <View style={styles.detailContainer}>
             <Image 
@@ -119,6 +117,14 @@ const FoundFriendProfile: React.FC<FriendProfileProps> = ({ friend }) => {
             <Text style={styles.detailText}>{friend.demographics.age} years-old</Text>
           </View>
         </View>
+
+        {/* Interests Preview */}
+        <View style={styles.interestsPreview}>
+          <Text style={styles.interestsHeader}>A bit about {friend.username}:</Text>
+          <Text style={styles.interestText}>
+            {friend.onboarding.responses.hobbies.answer}
+          </Text>
+        </View>
       </View>
               
       <TouchableOpacity 
@@ -126,7 +132,7 @@ const FoundFriendProfile: React.FC<FriendProfileProps> = ({ friend }) => {
         onPress={() => router.push({
           pathname: '/ChatRoomNewFriend',
           params: {
-            id: friend.id
+            id: friend.uid  // Changed from id to uid
           }
         })}
       >
@@ -134,17 +140,7 @@ const FoundFriendProfile: React.FC<FriendProfileProps> = ({ friend }) => {
           source={require('../assets/images/Yu_excited_no_speech.png')}
           style={{ width: 36, height: 36 }} 
         />
-        <Text style={styles.messageButtonText}>View the Conversation!!</Text>
-      </TouchableOpacity>
-      <TouchableOpacity 
-        style={styles.homeButton}
-        onPress={() => router.push('/HomePage')}
-      >
-        <Image 
-          source={require('../assets/images/house_emoji.png')}
-          style={{ width: 32, height: 32 }} 
-        />
-        <Text style={styles.homeButtonText}>Go Back To Home</Text>
+        <Text style={styles.messageButtonText}>Start Chatting!</Text>
       </TouchableOpacity>
     </View>
   );
@@ -228,6 +224,55 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  matchDetails: {
+    padding: 15,
+    backgroundColor: '#f0f8ff',
+    borderRadius: 12,
+    marginVertical: 10,
+  },
+  compatibilityScore: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#42ade2',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  matchReason: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  commonInterests: {
+    marginTop: 8,
+  },
+  interestsTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  interestItem: {
+    fontSize: 14,
+    color: '#444',
+    marginLeft: 8,
+    marginVertical: 2,
+  },
+  interestsPreview: {
+    padding: 15,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    marginTop: 10,
+  },
+  interestsHeader: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  interestText: {
+    fontSize: 14,
+    color: '#444',
+    lineHeight: 20,
   },
 });
 

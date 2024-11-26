@@ -1,113 +1,302 @@
 import React, { useState, useRef, useEffect } from "react";
 import { View, Text, StyleSheet, Animated, Dimensions, Vibration, TouchableOpacity } from "react-native";
 import { router, useLocalSearchParams } from 'expo-router';
-import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
-import { db, auth } from '@/config/firebase';
+import { collection, query, where, getDocs, doc, getDoc, Timestamp } from 'firebase/firestore';
+import { db, app, auth, functions as baseFunctions } from '@/config/firebase';
 import BigYuSearching from "@/components/BigYuSearching";
 import SearchingBubble from "@/components/SearchingBubble";
 import FoundFriendProfile from "@/components/FoundFriendProfile";
 import SafeLayout from '@/components/SafeLayout';
 import ConfettiEffect from '@/components/ConfettiEffect';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+
 
 interface Friend {
-  id: string;
+  uid: string;  // Changed from id to uid
   username: string;
   demographics: {
     gender: string;
     state: string;
     city: string;
     age: number;
+    birthDate: number;  // Added
   };
+  onboarding: {  // Added onboarding structure
+    responses: {
+      aspirations: { answer: string; updatedAt: null };
+      entertainment: { answer: string; updatedAt: null };
+      hobbies: { answer: string; updatedAt: null };
+      location: { answer: string; updatedAt: null };
+      music: { answer: string; updatedAt: null };
+      relationships: { answer: string; updatedAt: null };
+      travel: { answer: string; updatedAt: null };
+    };
+    status: {
+      completedAt: Timestamp;
+      isComplete: boolean;
+      lastUpdated: Timestamp;
+    };
+  };
+  stats: {  // Added stats
+    aiInteractions: number;
+    conversationsStarted: number;
+    messagesSent: number;
+  };
+  matchDetails?: {
+    compatibilityScore: number;
+    waitingScore: number;
+    finalScore: number;
+    matchReason?: string;
+    commonInterests?: string[];
+  };
+}
+interface MatchResponse {
+  matchId: string;
+  userId: string;
+  scores: {
+    compatibility: number;
+    waiting: number;
+    final: number;
+  };
+  matchReason?: string;
+  commonInterests?: string[];
 }
 
 const { height } = Dimensions.get('window');
+
+const SEARCHING_MESSAGES = [
+  "Analyzing profiles...",
+  "Finding compatible friends...",
+  "Matching interests...",
+  "Almost there...",
+  "Found some great matches!"
+];
 
 const FindingFriends = () => {
   const params = useLocalSearchParams();
   const [friends, setFriends] = useState<Friend[]>([]);
   const [currentFriendIndex, setCurrentFriendIndex] = useState(0);
   const [showConfetti, setShowConfetti] = useState(false);
-  const [searchingText, setSearchingText] = useState("Hang tight! Finding your new friends...");
+  const [searchingText, setSearchingText] = useState(SEARCHING_MESSAGES[0]);
   const [searchingComplete, setSearchingComplete] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   const searchingSlideAnim = useRef(new Animated.Value(0)).current;
   const profileSlideAnim = useRef(new Animated.Value(height)).current;
+  const messageChangeInterval = useRef<NodeJS.Timeout>();
 
   const runAnimationSequence = () => {
     Vibration.vibrate(200);
 
-    Animated.sequence([
+    Animated.parallel([
       Animated.timing(searchingSlideAnim, {
-        toValue: height,
+        toValue: -height,
         duration: 500,
         useNativeDriver: true,
-      })
-    ]).start(() => {
-      setTimeout(() => {
-        setShowConfetti(true);
+      }),
+      Animated.sequence([
+        Animated.delay(250),
         Animated.timing(profileSlideAnim, {
           toValue: 0,
           duration: 500,
           useNativeDriver: true,
-        }).start();
-      }, 500);
+        })
+      ])
+    ]).start(() => {
+      setTimeout(() => {
+        setShowConfetti(true);
+      }, 200);
     });
   };
 
-  const handleContinue = () => {
+  const handleNextFriend = () => {
     if (currentFriendIndex === friends.length - 1) {
-      // Last friend, navigate to home
-      router.replace('/home');
+      router.replace('/HomePage');
       return;
     }
 
-    // Reset animations for next friend
+    // Reset animations
     setShowConfetti(false);
-    profileSlideAnim.setValue(height);
     
-    // Show next friend with animation
-    setCurrentFriendIndex(prev => prev + 1);
-    setTimeout(() => {
-      runAnimationSequence();
-    }, 100);
+    // Slide current profile out and next profile in
+    Animated.parallel([
+      Animated.timing(profileSlideAnim, {
+        toValue: -height,
+        duration: 400,
+        useNativeDriver: true,
+      })
+    ]).start(() => {
+      setCurrentFriendIndex(prev => prev + 1);
+      profileSlideAnim.setValue(height);
+      
+      // Animate new profile in
+      Animated.timing(profileSlideAnim, {
+        toValue: 0,
+        duration: 400,
+        useNativeDriver: true,
+      }).start(() => {
+        setShowConfetti(true);
+      });
+    });
+  };
+
+  const fetchMatchedFriends = async () => {
+    try {
+      const currentUser = auth.currentUser;
+      console.log('Current user state:', {
+        exists: !!currentUser,
+        uid: currentUser?.uid,
+        emailVerified: currentUser?.emailVerified
+      });
+  
+      if (!currentUser) {
+        throw new Error('No authenticated user found');
+      }
+  
+      // Force token refresh and get it
+      await currentUser.reload();
+      const idToken = await currentUser.getIdToken(true);
+      console.log('Token details:', {
+        hasToken: !!idToken,
+        tokenLength: idToken?.length,
+        tokenPrefix: idToken?.substring(0, 10) + '...'
+      });
+  
+      // Use baseFunctions imported from config instead of creating new instance
+      const findMatch = httpsCallable(baseFunctions, 'findMatch', {
+        timeout: 300000 // 5 minutes timeout
+      });
+  
+      console.log('Attempting initial findMatch call for user:', currentUser.uid);
+        
+      const matchPromises = Array(5).fill(null).map(async () => {
+        try {
+          return await findMatch({ 
+            userId: currentUser.uid,
+            idToken: idToken  // Pass token in payload
+          });
+        } catch (error: any) {
+          console.error('Match call failed:', {
+            code: error.code,
+            message: error.message,
+            details: error.details
+          });
+          throw error;
+        }
+      });
+  
+      const matchResults = await Promise.all(matchPromises);
+      console.log('All match calls completed');
+  
+      // Rest of your existing code for processing matches...
+      const matchedFriends = await Promise.all(
+        matchResults.map(async (result) => {
+          const { data } = result as { data: MatchResponse };
+          const userDoc = await getDoc(doc(db, 'users', data.userId));
+          const userData = userDoc.data();
+          
+          if (!userData) {
+            throw new Error(`User data not found for ID: ${data.userId}`);
+          }
+          
+          return {
+            uid: data.userId,
+            username: userData.username,
+            demographics: userData.demographics,
+            onboarding: userData.onboarding,
+            stats: userData.stats,
+            matchDetails: {
+              compatibilityScore: data.scores.compatibility,
+              waitingScore: data.scores.waiting,
+              finalScore: data.scores.final,
+              matchReason: data.matchReason,
+              commonInterests: data.commonInterests
+            }
+          };
+        })
+      );
+  
+  
+      const validMatches = matchedFriends.filter((friend: Friend) => {
+        return Boolean(
+          friend.username &&
+          friend.demographics?.age &&
+          friend.demographics?.city &&
+          friend.demographics?.state &&
+          friend.demographics?.gender &&
+          friend.onboarding?.responses &&
+          friend.onboarding?.status?.isComplete
+        );
+      });
+  
+      if (validMatches.length === 0) {
+        throw new Error('No valid matches found');
+      }
+  
+      setFriends(validMatches);
+      setSearchingComplete(true);
+      setIsLoading(false);
+  
+      if (messageChangeInterval.current) {
+        clearInterval(messageChangeInterval.current);
+      }
+  
+      setTimeout(() => {
+        runAnimationSequence();
+      }, 1000);
+  
+    } catch (error) {
+      console.error('Error finding matches:', error);
+      setError('Unable to find matches at this time. Please try again later.');
+      setIsLoading(false);
+      if (messageChangeInterval.current) {
+        clearInterval(messageChangeInterval.current);
+      }
+    }
   };
 
   useEffect(() => {
-    const findMatches = async () => {
-      try {
-        const filters = JSON.parse(params.filters as string);
-        const currentUser = auth.currentUser;
-        const currentUserDoc = await getDoc(doc(db, 'users', currentUser?.uid || ''));
-        const currentUserData = currentUserDoc.data();
-
-        // TODO: Replace this with actual AI matching logic
-        // This is where you'll make the OpenAI API call with your GPT-3.5 matching prompt
-        const matchingUsers = await fetchPotentialMatches(filters, currentUserData);
-        
-        setFriends(matchingUsers);
-        setSearchingComplete(true);
-        
-        // Start animation sequence for first friend
-        setTimeout(() => {
-          runAnimationSequence();
-        }, 2000);
-
-      } catch (error) {
-        console.error('Error finding matches:', error);
+    fetchMatchedFriends();
+    
+    return () => {
+      if (messageChangeInterval.current) {
+        clearInterval(messageChangeInterval.current);
       }
     };
-
-    findMatches();
-  }, [params.filters]);
+  }, []);
 
   const currentFriend = friends[currentFriendIndex];
   const isLastFriend = currentFriendIndex === friends.length - 1;
+
+  if (error) {
+    return (
+      <SafeLayout style={styles.container}>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={() => {
+              setError(null);
+              setIsLoading(true);
+              fetchMatchedFriends();
+            }}
+          >
+            <Text style={styles.retryButtonText}>Try Again</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeLayout>
+    );
+  }
 
   return (
     <SafeLayout style={styles.container}>
       {!searchingComplete && (
         <Animated.View 
-          style={[styles.contentContainer, { transform: [{ translateY: searchingSlideAnim }] }]}
+          style={[
+            styles.contentContainer, 
+            { transform: [{ translateY: searchingSlideAnim }] }
+          ]}
         >
           <BigYuSearching text={searchingText} />
           <SearchingBubble />
@@ -120,22 +309,27 @@ const FindingFriends = () => {
             styles.contentContainer,
             {
               transform: [{ translateY: profileSlideAnim }],
-              justifyContent: 'center',
-              marginTop: -1200,
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
             }
           ]}
         > 
-          <FoundFriendProfile friend={currentFriend} />
+          <FoundFriendProfile 
+            friend={currentFriend}
+/>
           
           <TouchableOpacity
             style={[
               styles.continueButton,
               isLastFriend && styles.finalButton
             ]}
-            onPress={handleContinue}
+            onPress={handleNextFriend}
           >
             <Text style={styles.continueButtonText}>
-              {isLastFriend ? "Go to Messages" : "Meet Next Friend"}
+              {isLastFriend ? "Start Chatting!" : "Meet Next Friend"}
             </Text>
           </TouchableOpacity>
         </Animated.View>
@@ -143,8 +337,8 @@ const FindingFriends = () => {
 
       {showConfetti && (
         <ConfettiEffect 
-          count={250}
-          duration={2000}
+          count={150}
+          duration={1500}
           colors={['#FFD700', '#FF69B4', '#7FFFD4', '#FF4500', '#42ade2']}
         />
       )}
@@ -160,7 +354,31 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#F0FCFE',
+  },
+  errorContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#FF4444',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  retryButton: {
+    backgroundColor: '#42ade2',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 25,
+  },
+  retryButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
   },
   continueButton: {
     backgroundColor: '#42ade2',

@@ -1,3 +1,4 @@
+/*
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   View, 
@@ -12,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import Colors from '@/assets/Colors';
 import YuGeneratedResponseContainer from './YuGeneratedResponseContainer';
-import { useAIMessaging } from '@/contexts/AIMessagingContext';
+import { useAIMessaging } from '@/contexts/MessageContext';
 import { useMessaging } from '@/contexts/MessageContext';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -302,3 +303,4 @@ const styles = StyleSheet.create({
 });
 
 export default YuSuggestions;
+*/

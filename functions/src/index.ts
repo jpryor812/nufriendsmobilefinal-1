@@ -1,6 +1,6 @@
 import {onCall} from "firebase-functions/v2/https";
 import {SecretManagerServiceClient} from "@google-cloud/secret-manager";
-export { findMatch } from "./matchmaking/findMatch";
+export { findMatch, testFunction } from "./matchmaking/findMatch";
 
 const secretManager = new SecretManagerServiceClient();
 

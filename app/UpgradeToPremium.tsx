@@ -10,33 +10,32 @@ import { Ionicons } from '@expo/vector-icons';
 import Colors from '../assets/Colors'; // Ensure this path is correct
 import { useRouter } from 'expo-router';
 import SafeLayout from '@/components/SafeLayout';
+import PremiumToggle from '@/components/PremiumToggle';
 
 const UpgradeToPremium = () => {
   const router = useRouter();
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
-
+  const [premiumType, setpremiumType] = useState<'premium' | 'social-butterfly'>('premium');
 
     const features = [
-    {
-      icon: require('@/assets/images/Yu_excited_no_speech.png'), 
+  {
+      icon: require('@/assets/images/Yu_excited_no_speech.png'),
       isImage: true,
       highlight: 'Use Yu',
-      primary: '200',
+      primary: premiumType === 'premium' ? '100' : '200',
       text: 'times per week',
-      primaryTwo: '',
-      textTwo: '',
-      subtext: '10x more usage than free plan'
-    },
-    {
-        icon: '🫂', 
-        isImage: false, 
-        highlight: '',
-        primary: 'Search',
-        text: 'for up to',
-        primaryTwo: '4',
-        textTwo: 'new friends per day',
-        subtext: "Free users can't search for friends; they must wait to be randomly matched."
-      },
+      subtext: premiumType === 'premium' ? 
+      "5x more than the free plan." : 
+      "10x more than the free plan."
+  },
+  {
+      icon: '🫂',
+      isImage: false,
+      highlight: 'Search for up to',
+      primary: premiumType === 'premium' ? '2' : '4', 
+      text: `new friends per day`,
+      subtext: "Don't wait to get matched. Find friends when you want!" 
+  },
       {
         icon: '💰', 
         isImage: false,
@@ -51,8 +50,10 @@ const UpgradeToPremium = () => {
         icon: '⚡️', 
         isImage: false,
         highlight: 'Get',
-        primary: billingPeriod === 'monthly' ? 'two' : 'five',
-        text: billingPeriod === 'monthly' ? 'new friends' : 'new friends',
+        primary: premiumType === 'premium' 
+          ? (billingPeriod === 'monthly' ? '2' : '4') 
+          : (billingPeriod === 'monthly' ? '3' : '6'),
+        text: 'new friends',
         primaryTwo: 'instantly',
         textTwo: '',
         subtext: ''
@@ -72,6 +73,10 @@ const UpgradeToPremium = () => {
       <Image 
         source={require('../assets/images/yu_progress_bar.png')} 
         style={styles.yu}
+      />
+      <PremiumToggle
+        premiumType={premiumType}
+        setpremiumType={setpremiumType}
       />
       <Text style={styles.header}>Never Feel Alone Again</Text>
       <Text style={styles.subHeader}>What You Get With Premium:</Text>
@@ -95,7 +100,10 @@ const UpgradeToPremium = () => {
           />
         ))}
       </View>
-      <PremiumPrice billingPeriod={billingPeriod} />
+    <PremiumPrice 
+        billingPeriod={billingPeriod} 
+        premiumType={premiumType}
+    />
       <UpgradeToPremiumButton />
     </SafeLayout>
   );
