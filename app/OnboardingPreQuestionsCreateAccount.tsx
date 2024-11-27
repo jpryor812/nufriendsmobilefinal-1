@@ -8,46 +8,50 @@ import PasswordInput from '@/components/PasswordInput';
 import SafeLayout from '@/components/SafeLayout';
 import SmallYuOnboarding from '@/components/SmallYuOnboarding';
 import ProgressBar from '@/components/ProgressBar';
+
 const OnboardingSignUp = () => {
   const router = useRouter();
   const { signup } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+
   const handleCreateAccount = async () => {
     try {
+      // Basic validation
       if (!email || !password) {
         setError('Please fill in all fields');
         return;
       }
+
+      // Basic email format validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        setError('Please enter a valid email address');
+        return;
+      }
+
+      // Basic password validation
+      if (password.length < 6) {
+        setError('Password should be at least 6 characters');
+        return;
+      }
+
+      // Create account using anonymous auth
       await signup(email, password, email.split('@')[0]);
       router.push('/OnboardingBasicQuestions');
+      
     } catch (err: any) {
-      // Convert Firebase errors to user-friendly messages
-      let errorMessage = 'An error occurred during signup';
-      
-      switch (err.code) {
-        case 'auth/invalid-email':
-          errorMessage = 'Please enter a valid email address';
-          break;
-        case 'auth/email-already-in-use':
-          errorMessage = 'This email is already registered';
-          break;
-        case 'auth/weak-password':
-          errorMessage = 'Password should be at least 6 characters';
-          break;
-        case 'auth/network-request-failed':
-          errorMessage = 'Network error. Please check your connection';
-          break;
-        default:
-          errorMessage = 'Error creating account. Please try again';
-          break;
+      // Simpler error handling since we're using anonymous auth
+      if (err.message === 'Email already exists') {
+        setError('This email is already registered');
+      } else {
+        setError('Error creating account. Please try again');
       }
-      
-      setError(errorMessage);
       console.error('Signup error:', err);
     }
   };
+
   return (
     <SafeLayout style={styles.container}>
       <ProgressBar progress={20} />
@@ -78,6 +82,7 @@ const OnboardingSignUp = () => {
     </SafeLayout>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

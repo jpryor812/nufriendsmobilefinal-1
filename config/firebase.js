@@ -18,16 +18,15 @@ const firebaseConfig = {
   measurementId: "G-8BT008HJ2Y"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
+// Initialize Firebase Auth
 const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage)
+  persistence: getReactNativePersistence(AsyncStorage),
 });
 
-// Initialize functions with explicit configuration
-const functions = getFunctions(app, 'us-central1');  // Region in initialization
-
-
+const functions = getFunctions(app, 'us-central1');
 const db = getFirestore(app);
 const storage = getStorage(app);
 

@@ -157,42 +157,6 @@ const OnboardingBasicQuestions = () => {
           >
             <Text style={styles.buttonText}>Continue</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
-  style={[styles.button, { marginTop: 10 }]}
-  onPress={async () => {
-    try {
-      console.log('Testing Cloud Function...');
-      const currentUser = auth.currentUser;
-      console.log('Current auth state:', {
-        user: currentUser?.uid,
-        isSignedIn: !!currentUser,
-        emailVerified: currentUser?.emailVerified,  // Add this
-        token: await currentUser?.getIdToken()      // Log actual token
-      });
-      
-      const testFunction = httpsCallable(baseFunctions, 'testFunction');
-      console.log('Function created, attempting call with user:', currentUser?.uid);
-      
-      // Try passing user ID explicitly
-      const result = await testFunction({ uid: currentUser?.uid });
-      console.log('Test function result:', result.data);
-      alert('Function call successful!');
-    } catch (error: any) {
-      // Log the full error object
-      console.error('Full error:', error);
-      console.error('Function call error details:', {
-        code: error.code,
-        message: error.message,
-        type: error.constructor.name,
-        name: error.name,
-        stack: error.stack          // Add stack trace
-      });
-      alert('Function call failed: ' + error.message);
-    }
-  }}
->
-  <Text style={styles.buttonText}>Test Cloud Function</Text>
-</TouchableOpacity>
         </View>
       </View>
     </SafeLayout>

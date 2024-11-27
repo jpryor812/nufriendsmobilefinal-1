@@ -8,7 +8,7 @@ import SearchingBubble from "@/components/SearchingBubble";
 import FoundFriendProfile from "@/components/FoundFriendProfile";
 import SafeLayout from '@/components/SafeLayout';
 import ConfettiEffect from '@/components/ConfettiEffect';
-import { getFunctions, httpsCallable } from 'firebase/functions';
+import { httpsCallable } from 'firebase/functions';
 
 
 interface Friend {
@@ -143,48 +143,39 @@ const FindingFriends = () => {
 
   const fetchMatchedFriends = async () => {
     try {
-      const currentUser = auth.currentUser;
-      console.log('Current user state:', {
-        exists: !!currentUser,
-        uid: currentUser?.uid,
-        emailVerified: currentUser?.emailVerified
-      });
-  
-      if (!currentUser) {
-        throw new Error('No authenticated user found');
-      }
-  
-      // Force token refresh and get it
-      await currentUser.reload();
-      const idToken = await currentUser.getIdToken(true);
-      console.log('Token details:', {
-        hasToken: !!idToken,
-        tokenLength: idToken?.length,
-        tokenPrefix: idToken?.substring(0, 10) + '...'
-      });
-  
-      // Use baseFunctions imported from config instead of creating new instance
-      const findMatch = httpsCallable(baseFunctions, 'findMatch', {
-        timeout: 300000 // 5 minutes timeout
-      });
-  
-      console.log('Attempting initial findMatch call for user:', currentUser.uid);
-        
-      const matchPromises = Array(5).fill(null).map(async () => {
-        try {
-          return await findMatch({ 
-            userId: currentUser.uid,
-            idToken: idToken  // Pass token in payload
-          });
-        } catch (error: any) {
-          console.error('Match call failed:', {
-            code: error.code,
-            message: error.message,
-            details: error.details
-          });
-          throw error;
+        const currentUser = auth.currentUser;
+        console.log('Current user state:', {
+            exists: !!currentUser,
+            uid: currentUser?.uid,
+            emailVerified: currentUser?.emailVerified
+        });
+
+        if (!currentUser) {
+            throw new Error('No authenticated user found');
         }
-      });
+             // Force a token refresh before making the calls
+          const token = await currentUser.getIdToken(true);
+          console.log('Fresh token obtained:', token.substring(0, 20) + '...');
+
+        // Use baseFunctions imported from config instead of creating a new instance
+        const findMatchFunction = httpsCallable(baseFunctions, 'findMatch');
+
+        console.log('Attempting initial findMatch call for user:', currentUser.uid);
+        
+        const matchPromises = Array(5).fill(null).map(async () => {
+            try {
+                const result = await findMatchFunction({ userId: currentUser.uid });
+                console.log('Individual match result:', result);
+                return result;
+            } catch (error) {
+                console.error('Match call failed:', {
+                    error,
+                    message: error instanceof Error ? error.message : 'Unknown error',
+                    code: error instanceof Error && 'code' in error ? (error as any).code : 'unknown'
+                });
+                throw error;
+            }
+        });
   
       const matchResults = await Promise.all(matchPromises);
       console.log('All match calls completed');

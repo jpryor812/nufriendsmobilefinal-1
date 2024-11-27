@@ -4,7 +4,6 @@ import OpenAI from 'openai';
 import * as admin from 'firebase-admin';
 import { Timestamp } from 'firebase-admin/firestore';
 
-
 if (!admin.apps.length) {
     admin.initializeApp({
       credential: admin.credential.applicationDefault()
@@ -17,6 +16,8 @@ const MINIMUM_COMPATIBILITY = 65;
 interface UserProfile {
     uid: string;
     username: string;
+    authProvider?: string;  
+    lastTokenRefresh?: any; 
     demographics: {
       age: number;
       birthDate: number;
@@ -67,65 +68,48 @@ interface UserProfile {
       conversationLength: number;
       lastMessageTimestamp: number | null;
     };
+    authProvider: string;  // Add this
+    lastTokenRefresh: any; 
   }
   interface MatchResponse {
     match: {
       userId: string;
       compatibilityScore: number;
+      authProvider: string;
+      lastTokenRefresh: any;
     };
   }
-  export const testFunction = onCall({}, async (request) => {
-    // Log everything about the request
-    console.log('Test function received request:', {
-      hasAuth: !!request.auth,
-      uid: request.auth?.uid,
-      headers: request.rawRequest.headers
-    });
-  
-    // Don't even check auth, just return success
-    return { 
-      message: "hello",
-      receivedAuth: !!request.auth,
-      receivedUid: request.auth?.uid
-    };
-  });
 
-  export const findMatch = onCall({ 
-    memory: "1GiB",
-    timeoutSeconds: 300,
-  }, async (request) => {
-    console.log('Request auth:', {
-      hasAuth: !!request.auth,
-      authUid: request.auth?.uid,
-      rawHeaders: request.rawRequest.headers,
-    });
-      
+  async function verifyAuthToken(auth: any) {
+    if (!auth?.uid) return false;
     try {
-      if (!request.auth) {
-        console.log("No auth found in request");
-        throw new HttpsError(
-          'unauthenticated',
-          'Must be authenticated to use this function'
-        );
-      }
+        const user = await admin.auth().getUser(auth.uid);
+        await db.collection('users').doc(auth.uid).update({
+          lastTokenRefresh: admin.firestore.FieldValue.serverTimestamp(),
+          authProvider: 'anonymous'
+      });
+        return !!user;
+    } catch (error) {
+        console.error('Token verification failed:', error);
+        return false;
+    }
+}
+
+export const findMatch = onCall({ 
+  memory: "1GiB",
+  timeoutSeconds: 300,
+  enforceAppCheck: true
+}, async (request) => {
+  try {
+
+  const isValidToken = await verifyAuthToken(request.auth);
+  if (!isValidToken) {
+      throw new HttpsError('unauthenticated', 'Invalid authentication token');
+  }
   
       const { userId } = request.data;
       console.log("Processing for user:", userId);
-  
-      // Verify the requesting user matches the userId
-      if (request.auth.uid !== userId) {
-        console.log("UID mismatch:", {
-          requestUid: request.auth.uid,
-          providedUserId: userId
-        });
-        throw new HttpsError(
-          'permission-denied',
-          'User ID does not match authenticated user'
-        );
-      }
-  
-        console.log("Processing for user:", userId);
-  
+    
     const userRef = db.collection('users').doc(userId);
     const userDoc = await userRef.get();
     const userData = userDoc.data() as UserProfile;
@@ -182,27 +166,24 @@ compatibilityScore: match.match.compatibilityScore,
 waitingScore,
 finalScore,
 matchNumber: currentMatchCount + 1,
-isInitialMatch: currentMatchCount < 5
+isInitialMatch: currentMatchCount < 5,
+authProvider: 'anonymous',
+lastTokenRefresh: admin.firestore.FieldValue.serverTimestamp()
 });
 
 return {
-matchId,
-userId: match.match.userId,
-scores: {
-compatibility: match.match.compatibilityScore,
-waiting: waitingScore,
-final: finalScore
-}
-};
-
-} catch (error) {
-    console.error('Friend matching error:', error);
-    throw new HttpsError(  // Changed from functions.https.HttpsError
-      'internal',
-      'Error processing friend match',
-      error instanceof Error ? error.message : 'Unknown error'
-    );
+  matchId,
+  userId: match.match.userId,
+  scores: {
+    compatibility: match.match.compatibilityScore,
+    waiting: waitingScore,
+    final: finalScore
   }
+};
+} catch (error) {
+console.error('Friend matching error:', error);
+throw new HttpsError('internal', 'Error processing friend match');
+}
 });
 
 function shuffleArray<T>(array: T[]): T[] {
@@ -386,6 +367,8 @@ return match;
     finalScore: number;
     matchNumber: number;
     isInitialMatch: boolean;
+    authProvider: string;
+    lastTokenRefresh: any;
   }) {
     const batch = db.batch();
     const timestamp = Date.now();
@@ -399,7 +382,9 @@ return match;
         messageCount: 0,
         conversationLength: 0,
         lastMessageTimestamp: null
-      }
+      },
+      authProvider: 'anonymous',
+      lastTokenRefresh: admin.firestore.FieldValue.serverTimestamp()
     };
     
     batch.set(matchRef, matchRecord);
@@ -408,26 +393,31 @@ return match;
     const matchData = {
         userId: userId2,
         timestamp: timestamp,
-        status: 'active' as const
+        status: 'active' as const,
+        authProvider: 'anonymous',
+        lastTokenRefresh: admin.firestore.FieldValue.serverTimestamp()
       };
     
       const matchData2 = {
         userId: userId1,
         timestamp: timestamp,
-        status: 'active' as const
+        status: 'active' as const,
+        authProvider: 'anonymous',
+        lastTokenRefresh: admin.firestore.FieldValue.serverTimestamp()
       };
     
       // Update first user
       batch.update(db.collection('users').doc(userId1), {
         'stats.conversationsStarted': admin.firestore.FieldValue.increment(1),
-        [`matches.${matchRef.id}`]: matchData
-      });
-    
-      // Update second user
-      batch.update(db.collection('users').doc(userId2), {
+        [`matches.${matchRef.id}`]: matchData,
+        lastTokenRefresh: admin.firestore.FieldValue.serverTimestamp()
+    });
+
+    batch.update(db.collection('users').doc(userId2), {
         'stats.conversationsStarted': admin.firestore.FieldValue.increment(1),
-        [`matches.${matchRef.id}`]: matchData2
-      });
+        [`matches.${matchRef.id}`]: matchData2,
+        lastTokenRefresh: admin.firestore.FieldValue.serverTimestamp()
+    });
     
       await batch.commit();
       return matchRef.id;
