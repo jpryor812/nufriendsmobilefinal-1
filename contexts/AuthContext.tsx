@@ -5,6 +5,7 @@ import {
   onAuthStateChanged,
   signOut,
   User as FirebaseUser,
+  getAuth,
 } from 'firebase/auth';
 import { 
   doc, 
@@ -40,6 +41,8 @@ interface OnboardingResponse {
     storedPassword: string;
     username: string;
     createdAt: Date;
+    authType: string;
+    lastLogin: Date;
     demographics: {
       age: number;
       birthDate: number; 
@@ -91,7 +94,7 @@ interface AuthContextType {
       gender: string, 
       state: string, 
       city: string,
-      birthDate: number  // Changed from string to number
+      birthDate: number  
     ) => Promise<void>;
     updateProfile: (updates: {
       username?: string,
@@ -121,149 +124,192 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [loading, setLoading] = useState(true);
   const [onboardingProgress, setOnboardingProgress] = useState<{ isComplete: boolean; firstUnanswered: string | null } | null>(null);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        const userDocRef = doc(db, 'users', firebaseUser.uid);
-        const userDoc = await getDoc(userDocRef);
-        
-        if (!userDoc.exists()) {
-          const emptyResponse: OnboardingResponse = {
-            answer: '',
-            updatedAt: null
-          };
-          
-          // Create the initial user data with proper types
-          const initialUserData: UserData = {
-            uid: firebaseUser.uid,
-            storedEmail: '',
-            storedPassword: '',
-            username: `User_${firebaseUser.uid.slice(0, 6)}`,
-            createdAt: new Date(), // Use Date for the UserData type
-            demographics: {  
-              age: 0,
-              birthDate: 0,
-              gender: '',
-              state: '',
-              city: ''
-            },
-            questionnaire: {
-              interests: [],
-              preferences: {},
-              personalityTraits: [],
-              onboarding: {
-                responses: {
-                  location: emptyResponse,
-                  hobbies: emptyResponse,
-                  relationships: emptyResponse,
-                  music: emptyResponse,
-                  entertainment: emptyResponse,
-                  travel: emptyResponse,
-                  aspirations: emptyResponse
-                },
-                status: {
-                  isComplete: false,
-                  lastUpdated: null,
-                  completedAt: null
-                }
-              }
-            },
-            stats: {
-              messagesSent: 0,
-              conversationsStarted: 0,
-              aiInteractions: 0
-            },
-            subscription: {
-              type: 'free',
-              validUntil: null
-            },
-            avatar: {
-              currentOutfit: {},
-              unlockedItems: ['basic_outfit']
-            }
-          };
-
-          // Create Firestore version with timestamps
-          const firestoreData = {
-            ...initialUserData,
-            createdAt: serverTimestamp()
-          };
-
-          try {
-            await setDoc(userDocRef, firestoreData);
-            setUser({
-              ...firebaseUser,
-              userData: initialUserData
-            });
-            setOnboardingProgress({
-              isComplete: false,
-              firstUnanswered: 'location',
-            });
-          } catch (error) {
-            console.error('Error creating user document:', error);
-            setUser(null);
+  // Helper function to create initial user data
+  const createInitialUserData = (uid: string): UserData => {
+    const emptyResponse: OnboardingResponse = {
+      answer: '',
+      updatedAt: null
+    };
+    
+    return {
+      uid,
+      storedEmail: '',
+      storedPassword: '',
+      username: `User_${uid.slice(0, 6)}`,
+      createdAt: new Date(),
+      authType: 'anonymous',
+      lastLogin: new Date(),
+      demographics: {
+        age: 0,
+        birthDate: 0,
+        gender: '',
+        state: '',
+        city: ''
+      },
+      questionnaire: {
+        interests: [],
+        preferences: {},
+        personalityTraits: [],
+        onboarding: {
+          responses: {
+            location: emptyResponse,
+            hobbies: emptyResponse,
+            relationships: emptyResponse,
+            music: emptyResponse,
+            entertainment: emptyResponse,
+            travel: emptyResponse,
+            aspirations: emptyResponse
+          },
+          status: {
+            isComplete: false,
+            lastUpdated: null,
+            completedAt: null
           }
-        } else {
-          // Convert Firestore timestamps to Dates for existing user data
-          const firestoreData = userDoc.data();
-          const userData: UserData = {
-            uid: firestoreData.uid,
-            storedEmail: firestoreData.storedEmail,
-            storedPassword: firestoreData.storedPassword,
-            username: firestoreData.username,
-            createdAt: firestoreData.createdAt.toDate(),
-            demographics: firestoreData.demographics,
-            stats: firestoreData.stats,
-            subscription: firestoreData.subscription,
-            avatar: firestoreData.avatar,
-            questionnaire: {
-              interests: firestoreData.questionnaire.interests,
-              preferences: firestoreData.questionnaire.preferences,
-              personalityTraits: firestoreData.questionnaire.personalityTraits,
-              onboarding: {
+        }
+      },
+      stats: {
+        messagesSent: 0,
+        conversationsStarted: 0,
+        aiInteractions: 0
+      },
+      subscription: {
+        type: 'free',
+        validUntil: null
+      },
+      avatar: {
+        currentOutfit: {},
+        unlockedItems: ['basic_outfit']
+      }
+    };
+  };
+
+  // Helper function to handle Firestore user data
+  async function handleUserData(firebaseUser: FirebaseUser) {
+    const userDocRef = doc(db, 'users', firebaseUser.uid);
+    const userDoc = await getDoc(userDocRef);
+    
+    if (!userDoc.exists()) {
+      const initialUserData = createInitialUserData(firebaseUser.uid);
+      const firestoreData = {
+        ...initialUserData,
+        createdAt: serverTimestamp(),
+        lastLogin: serverTimestamp()
+      };
+
+      try {
+        await setDoc(userDocRef, firestoreData);
+        setUser({
+          ...firebaseUser,
+          userData: initialUserData
+        });
+        setOnboardingProgress({
+          isComplete: false,
+          firstUnanswered: 'location',
+        });
+      } catch (error) {
+        console.error('Error creating user document:', error);
+        throw error;
+      }
+    } else {
+      const firestoreData = userDoc.data();
+      const userData: UserData = {
+        uid: firestoreData.uid,
+        storedEmail: firestoreData.storedEmail,
+        storedPassword: firestoreData.storedPassword,
+        username: firestoreData.username,
+        createdAt: firestoreData.createdAt.toDate(),
+        lastLogin: firestoreData.lastLogin.toDate(),
+        authType: firestoreData.authType,
+        demographics: firestoreData.demographics,
+        questionnaire: {
+            interests: firestoreData.questionnaire.interests,
+            preferences: firestoreData.questionnaire.preferences,
+            personalityTraits: firestoreData.questionnaire.personalityTraits,
+            onboarding: {
                 responses: firestoreData.questionnaire.onboarding.responses,
                 status: {
-                  isComplete: firestoreData.questionnaire.onboarding.status.isComplete,
-                  lastUpdated: firestoreData.questionnaire.onboarding.status.lastUpdated?.toDate() || null,
-                  completedAt: firestoreData.questionnaire.onboarding.status.completedAt?.toDate() || null
+                    isComplete: firestoreData.questionnaire.onboarding.status.isComplete,
+                    lastUpdated: firestoreData.questionnaire.onboarding.status.lastUpdated?.toDate() || null,
+                    completedAt: firestoreData.questionnaire.onboarding.status.completedAt?.toDate() || null
                 }
-              }
             }
-          };
+        },
+        stats: firestoreData.stats,
+        subscription: firestoreData.subscription,
+        avatar: firestoreData.avatar
+    };
 
-          const responses = userData.questionnaire.onboarding.responses;
-          const questionOrder: (keyof OnboardingResponses)[] = [
-            'location',
-            'hobbies',
-            'relationships',
-            'music',
-            'entertainment',
-            'travel',
-            'aspirations'
-          ];
-          const firstUnanswered = questionOrder.find((q) => !responses[q]?.answer);
-          
-          setUser({
-            ...firebaseUser,
-            userData
-          });
-          setOnboardingProgress({
-            isComplete: !firstUnanswered,
-            firstUnanswered: firstUnanswered || null,
-          });
-        }
-      } else {
+      // Update last login
+      await updateDoc(userDocRef, {
+        lastLogin: serverTimestamp()
+      });
+
+      setUser({
+        ...firebaseUser,
+        userData
+      });
+
+      // Set onboarding progress
+      const responses = userData.questionnaire.onboarding.responses;
+      const questionOrder: (keyof OnboardingResponses)[] = [
+        'location', 'hobbies', 'relationships', 'music',
+        'entertainment', 'travel', 'aspirations'
+      ];
+      const firstUnanswered = questionOrder.find((q) => !responses[q]?.answer);
+      
+      setOnboardingProgress({
+        isComplete: !firstUnanswered,
+        firstUnanswered: firstUnanswered || null,
+      });
+    }
+  }
+
+  // Main auth state listener
+  useEffect(() => {
+    let mounted = true;
+    console.log('Setting up auth state listener');
+  
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      console.log('Auth state changed:', firebaseUser?.uid);
+      if (!mounted) return;
+
+      if (!firebaseUser) {
         try {
-          await signInAnonymously(auth);
+          console.log('No user found, creating anonymous user');
+          const anonymousAuth = await signInAnonymously(auth);
+          // Add this line to ensure auth is complete before continuing
+          await handleUserData(anonymousAuth.user);
+          console.log('Anonymous auth created:', anonymousAuth.user.uid);
+          return;
         } catch (error) {
           console.error('Failed to sign in anonymously:', error);
+          if (mounted) {
+            setUser(null);
+            setLoading(false);
+          }
+          return;
+        }
+      }
+
+      try {
+        console.log('Handling user data for:', firebaseUser.uid);
+        await handleUserData(firebaseUser);
+      } catch (error) {
+        console.error('Error handling user data:', error);
+        if (mounted) {
           setUser(null);
         }
       }
-      setLoading(false);
+
+      if (mounted) {
+        setLoading(false);
+      }
     });
-  
-    return unsubscribe;
+
+    return () => {
+      mounted = false;
+      unsubscribe();
+    };
   }, []);
 
   const signup = async (email: string, password: string, username: string) => {
@@ -280,74 +326,31 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (!currentUser) {
         const anonymousAuth = await signInAnonymously(auth);
         currentUser = anonymousAuth.user;
+        console.log('Created new anonymous user:', currentUser.uid);
       }
 
       const userDocRef = doc(db, 'users', currentUser.uid);
       
-      const emptyResponse: OnboardingResponse = {
-        answer: '',
-        updatedAt: null
-      };
-      
-      const initialUserData: UserData = {
-        uid: currentUser.uid,
-        storedEmail: email,
-        storedPassword: password,
-        username,
-        createdAt: new Date(),
-        demographics: {  
-          age: 0,
-          birthDate: 0,
-          gender: '',
-          state: '',
-          city: ''
-        },
-        questionnaire: {
-          interests: [],
-          preferences: {},
-          personalityTraits: [],
-          onboarding: {
-            responses: {
-              location: emptyResponse,
-              hobbies: emptyResponse,
-              relationships: emptyResponse,
-              music: emptyResponse,
-              entertainment: emptyResponse,
-              travel: emptyResponse,
-              aspirations: emptyResponse
-            },
-            status: {
-              isComplete: false,
-              lastUpdated: null,
-              completedAt: null
-            }
-          }
-        },
-        stats: {
-          messagesSent: 0,
-          conversationsStarted: 0,
-          aiInteractions: 0
-        },
-        subscription: {
-          type: 'free',
-          validUntil: null
-        },
-        avatar: {
-          currentOutfit: {},
-          unlockedItems: ['basic_outfit']
-        }
-      };
+      const initialUserData = createInitialUserData(currentUser.uid);
+      initialUserData.storedEmail = email;
+      initialUserData.storedPassword = password;
+      initialUserData.username = username;
 
       const firestoreData = {
         ...initialUserData,
-        createdAt: serverTimestamp()
+        createdAt: serverTimestamp(),
+        lastLogin: serverTimestamp(),
+        authType: 'anonymous'
       };
 
       await setDoc(userDocRef, firestoreData);
+      
       setUser({
         ...currentUser,
         userData: initialUserData
       });
+
+      console.log('User document created successfully');
 
     } catch (error) {
       console.error('Error in signup process:', error);
@@ -357,7 +360,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const login = async (email: string, password: string) => {
     try {
-      // Query user by email
       const usersRef = collection(db, 'users');
       const q = query(usersRef, where('storedEmail', '==', email));
       const querySnapshot = await getDocs(q);
@@ -369,45 +371,48 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const userDoc = querySnapshot.docs[0];
       const firestoreData = userDoc.data();
   
-      // Simple password comparison for testing
       if (firestoreData.storedPassword !== password) {
         throw new Error('Invalid email or password');
       }
-  
-      // Convert Firestore timestamps to Dates
+
+      let currentUser = auth.currentUser;
+      if (!currentUser) {
+        const anonymousAuth = await signInAnonymously(auth);
+        currentUser = anonymousAuth.user;
+      }
+
+      // Update last login
+      await updateDoc(doc(db, 'users', currentUser.uid), {
+        lastLogin: serverTimestamp()
+      });
+
       const userData: UserData = {
         uid: firestoreData.uid,
         storedEmail: firestoreData.storedEmail,
         storedPassword: firestoreData.storedPassword,
         username: firestoreData.username,
         createdAt: firestoreData.createdAt.toDate(),
+        lastLogin: firestoreData.lastLogin.toDate(),
+        authType: firestoreData.authType,
         demographics: firestoreData.demographics,
+        questionnaire: {
+            interests: firestoreData.questionnaire.interests,
+            preferences: firestoreData.questionnaire.preferences,
+            personalityTraits: firestoreData.questionnaire.personalityTraits,
+            onboarding: {
+                responses: firestoreData.questionnaire.onboarding.responses,
+                status: {
+                    isComplete: firestoreData.questionnaire.onboarding.status.isComplete,
+                    lastUpdated: firestoreData.questionnaire.onboarding.status.lastUpdated?.toDate() || null,
+                    completedAt: firestoreData.questionnaire.onboarding.status.completedAt?.toDate() || null
+                }
+            }
+        },
         stats: firestoreData.stats,
         subscription: firestoreData.subscription,
-        avatar: firestoreData.avatar,
-        questionnaire: {
-          interests: firestoreData.questionnaire.interests,
-          preferences: firestoreData.questionnaire.preferences,
-          personalityTraits: firestoreData.questionnaire.personalityTraits,
-          onboarding: {
-            responses: firestoreData.questionnaire.onboarding.responses,
-            status: {
-              isComplete: firestoreData.questionnaire.onboarding.status.isComplete,
-              lastUpdated: firestoreData.questionnaire.onboarding.status.lastUpdated?.toDate() || null,
-              completedAt: firestoreData.questionnaire.onboarding.status.completedAt?.toDate() || null
-            }
-          }
-        }
-      };
+        avatar: firestoreData.avatar
+    };
   
-      // Sign in anonymously if not already signed in
-      let currentUser = auth.currentUser;
-      if (!currentUser) {
-        const anonymousAuth = await signInAnonymously(auth);
-        currentUser = anonymousAuth.user;
-      }
-  
-      // Update user state
       setUser({
         ...currentUser!,
         userData
@@ -421,6 +426,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = async () => {
     try {
+      if (user) {
+        await updateDoc(doc(db, 'users', user.uid), {
+          lastLogin: serverTimestamp()
+        });
+      }
       await signOut(auth);
       setUser(null);
     } catch (error) {
@@ -433,7 +443,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       if (!user) throw new Error('No user logged in');
       
-      // Verify current password
       const userDoc = await getDoc(doc(db, 'users', user.uid));
       const userData = userDoc.data();
       
@@ -441,12 +450,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
         throw new Error('Current password is incorrect');
       }
 
-      // Update password
       await updateDoc(doc(db, 'users', user.uid), {
-        storedPassword: newPassword
+        storedPassword: newPassword,
+        lastLogin: serverTimestamp()
       });
 
     } catch (error) {
+      console.error('Password update error:', error);
       throw error;
     }
   };
@@ -467,9 +477,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         'demographics.gender': gender,
         'demographics.state': state,
         'demographics.city': city,
-        'demographics.birthDate': birthDate
+        'demographics.birthDate': birthDate,
+        lastLogin: serverTimestamp()
       });
     } catch (error) {
+      console.error('Demographics update error:', error);
       throw error;
     }
   };
@@ -477,14 +489,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const updateProfile = async (updates: {
     username?: string,
     city?: string,
-    state?: string
-    age?: number
-    birthDate?: number  // Add this
+    state?: string,
+    age?: number,
+    birthDate?: number
   }) => {
     try {
       if (!user) throw new Error('No user logged in');
       
-      const updateData: any = {};
+      const updateData: any = {
+        lastLogin: serverTimestamp()
+      };
       if (updates.username) updateData.username = updates.username;
       if (updates.city) updateData['demographics.city'] = updates.city;
       if (updates.state) updateData['demographics.state'] = updates.state;
@@ -494,6 +508,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const userRef = doc(db, 'users', user.uid);
       await updateDoc(userRef, updateData);
     } catch (error) {
+      console.error('Profile update error:', error);
       throw error;
     }
   };
@@ -505,7 +520,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       if (!user) throw new Error('No user logged in');
       
-      // Validate answer length
       if (answer.length < 20 || answer.length > 400) {
         throw new Error('Answer must be between 20 and 400 characters');
       }
@@ -516,6 +530,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         [`questionnaire.onboarding.responses.${questionId}.answer`]: answer,
         [`questionnaire.onboarding.responses.${questionId}.updatedAt`]: serverTimestamp(),
         'questionnaire.onboarding.status.lastUpdated': serverTimestamp(),
+        lastLogin: serverTimestamp()
       };
   
       await updateDoc(userRef, updates);
@@ -563,6 +578,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  // Return the AuthContext Provider
   return (
     <AuthContext.Provider 
       value={{
@@ -583,7 +599,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   );
 }
 
-// Custom hook with type safety
+// Export the custom hook
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
   if (context === undefined) {
