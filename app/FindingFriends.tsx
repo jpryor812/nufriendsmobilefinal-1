@@ -9,6 +9,7 @@ import FoundFriendProfile from "@/components/FoundFriendProfile";
 import SafeLayout from '@/components/SafeLayout';
 import ConfettiEffect from '@/components/ConfettiEffect';
 import { httpsCallable } from 'firebase/functions';
+import { FirebaseError } from 'firebase/app';  
 
 
 interface Friend {
@@ -149,113 +150,145 @@ const FindingFriends = () => {
             uid: currentUser?.uid,
             emailVerified: currentUser?.emailVerified
         });
-
+ 
         if (!currentUser) {
             throw new Error('No authenticated user found');
         }
-             // Force a token refresh before making the calls
-          const token = await currentUser.getIdToken(true);
-          console.log('Fresh token obtained:', token.substring(0, 20) + '...');
-
-        // Use baseFunctions imported from config instead of creating a new instance
+ 
+        const token = await currentUser.getIdToken(true);
+        console.log('Fresh token obtained:', token.substring(0, 20) + '...');
+ 
         const findMatchFunction = httpsCallable(baseFunctions, 'findMatch');
-
         console.log('Attempting initial findMatch call for user:', currentUser.uid);
         
-        const matchPromises = Array(5).fill(null).map(async () => {
+        const ensureAuth = async () => {
+            if (!currentUser) {
+                throw new Error('No authenticated user found');
+            }
             try {
-                const result = await findMatchFunction({ userId: currentUser.uid });
-                console.log('Individual match result:', result);
-                return result;
+                await currentUser.getIdToken(true);
             } catch (error) {
-                console.error('Match call failed:', {
-                    error,
-                    message: error instanceof Error ? error.message : 'Unknown error',
-                    code: error instanceof Error && 'code' in error ? (error as any).code : 'unknown'
-                });
+                console.error('Token refresh failed:', error);
                 throw error;
             }
-        });
-  
-      const matchResults = await Promise.all(matchPromises);
-      console.log('All match calls completed');
-  
-      // Rest of your existing code for processing matches...
-      const matchedFriends = await Promise.all(
-        matchResults.map(async (result) => {
-          const { data } = result as { data: MatchResponse };
-          const userDoc = await getDoc(doc(db, 'users', data.userId));
-          const userData = userDoc.data();
-          
-          if (!userData) {
-            throw new Error(`User data not found for ID: ${data.userId}`);
-          }
-          
-          return {
-            uid: data.userId,
-            username: userData.username,
-            demographics: userData.demographics,
-            onboarding: userData.onboarding,
-            stats: userData.stats,
-            matchDetails: {
-              compatibilityScore: data.scores.compatibility,
-              waitingScore: data.scores.waiting,
-              finalScore: data.scores.final,
-              matchReason: data.matchReason,
-              commonInterests: data.commonInterests
+        };
+ 
+        const matchPromises = Array(5).fill(null).map(async (_, index) => {
+        try {
+            await ensureAuth();
+            
+            const result = await findMatchFunction({ 
+                userId: currentUser.uid,
+                attemptNumber: index + 1,
+                timestamp: Date.now()
+            });
+            console.log(`Match attempt ${index + 1} result:`, result);
+            return result;
+        } catch (error) {
+            console.error(`Match attempt ${index + 1} failed:`, {
+                error,
+                message: error instanceof Error ? error.message : 'Unknown error',
+                code: error instanceof Error && 'code' in error ? (error as any).code : 'unknown'
+            });
+            
+            if (error instanceof FirebaseError && error.code === 'functions/unauthenticated') {
+                try {
+                    await ensureAuth();
+                    const retryResult = await findMatchFunction({ 
+                        userId: currentUser.uid,
+                        attemptNumber: index + 1,
+                        timestamp: Date.now(),
+                        isRetry: true
+                    });
+                    console.log(`Match attempt ${index + 1} retry succeeded:`, retryResult);
+                    return retryResult;
+                } catch (retryError) {
+                    console.error(`Match attempt ${index + 1} retry also failed:`, retryError);
+                    throw retryError;
+                }
             }
-          };
-        })
-      );
-  
-  
-      const validMatches = matchedFriends.filter((friend: Friend) => {
-        return Boolean(
-          friend.username &&
-          friend.demographics?.age &&
-          friend.demographics?.city &&
-          friend.demographics?.state &&
-          friend.demographics?.gender &&
-          friend.onboarding?.responses &&
-          friend.onboarding?.status?.isComplete
+            
+            throw error;
+            }
+        });
+ 
+        const matchResults = await Promise.all(matchPromises);
+        console.log('All match calls completed');
+ 
+        const matchedFriends = await Promise.all(
+            matchResults
+                .filter(result => result && result.data)
+                .map(async (result) => {
+                    const { data } = result as { data: MatchResponse };
+                    
+                    try {
+                        const userDoc = await getDoc(doc(db, 'users', data.userId));
+                        const userData = userDoc.data();
+                        
+                        if (!userData) {
+                            console.error(`User data not found for ID: ${data.userId}`);
+                            return null;
+                        }
+                        
+                        return {
+                            uid: data.userId,
+                            username: userData.username,
+                            demographics: userData.demographics,
+                            onboarding: userData.onboarding,
+                            stats: userData.stats,
+                            matchDetails: {
+                                compatibilityScore: data.scores.compatibility,
+                                waitingScore: data.scores.waiting,
+                                finalScore: data.scores.final,
+                                matchReason: data.matchReason,
+                                commonInterests: data.commonInterests
+                            }
+                        };
+                    } catch (error) {
+                        console.error(`Error processing match for user ${data.userId}:`, error);
+                        return null;
+                    }
+                })
         );
-      });
-  
-      if (validMatches.length === 0) {
-        throw new Error('No valid matches found');
-      }
-  
-      setFriends(validMatches);
-      setSearchingComplete(true);
-      setIsLoading(false);
-  
-      if (messageChangeInterval.current) {
-        clearInterval(messageChangeInterval.current);
-      }
-  
-      setTimeout(() => {
-        runAnimationSequence();
-      }, 1000);
-  
+ 
+        const validMatchedFriends = matchedFriends.filter(friend => friend !== null);
+ 
+        if (validMatchedFriends.length === 0) {
+            throw new Error('No valid matches were found after processing');
+        }
+ 
+        // Set state with the valid matches
+        setFriends(validMatchedFriends);
+        setSearchingComplete(true);
+        setIsLoading(false);
+ 
+        if (messageChangeInterval.current) {
+            clearInterval(messageChangeInterval.current);
+        }
+ 
+        setTimeout(() => {
+            runAnimationSequence();
+        }, 1000);
+ 
     } catch (error) {
-      console.error('Error finding matches:', error);
-      setError('Unable to find matches at this time. Please try again later.');
-      setIsLoading(false);
-      if (messageChangeInterval.current) {
-        clearInterval(messageChangeInterval.current);
-      }
+        console.error('Error finding matches:', error);
+        setError('Unable to find matches at this time. Please try again later.');
+        setIsLoading(false);
+        if (messageChangeInterval.current) {
+            clearInterval(messageChangeInterval.current);
+        }
     }
-  };
-
-  useEffect(() => {
+ };
+ 
+ useEffect(() => {
     fetchMatchedFriends();
     
     return () => {
-      if (messageChangeInterval.current) {
-        clearInterval(messageChangeInterval.current);
-      }
+        if (messageChangeInterval.current) {
+            clearInterval(messageChangeInterval.current);
+        }
     };
-  }, []);
+ }, []);
 
   const currentFriend = friends[currentFriendIndex];
   const isLastFriend = currentFriendIndex === friends.length - 1;

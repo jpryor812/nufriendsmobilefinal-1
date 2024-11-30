@@ -84,10 +84,6 @@ interface UserProfile {
     if (!auth?.uid) return false;
     try {
         const user = await admin.auth().getUser(auth.uid);
-        await db.collection('users').doc(auth.uid).update({
-          lastTokenRefresh: admin.firestore.FieldValue.serverTimestamp(),
-          authProvider: 'anonymous'
-      });
         return !!user;
     } catch (error) {
         console.error('Token verification failed:', error);
@@ -98,7 +94,7 @@ interface UserProfile {
 export const findMatch = onCall({ 
   memory: "1GiB",
   timeoutSeconds: 300,
-  enforceAppCheck: true
+  enforceAppCheck: false,
 }, async (request) => {
   try {
 
