@@ -174,43 +174,20 @@ const FindingFriends = () => {
         };
  
         const matchPromises = Array(5).fill(null).map(async (_, index) => {
-        try {
-            await ensureAuth();
-            
-            const result = await findMatchFunction({ 
-                userId: currentUser.uid,
-                attemptNumber: index + 1,
-                timestamp: Date.now()
-            });
-            console.log(`Match attempt ${index + 1} result:`, result);
-            return result;
-        } catch (error) {
-            console.error(`Match attempt ${index + 1} failed:`, {
-                error,
-                message: error instanceof Error ? error.message : 'Unknown error',
-                code: error instanceof Error && 'code' in error ? (error as any).code : 'unknown'
-            });
-            
-            if (error instanceof FirebaseError && error.code === 'functions/unauthenticated') {
-                try {
-                    await ensureAuth();
-                    const retryResult = await findMatchFunction({ 
-                        userId: currentUser.uid,
-                        attemptNumber: index + 1,
-                        timestamp: Date.now(),
-                        isRetry: true
-                    });
-                    console.log(`Match attempt ${index + 1} retry succeeded:`, retryResult);
-                    return retryResult;
-                } catch (retryError) {
-                    console.error(`Match attempt ${index + 1} retry also failed:`, retryError);
-                    throw retryError;
-                }
-            }
-            
-            throw error;
-            }
-        });
+          try {
+              // Remove all the auth checking/token refresh logic
+              const result = await findMatchFunction({ 
+                  userId: currentUser.uid,
+                  attemptNumber: index + 1,
+                  timestamp: Date.now()
+              });
+              console.log(`Match attempt ${index + 1} result:`, result);
+              return result;
+          } catch (error) {
+              console.error(`Match attempt ${index + 1} failed:`, error);
+              throw error;
+          }
+      });
  
         const matchResults = await Promise.all(matchPromises);
         console.log('All match calls completed');
