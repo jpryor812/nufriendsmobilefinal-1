@@ -7,58 +7,37 @@ import EmailInput from '@/components/EmailInput';
 import PasswordInput from '@/components/PasswordInput';
 import SafeLayout from '@/components/SafeLayout';
 import SmallYuOnboarding from '@/components/SmallYuOnboarding';
-import ProgressBar from '@/components/ProgressBar';
 
-const OnboardingSignUp = () => {
-  const { signUp } = useAuth();
+const SignIn = () => {
+  const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleCreateAccount = async () => {
+  const handleSignIn = async () => {
     try {
       setLoading(true);
       setError('');
 
-      // Basic validation
       if (!email || !password) {
         setError('Please fill in all fields');
         return;
       }
 
-      // Basic email format validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        setError('Please enter a valid email address');
+      const { error: signInError } = await signIn(email, password);
+
+      if (signInError) {
+        setError(signInError.message);
         return;
       }
 
-      // Basic password validation
-      if (password.length < 6) {
-        setError('Password should be at least 6 characters');
-        return;
-      }
-
-      // Create account using Supabase auth
-      const username = email.split('@')[0];
-      const { error: signUpError } = await signUp(email, password, username);
-
-      if (signUpError) {
-        if (signUpError.message.includes('User already registered')) {
-          setError('This email is already registered. Please sign in instead.');
-        } else {
-          setError(signUpError.message);
-        }
-        return;
-      }
-
-      // Navigate immediately since we don't need email confirmation
-      router.push('/OnboardingBasicQuestions');
+      // If successful, navigate to home or last screen
+      router.replace('/(tabs)');
       
     } catch (err: any) {
-      console.error('Signup error:', err);
-      setError('Error creating account. Please try again');
+      setError('Error signing in. Please try again');
+      console.error('Signin error:', err);
     } finally {
       setLoading(false);
     }
@@ -66,7 +45,6 @@ const OnboardingSignUp = () => {
 
   return (
     <SafeLayout style={styles.container}>
-      <ProgressBar progress={20} />
       <View style={styles.contentContainer}>
         <KeyboardAwareScrollView
           style={styles.scrollContainer}
@@ -76,7 +54,7 @@ const OnboardingSignUp = () => {
           enableAutomaticScroll={true}
           extraScrollHeight={20}
         >
-          <SmallYuOnboarding text="But, first, let's create your nufriends account!" />
+          <SmallYuOnboarding text="Welcome back to nufriends!" />
           <EmailInput onEmailChange={setEmail} />
           <PasswordInput onPasswordChange={setPassword} />
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
@@ -88,20 +66,20 @@ const OnboardingSignUp = () => {
               styles.button,
               loading && styles.buttonDisabled
             ]}
-            onPress={handleCreateAccount}
+            onPress={handleSignIn}
             disabled={loading}
           >
             <Text style={styles.buttonText}>
-              {loading ? 'Creating Account...' : 'Create Account'}
+              {loading ? 'Signing In...' : 'Sign In'}
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
-            onPress={() => router.push('../SignIn')}
-            style={styles.signInLink}
+            onPress={() => router.push('/OnboardingPreQuestionsCreateAccount')}
+            style={styles.signUpLink}
           >
-            <Text style={styles.signInText}>
-              Already have an account? Sign in
+            <Text style={styles.signUpText}>
+              Don't have an account? Create one
             </Text>
           </TouchableOpacity>
         </View>
@@ -161,14 +139,14 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingHorizontal: 16,
   },
-  signInLink: {
+  signUpLink: {
     marginTop: 12,
     alignItems: 'center',
   },
-  signInText: {
+  signUpText: {
     color: '#42ade2',
     fontSize: 14,
   },
 });
 
-export default OnboardingSignUp;
+export default SignIn;

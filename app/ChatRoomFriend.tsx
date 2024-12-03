@@ -20,15 +20,6 @@ import YuSuggestions from '@/components/YuSuggestions';
 import AnimatedYuButton from '@/components/AnimatedYuButton';
 import SafeLayout from '@/components/SafeLayout';
 import ActionMenu from '@/components/ActionMenu';
-import { friendsData } from '@/constants/FriendsData';
-import { 
-  collection, 
-  query, 
-  orderBy, 
-  onSnapshot,
-  DocumentData,
-} from 'firebase/firestore';
-import { db } from '@/config/firebase';
 
 const ChatRoomFriend = () => {
   const insets = useSafeAreaInsets();

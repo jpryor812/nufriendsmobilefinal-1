@@ -12,8 +12,6 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import SafeLayout from '@/components/SafeLayout';
 import UsernameInput from '@/components/UsernameInput';
 import AgePicker from '@/components/BirthdayDropdown';
-import { httpsCallable } from 'firebase/functions';
-import { auth, functions as baseFunctions } from '@/config/firebase';
 
 interface AgeData {
   age: number;

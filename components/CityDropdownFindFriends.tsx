@@ -8,8 +8,7 @@ import {
   StyleSheet,
   ScrollView,
 } from 'react-native';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '@/config/firebase';
+import { supabase } from '@/config/supabase';
 
 
 interface CityDropdownProps {
@@ -65,14 +64,19 @@ const CityDropdownFindFriends = ({
             }
     
             const filtered = await Promise.all(availableCities.map(async (city) => {
-                const cityData = await getDocs(
-                    query(
-                        collection(db, 'users'),
-                        where('demographics.city', '==', city),
-                        where('demographics.state', 'in', selectedStates)
-                    )
-                );
-                return !cityData.empty ? city : null;
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('demographics')
+                    .eq('demographics->city', city)
+                    .in('demographics->state', selectedStates)
+                    .limit(1);
+
+                if (error) {
+                    console.error('Error fetching city data:', error);
+                    return null;
+                }
+
+                return data.length > 0 ? city : null;
             }));
             
             setFilteredCities(filtered.filter((city): city is string => city !== null));
@@ -80,8 +84,6 @@ const CityDropdownFindFriends = ({
     
         filterCities();
     }, [selectedStates, availableCities]);
-
-    // Update getStateForCity to use Firestore data
 
     const renderItem = ({ item }: { item: string }) => (
         <TouchableOpacity 

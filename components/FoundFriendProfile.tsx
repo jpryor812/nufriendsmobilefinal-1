@@ -12,32 +12,29 @@ interface GenderIcon {
 
 interface FriendProfileProps {
   friend: {
-    uid: string;  // Changed from id
+    user_id: string;
     username: string;
     demographics: {
       gender: string;
       state: string;
       city: string;
       age: number;
-      birthDate: number;
+      birth_date: number;
     };
-    matchDetails?: {
-      compatibilityScore: number;
-      waitingScore: number;
-      finalScore: number;
-      matchReason?: string;
-      commonInterests?: string[];
+    match_details?: {
+      compatibility_score: number;
+      waiting_score: number;
+      final_score: number;
+      match_reason?: string;
+      common_interests?: string[];
     };
-    onboarding: {
-      responses: {
-        aspirations: { answer: string; updatedAt: null };
-        entertainment: { answer: string; updatedAt: null };
-        hobbies: { answer: string; updatedAt: null };
-        location: { answer: string; updatedAt: null };
-        music: { answer: string; updatedAt: null };
-        relationships: { answer: string; updatedAt: null };
-        travel: { answer: string; updatedAt: null };
-      };
+    onboarding_responses: {
+      aspirations: string;
+      entertainment: string;
+      hobbies: string;
+      location: string;
+      music: string;
+      travel: string;
     };
   };
 }
@@ -65,20 +62,20 @@ const FoundFriendProfile: React.FC<FriendProfileProps> = ({ friend }) => {
         <Text style={styles.name}>{friend.username}</Text>
         
         {/* Match Details Section */}
-        {friend.matchDetails && (
+        {friend.match_details && (
           <View style={styles.matchDetails}>
             <Text style={styles.compatibilityScore}>
-              {formatScore(friend.matchDetails.compatibilityScore)} Match!
+              {formatScore(friend.match_details.compatibility_score)} Match!
             </Text>
-            {friend.matchDetails.matchReason && (
+            {friend.match_details.match_reason && (
               <Text style={styles.matchReason}>
-                {friend.matchDetails.matchReason}
+                {friend.match_details.match_reason}
               </Text>
             )}
-            {friend.matchDetails.commonInterests && (
+            {friend.match_details.common_interests && (
               <View style={styles.commonInterests}>
                 <Text style={styles.interestsTitle}>Common Interests:</Text>
-                {friend.matchDetails.commonInterests.map((interest, index) => (
+                {friend.match_details.common_interests.map((interest, index) => (
                   <Text key={index} style={styles.interestItem}>• {interest}</Text>
                 ))}
               </View>
@@ -122,7 +119,7 @@ const FoundFriendProfile: React.FC<FriendProfileProps> = ({ friend }) => {
         <View style={styles.interestsPreview}>
           <Text style={styles.interestsHeader}>A bit about {friend.username}:</Text>
           <Text style={styles.interestText}>
-            {friend.onboarding.responses.hobbies.answer}
+            {friend.onboarding_responses.hobbies}
           </Text>
         </View>
       </View>
@@ -132,7 +129,7 @@ const FoundFriendProfile: React.FC<FriendProfileProps> = ({ friend }) => {
         onPress={() => router.push({
           pathname: '/ChatRoomNewFriend',
           params: {
-            id: friend.uid  // Changed from id to uid
+            id: friend.user_id  // Changed from uid
           }
         })}
       >

@@ -10,8 +10,6 @@ import {
   IMessage,
 } from 'react-native-gifted-chat';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '@/config/firebase';
 import { useAuth } from '@/contexts/AuthContext';
 import Colors from '@/assets/Colors';
 import ChatMessageBox from '@/components/ChatMessageBox';

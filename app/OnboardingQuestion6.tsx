@@ -2,9 +2,10 @@ import ProgressBar from '@/components/ProgressBar';
 import BigYuOnboarding from '@/components/BigYuOnboarding';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/assets/Colors';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
-import { useAuth } from '@/contexts/AuthContext';  // Add this import
+import { useAuth } from '@/contexts/AuthContext';
+import { updateOnboardingResponse } from '@/functions/supabase-helpers';
 import {
   SafeAreaView,
   View,
@@ -17,18 +18,14 @@ import {
   Dimensions,
   KeyboardAvoidingView,
   Platform,
-  ActivityIndicator,  // Add this import
+  ActivityIndicator,
 } from 'react-native';
 import SafeLayout from '@/components/SafeLayout';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-interface OnboardingQuestion6Props {
-  onSubmit?: (text: string) => void;
-}
-
-const OnboardingQuestion6: React.FC<OnboardingQuestion6Props> = ({ onSubmit }) => {
-  const { updateOnboardingResponse, getOnboardingStatus } = useAuth();
+const OnboardingPage6: React.FC = () => {
+  const { user } = useAuth();
   const [text, setText] = useState<string>('');
   const [inputHeight, setInputHeight] = useState<number>(18);
   const [loading, setLoading] = useState(false);
@@ -46,7 +43,7 @@ const OnboardingQuestion6: React.FC<OnboardingQuestion6Props> = ({ onSubmit }) =
   const handleTextChange = (newText: string) => {
     setText(newText);
     setCharCount(newText.length);
-    setError(''); // Clear any previous errors
+    setError('');
   };
 
   const isValidResponse = () => {
@@ -63,37 +60,29 @@ const OnboardingQuestion6: React.FC<OnboardingQuestion6Props> = ({ onSubmit }) =
       setLoading(true);
       setError('');
 
-      // Update Firebase with the response
-      await updateOnboardingResponse('travel', text);
+      if (!user?.id) {
+        throw new Error('User not authenticated');
+      }
 
-    // Log the answer
-    console.log('Question 6 Answer:', {
-      question: "Have you ever traveled somewhere you enjoyed? If so, where did you go and why did you enjoy it? Name as many places as you like!",
-      answer: text,
-      timestamp: new Date().toISOString(),
-    });
+      // Update Supabase with the response
+      await updateOnboardingResponse(user.id, 'location', text);
 
-    // Call onSubmit if provided
-    if (onSubmit) {
-      onSubmit(text);
+      // Clear the input
+      setText('');
+      setCharCount(0);
+
+      // Dismiss keyboard
+      Keyboard.dismiss();
+
+      // Navigate to next page
+      router.push('/OnboardingPostQuestions');
+    } catch (err) {
+      console.error('Error saving response:', err);
+      setError('Failed to save your answer. Please try again.');
+    } finally {
+      setLoading(false);
     }
-
-    // Clear the input
-    setText('');
-    setCharCount(0);
-
-    // Dismiss keyboard
-    Keyboard.dismiss();
-
-    // Navigate to next page
-    router.push('/OnboardingQuestion7');
-  } catch (err) {
-    console.error('Error saving response:', err);
-    setError('Failed to save your answer. Please try again.');
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <KeyboardAvoidingView 
@@ -102,27 +91,27 @@ const OnboardingQuestion6: React.FC<OnboardingQuestion6Props> = ({ onSubmit }) =
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <SafeLayout style={styles.appContainer}>
-          <ProgressBar progress={60} />
+        <ProgressBar progress={60} />
           <BigYuOnboarding 
-            text={"Question 6: \nHave you ever traveled somewhere you enjoyed? If so, where did you go and why did you enjoy it? Name as many places as you like!"} 
-          />
+            text={"Question 6: \nWhat's something you'd love to try or learn? Could be a hobby, skill, or experience!"} 
+            />
           <View style={styles.questionHeader}>
-          <View style={styles.questionCounterContainer}>
-          <Text style={styles.label}>Question 6/7</Text>
+            <View style={styles.questionCounterContainer}>
+              <Text style={styles.label}>Question 6/6</Text>
+            </View>
+            <View style={styles.characterInfo}>
+              <Text style={styles.requirementText}>
+                Please write between {MIN_CHARS}-{MAX_CHARS} characters
+              </Text>
+              <Text style={styles.charCount}>
+                {charCount}/{MAX_CHARS}
+              </Text>
+            </View>
           </View>
-          <View style={styles.characterInfo}>
-            <Text style={styles.requirementText}>
-              Please write between {MIN_CHARS}-{MAX_CHARS} characters
-            </Text>
-            <Text style={styles.charCount}>
-              {charCount}/{MAX_CHARS}
-            </Text>
-          </View>
-        </View>
 
-        {error ? (
-          <Text style={styles.errorText}>{error}</Text>
-        ) : null}
+          {error ? (
+            <Text style={styles.errorText}>{error}</Text>
+          ) : null}
 
           <View style={[
             styles.inputContainer, 
@@ -132,7 +121,6 @@ const OnboardingQuestion6: React.FC<OnboardingQuestion6Props> = ({ onSubmit }) =
               <TextInput
                 placeholder="Type your answer here..."
                 placeholderTextColor="#A3A3A3"  
-                keyboardType="default"
                 value={text}
                 onChangeText={handleTextChange}
                 style={[
@@ -147,13 +135,6 @@ const OnboardingQuestion6: React.FC<OnboardingQuestion6Props> = ({ onSubmit }) =
                 editable={!loading}
               />
               <View style={styles.iconsContainer}>
-                <TouchableOpacity disabled={loading}>
-                  <Ionicons 
-                    name="mic" 
-                    color={loading ? Colors.lightGray : Colors.primary} 
-                    size={20} 
-                  />
-                </TouchableOpacity>
                 <TouchableOpacity 
                   onPress={handleSend}
                   disabled={!isValidResponse()}
@@ -176,7 +157,6 @@ const OnboardingQuestion6: React.FC<OnboardingQuestion6Props> = ({ onSubmit }) =
             </View>
           </View>
 
-          {/* Optional helper text */}
           {text.length > 0 && text.length < MIN_CHARS && (
             <Text style={styles.helperText}>
               Please write at least {MIN_CHARS} characters
@@ -188,110 +168,110 @@ const OnboardingQuestion6: React.FC<OnboardingQuestion6Props> = ({ onSubmit }) =
   );
 };
 
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: '#F0FCFE',
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F0FCFE',
+  },
+  appContainer: {
+    flex: 1,
+    alignItems: 'center',
+    width: '100%',
+  },
+  label: {
+    fontSize: 10,
+    fontWeight: '500',
+    marginBottom: 4,
+    textAlign: 'right',
+    width: '80%', 
+    color: '#9100C3'
+  },
+  questionCounterContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    width: '100%',
+    paddingHorizontal: 24,
+  },
+  inputContainer: {
+    width: SCREEN_WIDTH * 0.9,
+    marginTop: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: 'white',
+    borderRadius: 18,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
     },
-    appContainer: {
-      flex: 1,
-      alignItems: 'center',
-      width: '100%',
-    },
-    label: {
-      fontSize: 10,
-      fontWeight: '500',
-      marginBottom: 4,
-      textAlign: 'right',
-      width: '80%', 
-      color: '#9100C3'
-    },
-    questionCounterContainer: {
-      flexDirection: 'row',
-      justifyContent: 'flex-end',
-      width: '100%',
-      paddingHorizontal: 24,
-    },
-    inputContainer: {
-      width: SCREEN_WIDTH * 0.9,
-      marginTop: 8,
-      paddingHorizontal: 16,
-      paddingVertical: 8,
-      backgroundColor: 'white',
-      borderRadius: 18,
-      shadowColor: '#000',
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.1,
-      shadowRadius: 3,
-      elevation: 3,
-    },
-    inputWrapper: {
-      flexDirection: 'row',
-      alignItems: 'flex-start',
-      gap: 8,
-    },
-    input: {
-      flex: 1,
-      fontSize: 14,
-      color: '#333',
-      paddingTop: 0,
-      paddingBottom: 0,
-      lineHeight: 22,
-      paddingRight: 4, // Add some padding to prevent text from touching icons
-    },
-    iconsContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 6,
-      paddingTop: 6, // Align icons with first line of text
-    },
-    iconButton: {
-      padding: 4,
-    },
-    iconButtonDisabled: {
-      opacity: 0.5,
-    },
-      iconButtonActive: {
-      backgroundColor: '#FFE5E5',
-      borderRadius: 12,
-    },
-    questionHeader: {
-      flexDirection: 'column',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingHorizontal: 10,
-      marginBottom: 2,
-    },
-    charCount: {
-      fontSize: 12,
-      color: Colors.gray,
-    },
-    characterInfo: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 24, // Space between requirement text and counter
-      marginBottom: 2,
-    },
-    errorText: {
-      color: "#FF0000",
-      fontSize: 14,
-      marginTop: 4,
-      textAlign: 'center',
-      marginBottom: 8,
-    },
-    requirementText: {
-      fontSize: 12,
-      color: Colors.gray,
-    },
-    helperText: {
-      fontSize: 12,
-      color: "#FF0000",
-      textAlign: 'center',
-      marginBottom: 4,
-    },
-  });
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+  },
+  input: {
+    flex: 1,
+    fontSize: 14,
+    color: '#333',
+    paddingTop: 0,
+    paddingBottom: 0,
+    lineHeight: 22,
+    paddingRight: 4, // Add some padding to prevent text from touching icons
+  },
+  iconsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingTop: 6, // Align icons with first line of text
+  },
+  iconButton: {
+    padding: 4,
+  },
+  iconButtonDisabled: {
+    opacity: 0.5,
+  },
+    iconButtonActive: {
+    backgroundColor: '#FFE5E5',
+    borderRadius: 12,
+  },
+  questionHeader: {
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    marginBottom: 2,
+  },
+  charCount: {
+    fontSize: 12,
+    color: Colors.gray,
+  },
+  characterInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 24, // Space between requirement text and counter
+    marginBottom: 2,
+  },
+  errorText: {
+    color: "#FF0000",
+    fontSize: 14,
+    marginTop: 4,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  requirementText: {
+    fontSize: 12,
+    color: Colors.gray,
+  },
+  helperText: {
+    fontSize: 12,
+    color: "#FF0000",
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+});
 
-export default OnboardingQuestion6;
+export default OnboardingPage6;

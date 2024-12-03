@@ -1,99 +1,83 @@
-import { onCall, HttpsError } from 'firebase-functions/v2/https';
-import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 import OpenAI from 'openai';
-import * as admin from 'firebase-admin';
-import { Timestamp } from 'firebase-admin/firestore';
+import { supabase } from '../../../config/supabase';
+import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 
-if (!admin.apps.length) {
-    admin.initializeApp();
-}
-
-const db = admin.firestore();
 const MINIMUM_COMPATIBILITY = 65;
 
 interface UserProfile {
-    uid: string;
+    user_id: string;
     username: string;
     demographics: {
       age: number;
-      birthDate: number;
+      birth_date: number;
       city: string;
       gender: string;
       state: string;
     };
-    onboarding: {
-      responses: {
-        aspirations: { answer: string; updatedAt: null };
-        entertainment: { answer: string; updatedAt: null };
-        hobbies: { answer: string; updatedAt: null };
-        location: { answer: string; updatedAt: null };
-        music: { answer: string; updatedAt: null };
-        relationships: { answer: string; updatedAt: null };
-        travel: { answer: string; updatedAt: null };
-      };
-      status: {
-        completedAt: Timestamp;
-        isComplete: boolean;
-        lastUpdated: Timestamp;
-      };
+    onboarding_responses: {
+      aspirations: string;
+      entertainment: string;
+      hobbies: string;
+      location: string;
+      music: string;
+      travel: string;
     };
-    stats: {
-      aiInteractions: number;
-      conversationsStarted: number;
-      messagesSent: number;
+    user_stats: {
+      ai_interactions: number;
+      conversations_started: number;
+      messages_sent: number;
     };
     matches?: {
-        [matchId: string]: {
-          userId: string;
-          timestamp: number;
-          status: 'active' | 'archived';
-        };
-    };
+      match_id: string;
+      user_id: string;
+      timestamp: number;
+      status: 'active' | 'archived';
+    }[];
 }
-  
-interface MatchRecord {
+
+export interface MatchRecord {
     users: [string, string];
     timestamp: number;
-    compatibilityScore: number;
-    waitingScore: number;
-    finalScore: number;
-    matchNumber: number;
-    isInitialMatch: boolean;
-    matchQuality: {
-      messageCount: number;
-      conversationLength: number;
-      lastMessageTimestamp: number | null;
+    compatibility_score: number;
+    waiting_score: number;
+    final_score: number;
+    match_number: number;
+    is_initial_match: boolean;
+    match_quality: {
+      message_count: number;
+      conversation_length: number;
+      last_message_timestamp: number | null;
     };
 }
 
 interface MatchResponse {
     match: {
-      userId: string;
-      compatibilityScore: number;
+        userId: string;
+        compatibilityScore: number;
+        matchReason?: string;
+        commonInterests?: string[];
     };
 }
 
-export const findMatch = onCall({ 
-    region: 'us-central1',
-    memory: "1GiB",
-    timeoutSeconds: 300,
-    enforceAppCheck: false,
-    ingressSettings: "ALLOW_ALL",
-    cors: true,
-}, async (request) => {
+export async function findMatch(userId: string) {
     try {
-        const { userId } = request.data;
         console.log("Processing for user:", userId);
         
-        const userRef = db.collection('users').doc(userId);
-        const userDoc = await userRef.get();
-        const userData = userDoc.data() as UserProfile;
-        
-        if (!userData) {
-          console.error(`User data not found for ID: ${userId}`);
-          throw new HttpsError('not-found', 'User profile not found');
-      }
-      console.log("Found user data:", { userId, hasProfile: true });
+        // Get user data from Supabase
+        const { data: userData, error: userError } = await supabase
+            .from('profiles')
+            .select(`
+                *,
+                demographics (*),
+                onboarding_responses (*),
+                user_stats (*)
+            `)
+            .eq('user_id', userId)
+            .single();
+
+        if (userError || !userData) {
+            throw new Error('User profile not found');
+        }
 
         const potentialMatches = await getPotentialMatches(userId, userData.demographics.age);
         console.log(`Found ${potentialMatches.length} potential matches`);
@@ -103,43 +87,53 @@ export const findMatch = onCall({
         let match: MatchResponse | undefined;
 
         while (attempts < maxAttempts) {
-          try {
-              console.log(`Attempting match ${attempts + 1} of ${maxAttempts}`);
-              match = await findMatchWithGPT(userData, potentialMatches as UserProfile[]);
-              console.log("Found match:", match);
-              break;
-          } catch (error) {
-              console.error(`Match attempt ${attempts + 1} failed:`, error);
-              attempts++;
-              if (attempts === maxAttempts) {
-                  throw error;
-              }
-              await new Promise(resolve => setTimeout(resolve, 1000));
-          }
-      }
-
-        if (!match || !match.match) {
-            throw new HttpsError('internal', 'No valid match found');
+            try {
+                match = await findMatchWithGPT(userData, potentialMatches);
+                console.log("Found match:", match);
+                break;
+            } catch (error) {
+                console.error(`Match attempt ${attempts + 1} failed:`, error);
+                attempts++;
+                if (attempts === maxAttempts) {
+                    throw error;
+                }
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
         }
 
-        const lastMatchTimestamp = userData.matches ? 
-            Math.max(...Object.values(userData.matches).map(m => m.timestamp)) :
-            0;
+        if (!match || !match.match) {
+            throw new Error('No valid match found');
+        }
 
+        // Get last match timestamp
+        const { data: lastMatch } = await supabase
+            .from('matches')
+            .select('timestamp')
+            .eq('user_id', userId)
+            .order('timestamp', { ascending: false })
+            .limit(1)
+            .single();
+
+        const lastMatchTimestamp = lastMatch?.timestamp || 0;
         const hoursSinceLastMatch = lastMatchTimestamp ? 
             (Date.now() - lastMatchTimestamp) / (1000 * 60 * 60) :
             48;
 
         const waitingScore = calculateWaitingScore(hoursSinceLastMatch);
         const finalScore = (match.match.compatibilityScore * 0.7) + (waitingScore * 0.3);
-        const currentMatchCount = userData.matches ? Object.keys(userData.matches).length : 0;
+
+        // Get current match count
+        const { count: currentMatchCount } = await supabase
+            .from('matches')
+            .select('*', { count: 'exact' })
+            .eq('user_id', userId);
 
         const matchId = await recordMatch(userId, match.match.userId, {
             compatibilityScore: match.match.compatibilityScore,
             waitingScore,
             finalScore,
-            matchNumber: currentMatchCount + 1,
-            isInitialMatch: currentMatchCount < 5
+            matchNumber: (currentMatchCount || 0) + 1,
+            isInitialMatch: (currentMatchCount || 0) < 5
         });
 
         return {
@@ -153,9 +147,9 @@ export const findMatch = onCall({
         };
     } catch (error) {
         console.error('Friend matching error:', error);
-        throw new HttpsError('internal', 'Error processing friend match');
+        throw error;
     }
-});
+}
 
 function shuffleArray<T>(array: T[]): T[] {
     for (let i = array.length - 1; i > 0; i--) {
@@ -183,56 +177,41 @@ function calculateWaitingScore(hoursSinceLastMatch: number): number {
     return Math.min(Math.pow(hoursOverMinimum / 13, 2.7) * 100, 100);
 }
 
+async function getPotentialMatches(userId: string, userAge: number) {
+    const { minAge, maxAge } = getAgeRange(userAge);
+
+    const { data: potentialMatches, error } = await supabase
+        .from('profiles')
+        .select(`
+            *,
+            demographics (*),
+            onboarding_responses (*),
+            user_stats (*)
+        `)
+        .gte('demographics.age', minAge)
+        .lte('demographics.age', maxAge)
+        .neq('user_id', userId)
+        .limit(40);
+
+    if (error) throw error;
+
+    return shuffleArray(potentialMatches || []);
+}
+
 function prepareProfileForGPT(user: UserProfile) {
-    const { responses } = user.onboarding;
     return {
-        userId: user.uid,
+        userId: user.user_id,
         username: user.username,
         demographics: user.demographics,
         interests: {
-            creative: responses.hobbies?.answer,
-            lifestyle: responses.location?.answer,
-            relationships: responses.relationships?.answer,
-            music: responses.music?.answer,
-            entertainment: responses.entertainment?.answer,
-            travel: responses.travel?.answer,
-            goals: responses.aspirations?.answer
+            creative: user.onboarding_responses.hobbies,
+            lifestyle: user.onboarding_responses.location,
+            music: user.onboarding_responses.music,
+            entertainment: user.onboarding_responses.entertainment,
+            travel: user.onboarding_responses.travel,
+            goals: user.onboarding_responses.aspirations
         }
     };
-}
-
-async function getPotentialMatches(userId: string, userAge: number) {
-    const { minAge, maxAge } = getAgeRange(userAge);
-    const usersRef = db.collection('users');
-  
-    const eligibleMatches = await usersRef
-        .where('demographics.age', '>=', minAge)
-        .where('demographics.age', '<=', maxAge)
-        .where('onboarding.status.isComplete', '==', true)
-        .where(admin.firestore.FieldPath.documentId(), '!=', userId)
-        .get();
-  
-    let potentialMatches = eligibleMatches.docs.map(doc => ({
-        uid: doc.id,
-        ...doc.data()
-    }));
-  
-    if (potentialMatches.length > 40) {
-        potentialMatches = shuffleArray(potentialMatches).slice(0, 40);
-    }
-  
-    return potentialMatches;
-}
-
-async function getOpenAIKey() {
-    const secretManager = new SecretManagerServiceClient();
-    const [version] = await secretManager.accessSecretVersion({
-        name: 'projects/792301576889/secrets/OPENAI_API_KEY/versions/latest',
-    });
-    if (!version.payload || !version.payload.data) {
-        throw new Error('Failed to retrieve OpenAI API key from Secret Manager');
-    }
-    return version.payload.data.toString();
 }
 
 async function generateMatchPrompt(userProfile: UserProfile, potentialMatches: UserProfile[]) {
@@ -266,6 +245,43 @@ Return only a JSON object:
 }`;
 }
 
+async function getOpenAIKey() {
+  try {
+      console.log("Initializing SecretManagerServiceClient");
+      const secretManager = new SecretManagerServiceClient();
+      
+      const secretName = 'projects/792301576889/secrets/OPENAI_API_KEY/versions/latest';
+      console.log("Attempting to access secret:", secretName);
+      
+      const [version] = await secretManager.accessSecretVersion({
+          name: secretName
+      });
+      
+      if (!version.payload?.data) {
+          const error = new Error('No secret payload found in Secret Manager');
+          console.error(error);
+          throw error;
+      }
+
+      const apiKey = version.payload.data.toString();
+      console.log("Successfully retrieved OpenAI key");
+      
+      // Verify the key is not empty or malformed
+      if (!apiKey || apiKey.length < 20) {  // OpenAI keys are typically longer
+          throw new Error('Retrieved OpenAI key appears to be invalid');
+      }
+
+      return apiKey;
+    } catch (error: any) {  // Type as 'any' or use type guard
+      console.error("Error retrieving OpenAI key:", {
+          message: error?.message || 'Unknown error',
+          name: error?.name,
+          stack: error?.stack
+      });
+      throw new Error(`Failed to retrieve OpenAI API key: ${error?.message || 'Unknown error'}`);
+  }
+}
+
 async function findMatchWithGPT(userProfile: UserProfile, potentialMatches: UserProfile[]): Promise<MatchResponse> {
     const apiKey = await getOpenAIKey();
     const openai = new OpenAI({ apiKey });
@@ -291,7 +307,7 @@ async function findMatchWithGPT(userProfile: UserProfile, potentialMatches: User
     const match = JSON.parse(responseContent);
 
     if (match.match.compatibilityScore < MINIMUM_COMPATIBILITY) {
-        const newPotentialMatches = potentialMatches.filter(p => p.uid !== match.match.userId);
+        const newPotentialMatches = potentialMatches.filter(p => p.user_id !== match.match.userId);
         if (newPotentialMatches.length > 0) {
             return findMatchWithGPT(userProfile, newPotentialMatches);
         }
@@ -307,45 +323,42 @@ async function recordMatch(userId1: string, userId2: string, matchDetails: {
     matchNumber: number;
     isInitialMatch: boolean;
 }) {
-    const batch = db.batch();
     const timestamp = Date.now();
-  
-    const matchRef = db.collection('matches').doc();
-    const matchRecord: MatchRecord = {
-        users: [userId1, userId2],
-        timestamp,
-        ...matchDetails,
-        matchQuality: {
-            messageCount: 0,
-            conversationLength: 0,
-            lastMessageTimestamp: null
-        }
-    };
-    
-    batch.set(matchRef, matchRecord);
-  
-    const matchData = {
-        userId: userId2,
-        timestamp: timestamp,
-        status: 'active' as const
-    };
-    
-    const matchData2 = {
-        userId: userId1,
-        timestamp: timestamp,
-        status: 'active' as const
-    };
-    
-    batch.update(db.collection('users').doc(userId1), {
-        'stats.conversationsStarted': admin.firestore.FieldValue.increment(1),
-        [`matches.${matchRef.id}`]: matchData
-    });
 
-    batch.update(db.collection('users').doc(userId2), {
-        'stats.conversationsStarted': admin.firestore.FieldValue.increment(1),
-        [`matches.${matchRef.id}`]: matchData2
-    });
-    
-    await batch.commit();
-    return matchRef.id;
+    const { data: match, error } = await supabase
+        .from('matches')
+        .insert([{
+            users: [userId1, userId2],
+            timestamp,
+            compatibility_score: matchDetails.compatibilityScore,
+            waiting_score: matchDetails.waitingScore,
+            final_score: matchDetails.finalScore,
+            match_number: matchDetails.matchNumber,
+            is_initial_match: matchDetails.isInitialMatch,
+            match_quality: {
+                message_count: 0,
+                conversation_length: 0,
+                last_message_timestamp: null
+            }
+        }])
+        .select()
+        .single();
+
+    if (error) throw error;
+
+    // Update user stats and matches for both users
+    await Promise.all([
+        supabase.from('user_stats').upsert([{
+            user_id: userId1,
+            conversations_started: supabase.rpc('increment', { row_id: userId1, amount: 1 })
+        }]),
+        supabase.from('user_stats').upsert([{
+            user_id: userId2,
+            conversations_started: supabase.rpc('increment', { row_id: userId2, amount: 1 })
+        }])
+    ]);
+
+    return match.id;
 }
+
+export default findMatch;

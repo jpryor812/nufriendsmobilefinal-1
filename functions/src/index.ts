@@ -1,46 +1,18 @@
-import {onCall} from "firebase-functions/v2/https";
-import {SecretManagerServiceClient} from "@google-cloud/secret-manager";
-export { findMatch } from "./matchmaking/findMatch";
+import { supabase } from '../../config/supabase';
 
-const secretManager = new SecretManagerServiceClient();
+export { findMatch } from './matchmaking/findMatch';
 
-/** Retrieves OpenAI API key from Secret Manager */
-async function getOpenAIKey(): Promise<string | undefined> {
+export async function getOpenAIKey(): Promise<string | undefined> {
   try {
-    const name = "projects/792301576889/secrets/OPENAI_API_KEY/versions/latest";
-    const [version] = await secretManager.accessSecretVersion({name});
-    return version.payload?.data?.toString();
+    const { data, error } = await supabase
+      .rpc('get_secret', {
+        secret_name: 'OPENAI_API_KEY'
+      });
+
+    if (error) throw error;
+    return data;
   } catch (error) {
-    console.error("Error fetching secret:", error);
-    throw new Error("Could not fetch API key");
+    console.error('Error fetching API key:', error);
+    throw new Error('Could not fetch API key');
   }
 }
-
-export const checkKey = onCall({
-  memory: "256MiB",
-}, async (request) => {
-  console.log('Request auth status:', {
-    hasAuth: !!request.auth,
-    uid: request.auth?.uid,
-    provider: request.auth?.token?.firebase?.sign_in_provider
-  });
-
-  try {
-    const apiKey = await getOpenAIKey();
-    return {
-      status: "success",
-      keyPreview: apiKey?.substring(0, 5) + "...",
-      timestamp: new Date().toISOString(),
-      authInfo: {
-        isAuthenticated: !!request.auth,
-        authType: request.auth?.token?.firebase?.sign_in_provider || 'none'
-      }
-    };
-  } catch (error: any) {
-    return {
-      status: "error",
-      message: error?.message || "An unknown error occurred",
-      timestamp: new Date().toISOString(),
-    };
-  }
-});

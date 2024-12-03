@@ -2,9 +2,10 @@ import ProgressBar from '@/components/ProgressBar';
 import BigYuOnboarding from '@/components/BigYuOnboarding';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/assets/Colors';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
-import { useAuth } from '@/contexts/AuthContext';  // Add this import
+import { useAuth } from '@/contexts/AuthContext';
+import { updateOnboardingResponse } from '@/functions/supabase-helpers';
 import {
   SafeAreaView,
   View,
@@ -17,18 +18,14 @@ import {
   Dimensions,
   KeyboardAvoidingView,
   Platform,
-  ActivityIndicator,  // Add this import
+  ActivityIndicator,
 } from 'react-native';
 import SafeLayout from '@/components/SafeLayout';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-interface OnboardingQuestion1Props {
-  onSubmit?: (text: string) => void;
-}
-
-const OnboardingPage1: React.FC<OnboardingQuestion1Props> = ({ onSubmit }) => {
-  const { updateOnboardingResponse, getOnboardingStatus } = useAuth();
+const OnboardingPage1: React.FC = () => {
+  const { user } = useAuth();
   const [text, setText] = useState<string>('');
   const [inputHeight, setInputHeight] = useState<number>(18);
   const [loading, setLoading] = useState(false);
@@ -46,7 +43,7 @@ const OnboardingPage1: React.FC<OnboardingQuestion1Props> = ({ onSubmit }) => {
   const handleTextChange = (newText: string) => {
     setText(newText);
     setCharCount(newText.length);
-    setError(''); // Clear any previous errors
+    setError('');
   };
 
   const isValidResponse = () => {
@@ -63,20 +60,12 @@ const OnboardingPage1: React.FC<OnboardingQuestion1Props> = ({ onSubmit }) => {
       setLoading(true);
       setError('');
 
-      // Update Firebase with the response
-      await updateOnboardingResponse('location', text);
-
-      // Log the answer
-      console.log('Question 1 Answer:', {
-        question: "Tell us about where you're from and where you live now! What do you like or dislike about those towns?",
-        answer: text,
-        timestamp: new Date().toISOString(),
-      });
-
-      // Call onSubmit if provided
-      if (onSubmit) {
-        onSubmit(text);
+      if (!user?.id) {
+        throw new Error('User not authenticated');
       }
+
+      // Update Supabase with the response
+      await updateOnboardingResponse(user.id, 'location', text);
 
       // Clear the input
       setText('');
@@ -107,22 +96,22 @@ const OnboardingPage1: React.FC<OnboardingQuestion1Props> = ({ onSubmit }) => {
             text={"Question 1: \nTell us about where you're from. Did you enjoy growing up there? Do you still live there or did you move? Why? Do you like where you live now? Why or why not?"}
           />
           <View style={styles.questionHeader}>
-          <View style={styles.questionCounterContainer}>
-          <Text style={styles.label}>Question 1/7</Text>
+            <View style={styles.questionCounterContainer}>
+              <Text style={styles.label}>Question 1/6</Text>
+            </View>
+            <View style={styles.characterInfo}>
+              <Text style={styles.requirementText}>
+                Please write between {MIN_CHARS}-{MAX_CHARS} characters
+              </Text>
+              <Text style={styles.charCount}>
+                {charCount}/{MAX_CHARS}
+              </Text>
+            </View>
           </View>
-          <View style={styles.characterInfo}>
-            <Text style={styles.requirementText}>
-              Please write between {MIN_CHARS}-{MAX_CHARS} characters
-            </Text>
-            <Text style={styles.charCount}>
-              {charCount}/{MAX_CHARS}
-            </Text>
-          </View>
-        </View>
 
-        {error ? (
-          <Text style={styles.errorText}>{error}</Text>
-        ) : null}
+          {error ? (
+            <Text style={styles.errorText}>{error}</Text>
+          ) : null}
 
           <View style={[
             styles.inputContainer, 
@@ -132,7 +121,6 @@ const OnboardingPage1: React.FC<OnboardingQuestion1Props> = ({ onSubmit }) => {
               <TextInput
                 placeholder="Type your answer here..."
                 placeholderTextColor="#A3A3A3"  
-                keyboardType="default"
                 value={text}
                 onChangeText={handleTextChange}
                 style={[
@@ -147,13 +135,6 @@ const OnboardingPage1: React.FC<OnboardingQuestion1Props> = ({ onSubmit }) => {
                 editable={!loading}
               />
               <View style={styles.iconsContainer}>
-                <TouchableOpacity disabled={loading}>
-                  <Ionicons 
-                    name="mic" 
-                    color={loading ? Colors.lightGray : Colors.primary} 
-                    size={20} 
-                  />
-                </TouchableOpacity>
                 <TouchableOpacity 
                   onPress={handleSend}
                   disabled={!isValidResponse()}
@@ -176,7 +157,6 @@ const OnboardingPage1: React.FC<OnboardingQuestion1Props> = ({ onSubmit }) => {
             </View>
           </View>
 
-          {/* Optional helper text */}
           {text.length > 0 && text.length < MIN_CHARS && (
             <Text style={styles.helperText}>
               Please write at least {MIN_CHARS} characters
