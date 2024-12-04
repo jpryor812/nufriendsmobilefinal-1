@@ -8,7 +8,7 @@ import SearchingBubble from "@/components/SearchingBubble";
 import FoundFriendProfile from "@/components/FoundFriendProfile";
 import SafeLayout from '@/components/SafeLayout';
 import ConfettiEffect from '@/components/ConfettiEffect';
-import { httpsCallable } from 'firebase/functions';
+import { httpsCallable, getFunctions } from 'firebase/functions';
 import { FirebaseError } from 'firebase/app';  
 
 
@@ -112,9 +112,12 @@ const FindingFriends = () => {
   };
 
   const handleNextFriend = () => {
+    console.log("Before transition - Current index:", currentFriendIndex);
+    console.log("Before transition - Total friends:", friends.length);
+
     if (currentFriendIndex === friends.length - 1) {
-      router.replace('/HomePage');
-      return;
+        router.replace('/HomePage');
+        return;
     }
 
     // Reset animations
@@ -173,7 +176,7 @@ const FindingFriends = () => {
             }
         };
  
-        const matchPromises = Array(5).fill(null).map(async (_, index) => {
+        const matchPromises = Array(3).fill(null).map(async (_, index) => {
           try {
               // Remove all the auth checking/token refresh logic
               const result = await findMatchFunction({ 
@@ -229,15 +232,15 @@ const FindingFriends = () => {
         );
  
         const validMatchedFriends = matchedFriends.filter(friend => friend !== null);
- 
+
         if (validMatchedFriends.length === 0) {
-            throw new Error('No valid matches were found after processing');
+            throw new Error('No matches found. Please try again later.');
+        } else {
+            // Even if we got fewer than 3, show what we have
+            setFriends(validMatchedFriends);
+            setSearchingComplete(true);
+            setIsLoading(false);
         }
- 
-        // Set state with the valid matches
-        setFriends(validMatchedFriends);
-        setSearchingComplete(true);
-        setIsLoading(false);
  
         if (messageChangeInterval.current) {
             clearInterval(messageChangeInterval.current);
@@ -269,6 +272,10 @@ const FindingFriends = () => {
 
   const currentFriend = friends[currentFriendIndex];
   const isLastFriend = currentFriendIndex === friends.length - 1;
+
+  console.log("All matched friends:", friends);
+console.log("Current friend index:", currentFriendIndex);
+console.log("Current friend being shown:", currentFriend);
 
   if (error) {
     return (

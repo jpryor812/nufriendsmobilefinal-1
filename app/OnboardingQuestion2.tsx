@@ -86,7 +86,7 @@ const OnboardingQuestion2: React.FC<OnboardingQuestion2Props> = ({ onSubmit }) =
     Keyboard.dismiss();
 
     // Navigate to next page
-    router.push('/OnboardingQuestion3');
+    router.push('/OnboardingQuestion4');
   } catch (err) {
     console.error('Error saving response:', err);
     setError('Failed to save your answer. Please try again.');

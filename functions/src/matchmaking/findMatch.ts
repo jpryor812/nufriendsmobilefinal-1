@@ -16,38 +16,42 @@ interface UserProfile {
     uid: string;
     username: string;
     demographics: {
-      age: number;
-      birthDate: number;
-      city: string;
-      gender: string;
-      state: string;
+        age: number;
+        birthDate: number;
+        city: string;
+        gender: string;
+        state: string;
     };
-    onboarding: {
-      responses: {
-        aspirations: { answer: string; updatedAt: null };
-        entertainment: { answer: string; updatedAt: null };
-        hobbies: { answer: string; updatedAt: null };
-        location: { answer: string; updatedAt: null };
-        music: { answer: string; updatedAt: null };
-        relationships: { answer: string; updatedAt: null };
-        travel: { answer: string; updatedAt: null };
-      };
-      status: {
-        completedAt: Timestamp;
-        isComplete: boolean;
-        lastUpdated: Timestamp;
-      };
+    questionnaire: {
+        interests: string[];
+        personalityTraits: string[];
+        preferences: any;
+        onboarding: {
+            responses: {
+                aspirations: { answer: string; updatedAt: null };
+                entertainment: { answer: string; updatedAt: null };
+                hobbies: { answer: string; updatedAt: null };
+                location: { answer: string; updatedAt: null };
+                music: { answer: string; updatedAt: null };
+                travel: { answer: string; updatedAt: null };
+            };
+            status: {
+                completedAt: Timestamp;
+                isComplete: boolean;
+                lastUpdated: Timestamp;
+            };
+        };
     };
     stats: {
-      aiInteractions: number;
-      conversationsStarted: number;
-      messagesSent: number;
+        aiInteractions: number;
+        conversationsStarted: number;
+        messagesSent: number;
     };
     matches?: {
         [matchId: string]: {
-          userId: string;
-          timestamp: number;
-          status: 'active' | 'archived';
+            userId: string;
+            timestamp: number;
+            status: 'active' | 'archived';
         };
     };
 }
@@ -83,64 +87,73 @@ export const findMatch = onCall({
 }, async (request) => {
   try {
       console.log("------- Starting findMatch Function -------");
+      console.log("Service Account:", 'firebase-adminsdk-xpi2x@nufriends-1aba1.iam.gserviceaccount.com');
+
       const { userId } = request.data;
       console.log("Step 1: Received request for userId:", userId);
       
       const userRef = db.collection('users').doc(userId);
       console.log("Step 2: Attempting to fetch user document");
       const userDoc = await userRef.get();
+      console.log("Raw document data:", userDoc.data());  // First new log here
+
       const userData = userDoc.data() as UserProfile;
-      
-      if (!userData) {
-          console.error("Step 2 Error: User data not found for ID:", userId);
-          throw new HttpsError('not-found', 'User profile not found');
-      }
-      console.log("Step 2 Success: Found user data with profile:", {
-          userId,
-          username: userData.username,
-          hasOnboarding: Boolean(userData.onboarding),
-          hasResponses: Boolean(userData.onboarding?.responses)
-      });
 
-      console.log("Step 3: Getting potential matches");
-      const potentialMatches = await getPotentialMatches(userId, userData.demographics.age);
-      console.log("Step 3 Result: Found potential matches:", {
-          count: potentialMatches.length,
-          ageRange: getAgeRange(userData.demographics.age)
-      });
+      console.log("DEBUG - Full user data:", {
+        hasOnboarding: Boolean(userData.questionnaire?.onboarding),
+        fullOnboarding: userData.questionnaire?.onboarding,
+        fullStatus: userData.questionnaire?.onboarding?.status,
+        rawIsComplete: userData.questionnaire?.onboarding?.status?.isComplete
+    });
+    
+    if (!userData) {
+        console.error("Step 2 Error: User data not found for ID:", userId);
+        throw new HttpsError('not-found', 'User profile not found');
+    }
+    
+    console.log("Step 2 Success: Found user data with profile:", {
+        userId,
+        username: userData.username,
+        age: userData.demographics?.age,
+        isComplete: userData.questionnaire?.onboarding?.status?.isComplete
+    });
+    
+    console.log("Step 3: Getting potential matches");
+    const potentialMatches = await getPotentialMatches(userId, userData.demographics.age);
+    console.log("Step 3 Result: Found potential matches:", {
+        count: potentialMatches.length,
+        ageRange: getAgeRange(userData.demographics.age)
+    });
+    
+    if (potentialMatches.length === 0) {
+        console.log("DEBUG: No matches found. Checking conditions:", {
+            userAge: userData.demographics.age,
+            ageRange: getAgeRange(userData.demographics.age),
+            hasOnboarding: userData.questionnaire?.onboarding?.status?.isComplete
+        });
+        
+        // Then throw the error with more context
+        throw new HttpsError('failed-precondition', 
+            'No potential matches available. Please try again later.');
+    }
 
-      if (potentialMatches.length === 0) {
-          console.error("Step 3 Error: No potential matches found");
-          throw new HttpsError('failed-precondition', 'No potential matches available');
-      }
+    let match: MatchResponse | undefined;
 
-      let attempts = 0;
-      const maxAttempts = 3;
-      let match: MatchResponse | undefined;
-
-      console.log("Step 4: Starting GPT matching process");
-      while (attempts < maxAttempts) {
-          try {
-              console.log(`Step 4.${attempts + 1}: Attempt ${attempts + 1} of ${maxAttempts}`);
-              match = await findMatchWithGPT(userData, potentialMatches as UserProfile[]);
-              console.log(`Step 4.${attempts + 1} Success:`, {
-                  matchUserId: match?.match?.userId,
-                  score: match?.match?.compatibilityScore
-              });
-              break;
-          } catch (error: unknown) {
-              const err = error instanceof Error ? error : new Error('Unknown error in GPT matching');
-              console.error(`Step 4.${attempts + 1} Error:`, {
-                  message: err.message,
-                  stack: err.stack
-              });
-              attempts++;
-              if (attempts === maxAttempts) {
-                  throw new HttpsError('internal', `GPT matching failed after ${maxAttempts} attempts: ${err.message}`);
-              }
-              await new Promise(resolve => setTimeout(resolve, 1000));
-          }
-      }
+    console.log("Step 4: Starting GPT matching process");
+    try {
+        match = await findMatchWithGPT(userData, potentialMatches as UserProfile[]);
+        console.log("Step 4 Success:", {
+            matchUserId: match?.match?.userId,
+            score: match?.match?.compatibilityScore
+        });
+    } catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error('Unknown error in GPT matching');
+        console.error("Step 4 Error:", {
+            message: err.message,
+            stack: err.stack
+        });
+        throw new HttpsError('internal', `GPT matching failed: ${err.message}`);
+    }
 
       if (!match || !match.match) {
           console.error("Step 5 Error: No valid match found after GPT processing");
@@ -228,7 +241,7 @@ function calculateWaitingScore(hoursSinceLastMatch: number): number {
 }
 
 function prepareProfileForGPT(user: UserProfile) {
-    const { responses } = user.onboarding;
+    const { responses } = user.questionnaire.onboarding;
     return {
         userId: user.uid,
         username: user.username,
@@ -236,7 +249,6 @@ function prepareProfileForGPT(user: UserProfile) {
         interests: {
             creative: responses.hobbies?.answer,
             lifestyle: responses.location?.answer,
-            relationships: responses.relationships?.answer,
             music: responses.music?.answer,
             entertainment: responses.entertainment?.answer,
             travel: responses.travel?.answer,
@@ -248,21 +260,36 @@ function prepareProfileForGPT(user: UserProfile) {
 async function getPotentialMatches(userId: string, userAge: number) {
     const { minAge, maxAge } = getAgeRange(userAge);
     const usersRef = db.collection('users');
-  
+    
+    console.log("Finding matches for:", {
+        userId,
+        userAge,
+        ageRange: { minAge, maxAge }
+    });
+
     const eligibleMatches = await usersRef
-        .where('demographics.age', '>=', minAge)
-        .where('demographics.age', '<=', maxAge)
-        .where('onboarding.status.isComplete', '==', true)
-        .where(admin.firestore.FieldPath.documentId(), '!=', userId)
-        .get();
+    .where('demographics.age', '>=', minAge)
+    .where('demographics.age', '<=', maxAge)
+    .where('questionnaire.onboarding.status.isComplete', '==', true)
+    .where(admin.firestore.FieldPath.documentId(), '!=', userId)
+    .get();
   
+    console.log("Query results:", {
+        totalEligible: eligibleMatches.size,
+        matches: eligibleMatches.docs.map(doc => ({
+            id: doc.id,
+            age: doc.data().demographics?.age,
+            isComplete: doc.data().onboarding?.status?.isComplete
+        }))
+    });
+
     let potentialMatches = eligibleMatches.docs.map(doc => ({
         uid: doc.id,
         ...doc.data()
-    }));
-  
-    if (potentialMatches.length > 40) {
-        potentialMatches = shuffleArray(potentialMatches).slice(0, 40);
+    } as UserProfile));
+
+    if (potentialMatches.length > 20) {
+        potentialMatches = shuffleArray(potentialMatches).slice(0, 20);
     }
   
     return potentialMatches;
@@ -281,14 +308,12 @@ Instructions:
 1. Analyze their interests focusing on:
    - Creative pursuits and hobbies
    - Music and entertainment preferences
-   - Life experiences and relationships
-   - Travel experiences and aspirations
+   - Travel and life experiences
    - Personal goals and growth areas
 
 2. Look for matches that have:
    - Strong common ground
    - Complementary differences
-   - Similar values with different perspectives
 
 Return only a JSON object:
 {
@@ -302,57 +327,65 @@ Return only a JSON object:
 async function findMatchWithGPT(userProfile: UserProfile, potentialMatches: UserProfile[]): Promise<MatchResponse> {
     try {
         console.log("Starting findMatchWithGPT function");
-        
-        console.log("Step 1: Initializing OpenAI client with hardcoded key");
         const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
         
-        console.log("Step 2: Generating match prompt");
         const prompt = await generateMatchPrompt(userProfile, potentialMatches);
-        console.log("Prompt generated successfully", { promptLength: prompt.length });
-  
-        console.log("Step 3: Making OpenAI API call");
+        console.log("Prompt generated with length:", prompt.length);
+
         const completion = await openai.chat.completions.create({
             model: 'gpt-3.5-turbo',
             messages: [
                 {
                     role: 'system',
-                    content: 'You are an expert at analyzing profiles and finding meaningful friendship matches.'
+                    content: 'You are an expert at analyzing profiles and finding meaningful friendship matches. Return ONLY valid JSON in the exact format specified.'
                 },
                 { role: 'user', content: prompt }
             ],
             temperature: 0.7,
             max_tokens: 200
         });
-        console.log("OpenAI API call completed successfully");
-  
+
         const responseContent = completion.choices[0].message.content;
-        if (!responseContent) {
-            throw new Error('No response content from GPT');
-        }
         console.log("Raw GPT response:", responseContent);
-  
-        console.log("Step 4: Parsing GPT response");
-        const match = JSON.parse(responseContent);
-        console.log("Response parsed successfully:", match);
-  
-        if (match.match.compatibilityScore < MINIMUM_COMPATIBILITY) {
-            console.log("Match below minimum compatibility score, searching for alternative");
-            const newPotentialMatches = potentialMatches.filter(p => p.uid !== match.match.userId);
-            if (newPotentialMatches.length > 0) {
-                return findMatchWithGPT(userProfile, newPotentialMatches);
-            }
+
+        if (!responseContent) {
+            throw new Error('Empty response from GPT');
         }
-  
-        return match;
-    } catch (error: unknown) {
-        console.error("Error in findMatchWithGPT:", {
-            error: error instanceof Error ? error.message : 'Unknown error',
-            stack: error instanceof Error ? error.stack : undefined,
-            stage: 'findMatchWithGPT function'
+
+        try {
+            const match = JSON.parse(responseContent);
+            
+            // Validate response structure
+            if (!match.match?.userId || typeof match.match.compatibilityScore !== 'number') {
+                throw new Error('Invalid response structure from GPT');
+            }
+
+            // Check minimum compatibility
+            if (match.match.compatibilityScore < MINIMUM_COMPATIBILITY) {
+                console.log("Match below minimum compatibility score, searching for alternative");
+                const newPotentialMatches = potentialMatches.filter(p => p.uid !== match.match.userId);
+                if (newPotentialMatches.length > 0) {
+                    return findMatchWithGPT(userProfile, newPotentialMatches);
+                }
+            }
+
+            return match;
+        } catch (parseError: unknown) {
+            console.error("GPT Response parsing failed:", {
+                response: responseContent,
+                error: parseError instanceof Error ? parseError.message : 'Unknown error'
+            });
+            throw parseError;
+        }
+    } catch (error) {
+        console.error("findMatchWithGPT error:", {
+            type: error instanceof Error ? error.constructor.name : 'Unknown',
+            message: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
         });
         throw error;
     }
-  }
+}
 
 async function recordMatch(userId1: string, userId2: string, matchDetails: {
     compatibilityScore: number;

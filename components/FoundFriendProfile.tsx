@@ -23,21 +23,7 @@ interface FriendProfileProps {
     };
     matchDetails?: {
       compatibilityScore: number;
-      waitingScore: number;
-      finalScore: number;
-      matchReason?: string;
-      commonInterests?: string[];
-    };
-    onboarding: {
-      responses: {
-        aspirations: { answer: string; updatedAt: null };
-        entertainment: { answer: string; updatedAt: null };
-        hobbies: { answer: string; updatedAt: null };
-        location: { answer: string; updatedAt: null };
-        music: { answer: string; updatedAt: null };
-        relationships: { answer: string; updatedAt: null };
-        travel: { answer: string; updatedAt: null };
-      };
+      
     };
   };
 }
@@ -46,8 +32,29 @@ const FoundFriendProfile: React.FC<FriendProfileProps> = ({ friend }) => {
   const router = useRouter();
 
   const getGenderIcon = (gender: string): GenderIcon => {
-    // ... existing gender icon logic ...
-  };
+    switch (gender.toLowerCase()) {
+        case 'male':
+            return {
+                source: require('../assets/images/male_icon.png'),
+                dimensions: { width: 18, height: 18 }
+            };
+        case 'female':
+            return {
+                source: require('../assets/images/female_icon.png'),
+                dimensions: { width: 14, height: 20 }
+            };
+        case 'non-binary':
+            return {
+                source: require('../assets/images/non-binary_icon.png'),
+                dimensions: { width: 18, height: 18 }
+            };
+        default:
+            return {
+                source: require('../assets/images/face_icon.png'),
+                dimensions: { width: 18, height: 18 }
+            };
+    }
+};
 
   // Helper function to format compatibility score
   const formatScore = (score: number): string => {
@@ -63,28 +70,6 @@ const FoundFriendProfile: React.FC<FriendProfileProps> = ({ friend }) => {
           resizeMode="cover"
         />
         <Text style={styles.name}>{friend.username}</Text>
-        
-        {/* Match Details Section */}
-        {friend.matchDetails && (
-          <View style={styles.matchDetails}>
-            <Text style={styles.compatibilityScore}>
-              {formatScore(friend.matchDetails.compatibilityScore)} Match!
-            </Text>
-            {friend.matchDetails.matchReason && (
-              <Text style={styles.matchReason}>
-                {friend.matchDetails.matchReason}
-              </Text>
-            )}
-            {friend.matchDetails.commonInterests && (
-              <View style={styles.commonInterests}>
-                <Text style={styles.interestsTitle}>Common Interests:</Text>
-                {friend.matchDetails.commonInterests.map((interest, index) => (
-                  <Text key={index} style={styles.interestItem}>• {interest}</Text>
-                ))}
-              </View>
-            )}
-          </View>
-        )}
 
         {/* Basic Details */}
         <View style={styles.details}>
@@ -117,14 +102,6 @@ const FoundFriendProfile: React.FC<FriendProfileProps> = ({ friend }) => {
             <Text style={styles.detailText}>{friend.demographics.age} years-old</Text>
           </View>
         </View>
-
-        {/* Interests Preview */}
-        <View style={styles.interestsPreview}>
-          <Text style={styles.interestsHeader}>A bit about {friend.username}:</Text>
-          <Text style={styles.interestText}>
-            {friend.onboarding.responses.hobbies.answer}
-          </Text>
-        </View>
       </View>
               
       <TouchableOpacity 
@@ -136,11 +113,13 @@ const FoundFriendProfile: React.FC<FriendProfileProps> = ({ friend }) => {
           }
         })}
       >
+        <View style={styles.messageButtonContent}>
         <Image 
           source={require('../assets/images/Yu_excited_no_speech.png')}
-          style={{ width: 36, height: 36 }} 
+          style={{ width: 34, height: 34, marginLeft: 10 }} 
         />
         <Text style={styles.messageButtonText}>Start Chatting!</Text>
+        </View>
       </TouchableOpacity>
     </View>
   );
@@ -155,14 +134,14 @@ const styles = StyleSheet.create({
   friendContainer: {
     alignItems: 'center',
     backgroundColor: '#fff',
-    padding: 20,
+    padding: 16,
     borderRadius: 15,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    width: '90%',
+    width: '88%',
   },
   avatar: {
     width: 120,
@@ -177,9 +156,9 @@ const styles = StyleSheet.create({
     color: '#42ade2',
   },
   details: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
-    marginBottom: 5,
+    marginBottom: 2,
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -187,7 +166,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginRight: 10,
-    paddingVertical: 4,
+    paddingVertical: 5,
   },
   detailText: {
     color: '#000',
@@ -196,11 +175,11 @@ const styles = StyleSheet.create({
   messageButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#42ade2',
     padding: 8,
-    borderRadius: 12,
+    borderRadius: 24,
     borderWidth: 2,
-    borderColor: '#3498db',
+    borderColor: '#fff',
     width: 280,
   },
   homeButton: {
@@ -214,10 +193,15 @@ const styles = StyleSheet.create({
     width: 220,
   },
   messageButtonText: {
-    color: '#3498db',
-    marginLeft: 10,
-    fontSize: 18,
+    color: '#fff',
+    textAlign: 'center',
+    marginLeft: 20,
+    fontSize: 20,
     fontWeight: 'bold',
+  },
+  messageButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   homeButtonText: {
     color: '#7d7d7d',
