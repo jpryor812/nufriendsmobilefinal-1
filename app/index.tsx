@@ -1,19 +1,47 @@
-import { Text, View, StyleSheet } from "react-native";
+import { Text, View, StyleSheet, Button } from "react-native";
 import { Link } from "expo-router";
 import MessagesChart from "@/components/MessagesChart";
 import 'expo-router/entry';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import { app } from '@/config/firebase';  // Import the initialized app
+
+// Get instances after Firebase is initialized
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const testDirectFirestore = async () => {
+  try {
+    const userId = auth.currentUser?.uid;
+    if (!userId) {
+      console.error('No user ID found');
+      return;
+    }
+    const userDoc = await getDoc(doc(db, 'users', userId));
+    console.log('Direct Firestore read:', userDoc.data());
+  } catch (error) {
+    console.error('Direct Firestore error:', error);
+  }
+};
 
 export default function Index() {
   return (
     <View style={styles.container}>
       <MessagesChart />
-            <Text>Hello all</Text>
-    <Link href={"/OnboardingPreQuestionsCreateAccount"} style={styles.button}>
-      About
-    </Link>
-    <Link href={"/HomePage"} style={styles.button}>
-      Home
-    </Link>
+      <Text>Hello all</Text>
+      
+      {/* Add the test button here */}
+      <Button 
+        title="Test Direct Firestore" 
+        onPress={testDirectFirestore} 
+      />
+      
+      <Link href={"/OnboardingPreQuestionsCreateAccount"} style={styles.button}>
+        About
+      </Link>
+      <Link href={"/HomePage"} style={styles.button}>
+        Home
+      </Link>
     </View>
   );
 }

@@ -55,6 +55,31 @@ const OnboardingBasicQuestions = () => {
     }));
   };
 
+  const testFirestoreRead = async () => {
+    try {
+      console.log("Functions instance:", baseFunctions);
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        setError('No user logged in');
+        return;
+      }
+
+      const testUserReadFunction = httpsCallable(baseFunctions, 'testUserRead');
+      const result = await testUserReadFunction({ 
+        userId: currentUser.uid 
+      });
+
+      console.log("Test Read Result:", result.data);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(`Test Read Failed: ${error.message}`);
+        console.error("Full error:", error);
+      } else {
+        setError('Unknown error occurred');
+      }
+    }
+  };
+
   function handleCityChange(city: CityName) {
     setSelectedFilters(prev => ({
       ...prev,
@@ -147,6 +172,12 @@ const OnboardingBasicQuestions = () => {
           <Text style={styles.usernameNote}>
             Note: You must wait six months to change your username again
           </Text>
+          <TouchableOpacity 
+  style={[styles.button, { marginTop: 10, backgroundColor: '#9100C3' }]}
+  onPress={testFirestoreRead}
+>
+  <Text style={styles.buttonText}>Test Cloud Function</Text>
+</TouchableOpacity>
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
         </KeyboardAwareScrollView>
         

@@ -1,13 +1,14 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
-import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 import OpenAI from 'openai';
 import * as admin from 'firebase-admin';
 import { Timestamp } from 'firebase-admin/firestore';
 
 if (!admin.apps.length) {
     admin.initializeApp();
+    console.log("Firebase Admin initialized");
 }
 
+const OPENAI_API_KEY = 'sk-svcacct-B8xs6K8nBAJSV4vmKphNkJOaQb_FXd9CO-4R-eTHkKG3HsBi7Zfe4DFzZ3tK_eE7T3BlbkFJ2VF_wXPVcjX1TkLRzBz1PEGL75fTosNfao6y-QIbiOJ-m9M_p1UFGsZAePx_K_QA'; // Replace with your actual OpenAI API key
 const db = admin.firestore();
 const MINIMUM_COMPATIBILITY = 65;
 
@@ -74,87 +75,130 @@ interface MatchResponse {
 }
 
 export const findMatch = onCall({ 
-    region: 'us-central1',
-    memory: "1GiB",
-    timeoutSeconds: 300,
-    enforceAppCheck: false,
-    ingressSettings: "ALLOW_ALL",
-    cors: true,
+  region: 'us-central1',
+  memory: "1GiB",
+  timeoutSeconds: 300,
+  enforceAppCheck: false,
+  serviceAccount: 'firebase-adminsdk-xpi2x@nufriends-1aba1.iam.gserviceaccount.com'  // Add this
 }, async (request) => {
-    try {
-        const { userId } = request.data;
-        console.log("Processing for user:", userId);
-        
-        const userRef = db.collection('users').doc(userId);
-        const userDoc = await userRef.get();
-        const userData = userDoc.data() as UserProfile;
-        
-        if (!userData) {
-          console.error(`User data not found for ID: ${userId}`);
+  try {
+      console.log("------- Starting findMatch Function -------");
+      const { userId } = request.data;
+      console.log("Step 1: Received request for userId:", userId);
+      
+      const userRef = db.collection('users').doc(userId);
+      console.log("Step 2: Attempting to fetch user document");
+      const userDoc = await userRef.get();
+      const userData = userDoc.data() as UserProfile;
+      
+      if (!userData) {
+          console.error("Step 2 Error: User data not found for ID:", userId);
           throw new HttpsError('not-found', 'User profile not found');
       }
-      console.log("Found user data:", { userId, hasProfile: true });
+      console.log("Step 2 Success: Found user data with profile:", {
+          userId,
+          username: userData.username,
+          hasOnboarding: Boolean(userData.onboarding),
+          hasResponses: Boolean(userData.onboarding?.responses)
+      });
 
-        const potentialMatches = await getPotentialMatches(userId, userData.demographics.age);
-        console.log(`Found ${potentialMatches.length} potential matches`);
+      console.log("Step 3: Getting potential matches");
+      const potentialMatches = await getPotentialMatches(userId, userData.demographics.age);
+      console.log("Step 3 Result: Found potential matches:", {
+          count: potentialMatches.length,
+          ageRange: getAgeRange(userData.demographics.age)
+      });
 
-        let attempts = 0;
-        const maxAttempts = 3;
-        let match: MatchResponse | undefined;
+      if (potentialMatches.length === 0) {
+          console.error("Step 3 Error: No potential matches found");
+          throw new HttpsError('failed-precondition', 'No potential matches available');
+      }
 
-        while (attempts < maxAttempts) {
+      let attempts = 0;
+      const maxAttempts = 3;
+      let match: MatchResponse | undefined;
+
+      console.log("Step 4: Starting GPT matching process");
+      while (attempts < maxAttempts) {
           try {
-              console.log(`Attempting match ${attempts + 1} of ${maxAttempts}`);
+              console.log(`Step 4.${attempts + 1}: Attempt ${attempts + 1} of ${maxAttempts}`);
               match = await findMatchWithGPT(userData, potentialMatches as UserProfile[]);
-              console.log("Found match:", match);
+              console.log(`Step 4.${attempts + 1} Success:`, {
+                  matchUserId: match?.match?.userId,
+                  score: match?.match?.compatibilityScore
+              });
               break;
-          } catch (error) {
-              console.error(`Match attempt ${attempts + 1} failed:`, error);
+          } catch (error: unknown) {
+              const err = error instanceof Error ? error : new Error('Unknown error in GPT matching');
+              console.error(`Step 4.${attempts + 1} Error:`, {
+                  message: err.message,
+                  stack: err.stack
+              });
               attempts++;
               if (attempts === maxAttempts) {
-                  throw error;
+                  throw new HttpsError('internal', `GPT matching failed after ${maxAttempts} attempts: ${err.message}`);
               }
               await new Promise(resolve => setTimeout(resolve, 1000));
           }
       }
 
-        if (!match || !match.match) {
-            throw new HttpsError('internal', 'No valid match found');
-        }
+      if (!match || !match.match) {
+          console.error("Step 5 Error: No valid match found after GPT processing");
+          throw new HttpsError('internal', 'No valid match found');
+      }
 
-        const lastMatchTimestamp = userData.matches ? 
-            Math.max(...Object.values(userData.matches).map(m => m.timestamp)) :
-            0;
+      console.log("Step 5: Calculating match scores");
+      const lastMatchTimestamp = userData.matches ? 
+          Math.max(...Object.values(userData.matches).map(m => m.timestamp)) :
+          0;
 
-        const hoursSinceLastMatch = lastMatchTimestamp ? 
-            (Date.now() - lastMatchTimestamp) / (1000 * 60 * 60) :
-            48;
+      const hoursSinceLastMatch = lastMatchTimestamp ? 
+          (Date.now() - lastMatchTimestamp) / (1000 * 60 * 60) :
+          48;
 
-        const waitingScore = calculateWaitingScore(hoursSinceLastMatch);
-        const finalScore = (match.match.compatibilityScore * 0.7) + (waitingScore * 0.3);
-        const currentMatchCount = userData.matches ? Object.keys(userData.matches).length : 0;
+      const waitingScore = calculateWaitingScore(hoursSinceLastMatch);
+      const finalScore = (match.match.compatibilityScore * 0.7) + (waitingScore * 0.3);
+      const currentMatchCount = userData.matches ? Object.keys(userData.matches).length : 0;
 
-        const matchId = await recordMatch(userId, match.match.userId, {
-            compatibilityScore: match.match.compatibilityScore,
-            waitingScore,
-            finalScore,
-            matchNumber: currentMatchCount + 1,
-            isInitialMatch: currentMatchCount < 5
-        });
+      console.log("Step 5 Result:", {
+          waitingScore,
+          compatibilityScore: match.match.compatibilityScore,
+          finalScore,
+          currentMatchCount
+      });
 
-        return {
-            matchId,
-            userId: match.match.userId,
-            scores: {
-                compatibility: match.match.compatibilityScore,
-                waiting: waitingScore,
-                final: finalScore
-            }
-        };
-    } catch (error) {
-        console.error('Friend matching error:', error);
-        throw new HttpsError('internal', 'Error processing friend match');
-    }
+      console.log("Step 6: Recording match in database");
+      const matchId = await recordMatch(userId, match.match.userId, {
+          compatibilityScore: match.match.compatibilityScore,
+          waitingScore,
+          finalScore,
+          matchNumber: currentMatchCount + 1,
+          isInitialMatch: currentMatchCount < 5
+      });
+      console.log("Step 6 Success: Match recorded with ID:", matchId);
+
+      console.log("Step 7: Returning match results");
+      return {
+          matchId,
+          userId: match.match.userId,
+          scores: {
+              compatibility: match.match.compatibilityScore,
+              waiting: waitingScore,
+              final: finalScore
+          }
+      };
+  } catch (error: unknown) {
+      const err = error instanceof Error ? error : new Error('Unknown error in findMatch');
+      console.error("Final Error in findMatch:", {
+          message: err.message,
+          stack: err.stack,
+          code: error instanceof HttpsError ? error.code : 'unknown'
+      });
+      if (error instanceof HttpsError) {
+          throw error;
+      }
+      throw new HttpsError('internal', `Error processing friend match: ${err.message}`);
+  }
 });
 
 function shuffleArray<T>(array: T[]): T[] {
@@ -224,17 +268,6 @@ async function getPotentialMatches(userId: string, userAge: number) {
     return potentialMatches;
 }
 
-async function getOpenAIKey() {
-    const secretManager = new SecretManagerServiceClient();
-    const [version] = await secretManager.accessSecretVersion({
-        name: 'projects/792301576889/secrets/OPENAI_API_KEY/versions/latest',
-    });
-    if (!version.payload || !version.payload.data) {
-        throw new Error('Failed to retrieve OpenAI API key from Secret Manager');
-    }
-    return version.payload.data.toString();
-}
-
 async function generateMatchPrompt(userProfile: UserProfile, potentialMatches: UserProfile[]) {
     return `Analyze these profiles and find the most compatible friend match.
 
@@ -267,38 +300,59 @@ Return only a JSON object:
 }
 
 async function findMatchWithGPT(userProfile: UserProfile, potentialMatches: UserProfile[]): Promise<MatchResponse> {
-    const apiKey = await getOpenAIKey();
-    const openai = new OpenAI({ apiKey });
-    const prompt = await generateMatchPrompt(userProfile, potentialMatches);
+    try {
+        console.log("Starting findMatchWithGPT function");
+        
+        console.log("Step 1: Initializing OpenAI client with hardcoded key");
+        const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+        
+        console.log("Step 2: Generating match prompt");
+        const prompt = await generateMatchPrompt(userProfile, potentialMatches);
+        console.log("Prompt generated successfully", { promptLength: prompt.length });
   
-    const completion = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
-        messages: [
-            {
-                role: 'system',
-                content: 'You are an expert at analyzing profiles and finding meaningful friendship matches.'
-            },
-            { role: 'user', content: prompt }
-        ],
-        temperature: 0.7,
-        max_tokens: 200
-    });
-
-    const responseContent = completion.choices[0].message.content;
-    if (!responseContent) {
-        throw new Error('No response content from GPT');
-    }
-    const match = JSON.parse(responseContent);
-
-    if (match.match.compatibilityScore < MINIMUM_COMPATIBILITY) {
-        const newPotentialMatches = potentialMatches.filter(p => p.uid !== match.match.userId);
-        if (newPotentialMatches.length > 0) {
-            return findMatchWithGPT(userProfile, newPotentialMatches);
+        console.log("Step 3: Making OpenAI API call");
+        const completion = await openai.chat.completions.create({
+            model: 'gpt-3.5-turbo',
+            messages: [
+                {
+                    role: 'system',
+                    content: 'You are an expert at analyzing profiles and finding meaningful friendship matches.'
+                },
+                { role: 'user', content: prompt }
+            ],
+            temperature: 0.7,
+            max_tokens: 200
+        });
+        console.log("OpenAI API call completed successfully");
+  
+        const responseContent = completion.choices[0].message.content;
+        if (!responseContent) {
+            throw new Error('No response content from GPT');
         }
+        console.log("Raw GPT response:", responseContent);
+  
+        console.log("Step 4: Parsing GPT response");
+        const match = JSON.parse(responseContent);
+        console.log("Response parsed successfully:", match);
+  
+        if (match.match.compatibilityScore < MINIMUM_COMPATIBILITY) {
+            console.log("Match below minimum compatibility score, searching for alternative");
+            const newPotentialMatches = potentialMatches.filter(p => p.uid !== match.match.userId);
+            if (newPotentialMatches.length > 0) {
+                return findMatchWithGPT(userProfile, newPotentialMatches);
+            }
+        }
+  
+        return match;
+    } catch (error: unknown) {
+        console.error("Error in findMatchWithGPT:", {
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined,
+            stage: 'findMatchWithGPT function'
+        });
+        throw error;
     }
-
-    return match;
-}
+  }
 
 async function recordMatch(userId1: string, userId2: string, matchDetails: {
     compatibilityScore: number;

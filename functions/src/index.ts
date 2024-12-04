@@ -1,13 +1,14 @@
 import {onCall} from "firebase-functions/v2/https";
 import {SecretManagerServiceClient} from "@google-cloud/secret-manager";
 export { findMatch } from "./matchmaking/findMatch";
+export { testUserRead } from './testUserRead';
 
 const secretManager = new SecretManagerServiceClient();
 
 /** Retrieves OpenAI API key from Secret Manager */
 async function getOpenAIKey(): Promise<string | undefined> {
   try {
-    const name = "projects/792301576889/secrets/OPENAI_API_KEY/versions/latest";
+    const name = "projects/792301576889/secrets/OPENAI_API_KEY";
     const [version] = await secretManager.accessSecretVersion({name});
     return version.payload?.data?.toString();
   } catch (error) {
