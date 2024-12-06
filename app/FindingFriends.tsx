@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, Text, StyleSheet, Animated, Dimensions, Vibration, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Animated, Dimensions, Vibration, TouchableOpacity, Image } from "react-native";
 import { router, useLocalSearchParams } from 'expo-router';
 import { collection, query, where, getDocs, doc, getDoc, Timestamp } from 'firebase/firestore';
 import { db, app, auth, functions as baseFunctions } from '@/config/firebase';
@@ -21,6 +21,15 @@ interface Friend {
     city: string;
     age: number;
     birthDate: number;  // Added
+  };
+  profileSummaries?: {  // Add this field
+    entertainment: string;
+    goals: string;
+    hobbies: string;
+    isVisible: boolean;
+    location: string;
+    music: string;
+    travel: string;
   };
   onboarding: {  // Added onboarding structure
     responses: {
@@ -214,6 +223,7 @@ const FindingFriends = () => {
                             uid: data.userId,
                             username: userData.username,
                             demographics: userData.demographics,
+                            profileSummaries: userData.profileSummaries,  // Add this line
                             onboarding: userData.onboarding,
                             stats: userData.stats,
                             matchDetails: {
@@ -336,9 +346,15 @@ console.log("Current friend being shown:", currentFriend);
             ]}
             onPress={handleNextFriend}
           >
-            <Text style={styles.continueButtonText}>
-              {isLastFriend ? "Start Chatting!" : "Meet Next Friend"}
-            </Text>
+            <View style={styles.buttonContent}>
+              <Image 
+                source={require('../assets/images/Yu_excited_no_speech.png')}
+                style={styles.buttonImage} 
+              />
+              <Text style={styles.continueButtonText}>
+                {isLastFriend ? "Chat With Your Friends!" : "Meet Your Next Friend!"}
+              </Text>
+            </View>
           </TouchableOpacity>
         </Animated.View>
       )}
@@ -390,7 +406,7 @@ const styles = StyleSheet.create({
   },
   continueButton: {
     backgroundColor: '#42ade2',
-    paddingHorizontal: 24,
+    paddingHorizontal: 6,
     paddingVertical: 12,
     borderRadius: 25,
     marginTop: 20,
@@ -399,15 +415,27 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+    width: 300, // Add this to make button wider if needed
   },
-  finalButton: {
-    backgroundColor: '#4CAF50',
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonImage: {
+    width: 34,
+    height: 34,
+    marginRight: 6,
   },
   continueButtonText: {
     color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-  }
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  finalButton: {
+    backgroundColor: '#7CC9FF',
+  },
 });
 
 export default FindingFriends;

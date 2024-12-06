@@ -10,7 +10,7 @@ const OnboardingPostQuestions2 = () => (
     <ProgressBar progress={82} />
     <BigYuOnboarding text="I'll start looking for your friends now!" />
     <View style={styles.link_container}>
-      <Link href="/FindingFriends" style={styles.link}>
+      <Link href="/OnboardingEditProfile" style={styles.link}>
         <View style={styles.continue_button_container}>
           <Text style={styles.continue_button_text}>Awesome!!</Text>
         </View>

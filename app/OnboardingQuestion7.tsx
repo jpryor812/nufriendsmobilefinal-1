@@ -104,11 +104,11 @@ const OnboardingQuestion7: React.FC<OnboardingQuestion7Props> = ({ onSubmit }) =
         <SafeLayout style={styles.appContainer}>
           <ProgressBar progress={65} />
           <BigYuOnboarding 
-            text={"Question 7: \nWhat's something you'd love to try or learn? Could be a hobby, skill, or experience!"} 
+            text={"Question 6: \nWhat's something you'd love to try or learn? Could be a hobby, skill, or experience!"} 
           />
           <View style={styles.questionHeader}>
           <View style={styles.questionCounterContainer}>
-          <Text style={styles.label}>Question 7/7</Text>
+          <Text style={styles.label}>Question 6/6</Text>
           </View>
           <View style={styles.characterInfo}>
             <Text style={styles.requirementText}>

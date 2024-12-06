@@ -2,6 +2,9 @@ import {onCall} from "firebase-functions/v2/https";
 import {SecretManagerServiceClient} from "@google-cloud/secret-manager";
 export { findMatch } from "./matchmaking/findMatch";
 export { testUserRead } from './testUserRead';
+export { saveSummaries } from './saveSummaries';
+export { generateProfileSummaries } from './generateProfileSummaries';
+export { generateAllUserSummaries } from './generateAllUserSummaries';
 
 const secretManager = new SecretManagerServiceClient();
 

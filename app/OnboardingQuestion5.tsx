@@ -104,11 +104,11 @@ const OnboardingQuestion5: React.FC<OnboardingQuestion5Props> = ({ onSubmit }) =
         <SafeLayout style={styles.appContainer}>
           <ProgressBar progress={55} />
           <BigYuOnboarding 
-            text={"Question 5: \nDo you have any favorite TV shows, movies, or books? If so, what are they and why do you enjoy them?"} 
+            text={"Question 4: \nDo you have any favorite TV shows, movies, or books? If so, what are they and why do you enjoy them?"} 
           />
           <View style={styles.questionHeader}>
           <View style={styles.questionCounterContainer}>
-          <Text style={styles.label}>Question 5/7</Text>
+          <Text style={styles.label}>Question 4/6</Text>
           </View>
           <View style={styles.characterInfo}>
             <Text style={styles.requirementText}>

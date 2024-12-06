@@ -5,6 +5,8 @@ import 'expo-router/entry';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { app } from '@/config/firebase';  // Import the initialized app
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '@/config/firebase';
 
 // Get instances after Firebase is initialized
 const auth = getAuth(app);
@@ -25,6 +27,16 @@ const testDirectFirestore = async () => {
 };
 
 export default function Index() {
+  const handleGenerateAllSummaries = async () => {
+    try {
+      const generateAllSummaries = httpsCallable(functions, 'generateAllUserSummaries');
+      const result = await generateAllSummaries();
+      console.log('Generation complete:', result.data);
+    } catch (error) {
+      console.error('Error generating summaries:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <MessagesChart />
@@ -36,7 +48,12 @@ export default function Index() {
         onPress={testDirectFirestore} 
       />
       
-      <Link href={"/OnboardingPreQuestionsCreateAccount"} style={styles.button}>
+      <Button 
+        title="Generate All Summaries (Admin)" 
+        onPress={handleGenerateAllSummaries}
+      />
+      
+      <Link href={"/OnboardingEditProfile"} style={styles.button}>
         About
       </Link>
       <Link href={"/HomePage"} style={styles.button}>

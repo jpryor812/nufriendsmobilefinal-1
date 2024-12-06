@@ -104,11 +104,11 @@ const OnboardingQuestion6: React.FC<OnboardingQuestion6Props> = ({ onSubmit }) =
         <SafeLayout style={styles.appContainer}>
           <ProgressBar progress={60} />
           <BigYuOnboarding 
-            text={"Question 6: \nHave you ever traveled somewhere you enjoyed? If so, where did you go and why did you enjoy it? Name as many places as you like!"} 
+            text={"Question 5: \nHave you ever traveled somewhere you enjoyed? If so, where did you go and why did you enjoy it? Name as many places as you like!"} 
           />
           <View style={styles.questionHeader}>
           <View style={styles.questionCounterContainer}>
-          <Text style={styles.label}>Question 6/7</Text>
+          <Text style={styles.label}>Question 5/6</Text>
           </View>
           <View style={styles.characterInfo}>
             <Text style={styles.requirementText}>

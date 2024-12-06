@@ -29,7 +29,7 @@ export interface Achievement {
       },
       {
         id: 3,
-        title: 'The start of something special',
+        title: 'The start of something',
         emoji: '🏋️',
         isUnlocked: true,
         level: 1,

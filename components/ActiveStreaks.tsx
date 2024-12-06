@@ -24,7 +24,7 @@ const StreakItem: React.FC<StreakItemProps> = ({ streak, name, avatar, userId })
       <Text style={styles.name}>{name}</Text>
       <Link 
         href={{
-          pathname: "/OnboardingRelationshipTracker",
+          pathname: "/RelationshipTracker",
           params: { id: userId, name: name }
         }}
         asChild

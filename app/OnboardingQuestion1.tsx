@@ -108,7 +108,7 @@ const OnboardingPage1: React.FC<OnboardingQuestion1Props> = ({ onSubmit }) => {
           />
           <View style={styles.questionHeader}>
           <View style={styles.questionCounterContainer}>
-          <Text style={styles.label}>Question 1/7</Text>
+          <Text style={styles.label}>Question 1/6</Text>
           </View>
           <View style={styles.characterInfo}>
             <Text style={styles.requirementText}>

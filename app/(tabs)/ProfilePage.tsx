@@ -49,8 +49,8 @@ const ProfilePage = () => {
         </View>
         <View style={styles.friendProfileContainer}>
           <FriendProfileVertical 
-            imageSource={require('../../assets/images/profile_picture.jpg')} 
-            name="Jpp123" 
+            imageSource={require('../../assets/images/puja_picture.png')} 
+            name="PChak55" 
             onPress={() => console.log('Friend profile pressed')}
           />
         </View>
