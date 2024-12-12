@@ -1,204 +1,85 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { StyleSheet, View, Animated, Easing } from 'react-native';
-import {
-  GiftedChat,
-  Bubble,
-  InputToolbar,
-  Send,
-  SystemMessage,
-  IMessage,
-} from 'react-native-gifted-chat';
-import { Ionicons } from '@expo/vector-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useLocalSearchParams } from 'expo-router';
-import ChatMessageBox from '@/components/ChatMessageBox';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useAuth } from '@/contexts/AuthContext';
 import Colors from '@/assets/Colors';
-import FriendProfileMessageHeader from '@/components/FriendProfileMessageHeader';
-import YuSuggestions from '@/components/YuSuggestions';
-import AnimatedYuButton from '@/components/AnimatedYuButton';
 import SafeLayout from '@/components/SafeLayout';
-import { friendsData } from '@/constants/FriendsData';
-import messageData2 from '@/assets/messages2.json';
+import FriendProfileMessageHeader from '@/components/FriendProfileMessageHeader';
+import SmallYuOnboarding from '@/components/SmallYuOnboarding';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/config/firebase';
 
 const ChatRoomNewFriend = () => {
-  const [text, setText] = useState('');
-  const insets = useSafeAreaInsets();
-  const [isYuSuggestionsMode, setIsYuSuggestionsMode] = useState(false);
+  const { user } = useAuth();
   const params = useLocalSearchParams();
-  const friend = friendsData.find(f => f.id === Number(params.id));
-  const [animatedMessages, setAnimatedMessages] = useState<{
-    message: IMessage;
-    opacity: Animated.Value;
-  }[]>([]);
+  const { matchId, friendId } = params;
+
+  // Add loading state and friend data fetching if needed
+  // This would replace your static friendsData lookup
+  const [friend, setFriend] = useState<any>(null);
+
+  useEffect(() => {
+    const loadFriendData = async () => {
+      if (friendId) {
+        const friendDoc = await getDoc(doc(db, 'users', friendId as string));
+        if (friendDoc.exists()) {
+          setFriend(friendDoc.data());
+        }
+      }
+    };
+
+    loadFriendData();
+  }, [friendId]);
 
   if (!friend) return null;
-
-  // Log params when they change
-  useEffect(() => {
-    console.log('Received params:', { id: params.id, name: friend.name });
-  }, [params.id, friend.name]);
-
-  // Initialize and animate messages
-  useEffect(() => {
-    // Clear any existing messages
-    setAnimatedMessages([]);
-  
-    const initialMessages = messageData2.map((message) => ({
-      _id: message.id,
-      text: message.msg,
-      createdAt: new Date(message.date),
-      user: {
-        _id: message.from,
-        name: message.from ? 'You' : friend.name,
-      },
-    }));
-  
-    const addMessagesWithDelay = (messages: IMessage[], index: number) => {
-        if (index >= messages.length) return;
-    
-        const opacity = new Animated.Value(0);
-        setTimeout(() => {
-          setAnimatedMessages(prev => [{ 
-            message: messages[index], 
-            opacity 
-          }, ...prev]);
-        
-        Animated.timing(opacity, {
-          toValue: 1,
-          duration: 750,
-          easing: Easing.ease,
-          useNativeDriver: true,
-        }).start();
-  
-        addMessagesWithDelay(messages, index + 1);
-      }, 1500);
-    };
-
-    addMessagesWithDelay(initialMessages, 0);
-  }, [friend.name]);
-
-  const onSend = useCallback((newMessages: IMessage[] = []) => {
-    const messagesToAdd = newMessages.map(message => ({
-      message,
-      opacity: new Animated.Value(1)
-    }));
-    
-    setAnimatedMessages(prev => [...messagesToAdd, ...prev]);
-  }, []);
-
-  const handleYuMessage = (text: string) => {
-    const newMessage: IMessage = {
-      _id: Math.random().toString(),
-      text: text,
-      createdAt: new Date(),
-      user: {
-        _id: 1,
-        name: 'You',
-      },
-    };
-
-    const opacity = new Animated.Value(1);
-    setAnimatedMessages(prev => [{
-      message: newMessage,
-      opacity
-    }, ...prev]);
-    
-    setIsYuSuggestionsMode(false);
-  };
-
-  const renderInputToolbar = (props: any) => {
-    if (isYuSuggestionsMode) {
-      return (
-        <YuSuggestions
-          onSelectContent={handleYuMessage}
-          onClose={() => setIsYuSuggestionsMode(false)}
-        />
-      );
-    }
-
-    return (
-      <InputToolbar
-        {...props}
-        containerStyle={{ backgroundColor: Colors.background }}
-        renderActions={() => (
-          <AnimatedYuButton onPress={() => setIsYuSuggestionsMode(true)} />
-        )}
-        renderSend={(props) => (
-          <View style={{
-            height: 40,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 6,
-            paddingHorizontal: 6,
-          }}>
-            <Send {...props} containerStyle={{ justifyContent: 'center' }}>
-              <Ionicons name="send" color={Colors.primary} size={22} />
-            </Send>
-            <Ionicons name="add" color={Colors.primary} size={22} />
-          </View>
-        )}
-      />
-    );
-  };
 
   return (
     <SafeLayout style={styles.container}>
       <FriendProfileMessageHeader
-        id={friend.id}
-        name={friend.name}
+        id={friendId as string}
+        name={friend.username}
         avatar={friend.avatar}
       />
       
-      <GiftedChat
-        messages={animatedMessages.map(am => am.message)}
-        onSend={onSend}
-        user={{ _id: 1 }}
-        inverted={true}
-        isKeyboardInternallyHandled={true}
-        keyboardShouldPersistTaps="handled"
-        listViewProps={{
-          scrollEnabled: true,
-          keyboardDismissMode: 'on-drag',
-          keyboardShouldPersistTaps: 'handled',
-        }}
-        minInputToolbarHeight={36}
-        maxInputToolbarHeight={100}
-        minComposerHeight={36}
-        renderSystemMessage={(props) => (
-          <SystemMessage {...props} textStyle={{ color: Colors.gray }} />
-        )}
-        bottomOffset={insets.bottom - 36}
-        renderAvatar={null}
-        maxComposerHeight={100}
-        textInputProps={styles.composer}
-        renderBubble={(props) => (
-          <Bubble
-            {...props}
-            textStyle={{
-              right: { color: '#fff' },
-            }}
-            wrapperStyle={{
-              left: { backgroundColor: '#eee' },
-              right: { backgroundColor: '#6ecfff' },
-            }}
-          />
-        )}
-        renderInputToolbar={renderInputToolbar}
-        renderMessage={(props) => (
-          <Animated.View 
-            style={{ 
-              opacity: animatedMessages.find(am => 
-                am.message._id === props.currentMessage._id
-              )?.opacity || 1,
-              paddingVertical: 4,
-              paddingHorizontal: 6,
+      <View style={styles.contentContainer}>
+        <SmallYuOnboarding 
+          text="Hey There! Feel free to start the conversation off however you'd like. If you're not sure what to say, you can tap me in the bottom left corner there at any time for some suggested conversation starters. As a reminder, here is some information about your friend. You can also just tap on their profile to view that information as well. Feel free to select where you want some help, or to send the message on your own."
+        />
+        
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[styles.button, styles.tipButton]}
+            onPress={() => {
+              router.push({
+                pathname: '/ChatRoomFriend',
+                params: { 
+                  matchId,
+                  friendId,
+                  showSuggestions: 'true'
+                }
+              });
             }}
           >
-            <ChatMessageBox {...props} />
-          </Animated.View>
-        )}
-      />
+            <Text style={styles.buttonText}>I could use some tips!</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.button, styles.directButton]}
+            onPress={() => {
+              router.push({
+                pathname: '/ChatRoomFriend',
+                params: { 
+                  matchId,
+                  friendId,
+                  showSuggestions: 'false'
+                }
+              });
+            }}
+          >
+            <Text style={styles.buttonText}>I'm ok for now.</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </SafeLayout>
   );
 };
@@ -208,30 +89,33 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-  background: {
+  contentContainer: {
     flex: 1,
-    backgroundColor: Colors.background,
+    padding: 16,
+    justifyContent: 'space-between',
   },
-  yuButton: {
-    height: 44,
-    justifyContent: 'center',
-    paddingLeft: 12,
-    marginTop: 4,
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+    marginBottom: 20,
   },
-  yuImage: {
-    width: 40,
-    height: 40,
+  button: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 25,
+    alignItems: 'center',
   },
-  composer: {
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: Colors.lightGray,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+  tipButton: {
+    backgroundColor: '#42ade2',
+  },
+  directButton: {
+    backgroundColor: '#57C7FF',
+  },
+  buttonText: {
+    color: 'white',
     fontSize: 16,
-    marginTop: 2,
-    marginBottom: 2,
-    textAlignVertical: 'center',
+    fontWeight: '500',
   },
 });
 

@@ -1,11 +1,12 @@
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { AuthProvider } from "../contexts/AuthContext";
+import { MessagingProvider } from "@/contexts/MessageContext";
 
 export default function RootLayout() {
   return (
     <AuthProvider>
-    <>
+      <MessagingProvider>
       <StatusBar style="dark" />
       <Stack
         screenOptions={{
@@ -106,7 +107,7 @@ export default function RootLayout() {
       <Stack.Screen name="OnboardingEditProfile"
       options={{ headerShown: false }} />
     </Stack>
-    </>
+    </MessagingProvider>
     </AuthProvider>
   );
 }

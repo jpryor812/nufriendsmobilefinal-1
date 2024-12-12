@@ -147,7 +147,7 @@ const MyProfile = () => {
                     <View style={styles.detailContainer}>
                         <Image 
                             source={getGenderIcon(userData?.demographics?.gender)}
-                            style={{ width: 10, height: 20 }} 
+                            style={{ width: 16, height: 18 }} 
                         />
                         <Text style={styles.detailText}>{userData?.demographics?.gender}</Text>
                     </View>

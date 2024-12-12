@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/assets/Colors';
 
 interface FriendProfileMessageHeaderProps {
-  id: number;
+  id: string;
   name: string;
   avatar: any;
   onPress?: () => void;

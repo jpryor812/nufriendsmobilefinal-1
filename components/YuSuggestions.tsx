@@ -1,4 +1,3 @@
-/*
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   View, 
@@ -11,38 +10,76 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '@/config/firebase';
 import Colors from '@/assets/Colors';
 import YuGeneratedResponseContainer from './YuGeneratedResponseContainer';
-import { useAIMessaging } from '@/contexts/MessageContext';
-import { useMessaging } from '@/contexts/MessageContext';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
+
+interface ConversationResponse {
+  type: 'topics' | 'message';
+  content: string[] | string;
+}
+
+interface AISuggestion {
+  id: string;
+  preview: string;
+}
 
 interface YuSuggestionsProps {
   onSelectContent: (content: string) => void;
   onClose: () => void;
+  currentUserId: string;
+  friendId: string;
 }
 
-const YuSuggestions: React.FC<YuSuggestionsProps> = ({ onSelectContent, onClose }) => {
-  const { currentConversation } = useMessaging();
-  const { getMessageSuggestions, aiUsageCount, aiUsageLimit } = useAIMessaging();
+const YuSuggestions: React.FC<YuSuggestionsProps> = ({ 
+  onSelectContent, 
+  onClose,
+  currentUserId,
+  friendId
+}) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<AISuggestion[]>([]);
+  const [loading, setLoading] = useState(false);
   const [animationComplete, setAnimationComplete] = useState(false);
   const [animationPhase, setAnimationPhase] = useState(0);
+
+  // Animation refs
   const replyAnimations = useRef<Animated.Value[]>(
     Array(4).fill(0).map(() => new Animated.Value(0))
   ).current;
   const selectedAnimation = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   const responseContainerAnimation = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
 
+  // Load initial suggestions
   useEffect(() => {
-    if (currentConversation?.id) {
-      getMessageSuggestions(currentConversation.id)
-        .then(setSuggestions)
-        .catch(console.error);
-    }
-  }, [currentConversation?.id]);
+    const loadSuggestions = async () => {
+      try {
+        setLoading(true);
+        const generateContent = httpsCallable<any, ConversationResponse>(functions, 'generateConversationContent');
+        const result = await generateContent({ 
+          userId: currentUserId,
+          matchedUserId: friendId
+        });
+
+        if (result.data.type === 'topics') {
+          const formattedSuggestions = (result.data.content as string[]).map((topic: string, index: number) => ({
+            id: `suggestion-${index}`,
+            preview: topic
+          }));
+          setSuggestions(formattedSuggestions);
+        }
+      } catch (error) {
+        console.error('Error loading suggestions:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSuggestions();
+  }, [currentUserId, friendId]);
 
   const resetState = () => {
     setSelectedId(null);
@@ -52,13 +89,13 @@ const YuSuggestions: React.FC<YuSuggestionsProps> = ({ onSelectContent, onClose 
       anim.setValue(0);
     });
     selectedAnimation.setValue(SCREEN_HEIGHT);
+    responseContainerAnimation.setValue(SCREEN_HEIGHT);
   };
   
   const handleReplySelect = (id: string) => {
     setSelectedId(id);
-    const selectedIndex = suggestions.findIndex(reply => reply.id === id);
     
-    // Phase 1: Slide all items out
+    // Start animations
     const slideOutAnimations = replyAnimations.map((anim) => {
       return Animated.timing(anim, {
         toValue: SCREEN_HEIGHT,
@@ -72,22 +109,18 @@ const YuSuggestions: React.FC<YuSuggestionsProps> = ({ onSelectContent, onClose 
       
       Animated.sequence([
         Animated.delay(200),
-        
         Animated.timing(selectedAnimation, {
           toValue: -20,
           duration: 600,
           useNativeDriver: true,
         }),
-        
         Animated.spring(selectedAnimation, {
           toValue: 0,
           friction: 6,
           tension: 40,
           useNativeDriver: true,
         }),
-        
         Animated.delay(200),
-        
         Animated.spring(responseContainerAnimation, {
           toValue: 0,
           friction: 6,
@@ -101,9 +134,11 @@ const YuSuggestions: React.FC<YuSuggestionsProps> = ({ onSelectContent, onClose 
     });
   };
 
-  const handleSendMessage = (text: string) => {
-    onSelectContent(text);
-    onClose();
+  const handleSendMessage = async (messageText: string) => {
+    if (messageText.trim()) {
+      onSelectContent(messageText);
+      onClose();
+    }
   };
 
   return (
@@ -128,75 +163,74 @@ const YuSuggestions: React.FC<YuSuggestionsProps> = ({ onSelectContent, onClose 
         </TouchableOpacity>
       </View>
 
-      <View style={styles.lowerHeader}>
-        <Text style={styles.YuUseCounter}>{aiUsageCount}/{aiUsageLimit} used this week</Text>
-        <Link href="/UpgradeToPremium">
-          <Text style={styles.MoreYu}>Want more?</Text>
-        </Link>
-      </View>
-
       <View style={styles.content}>
-        {suggestions.map((suggestion, index) => (
-          <Animated.View
-            key={suggestion.id}
-            style={[
-              styles.replyButtonContainer,
-              {
-                transform: [{ translateY: replyAnimations[index] }],
-                opacity: animationPhase === 0 ? 1 : 0,
-              },
-            ]}
-          >
-            <TouchableOpacity
-              style={styles.replyButton}
-              onPress={() => handleReplySelect(suggestion.id)}
-              disabled={selectedId !== null}
-            >
-              <Text style={styles.replyText}>{suggestion.preview}</Text>
-            </TouchableOpacity>
-          </Animated.View>
-        ))}
+        {loading ? (
+          <Text style={styles.loadingText}>Generating suggestions...</Text>
+        ) : (
+          <>
+            {suggestions.map((suggestion, index) => (
+              <Animated.View
+                key={suggestion.id}
+                style={[
+                  styles.replyButtonContainer,
+                  {
+                    transform: [{ translateY: replyAnimations[index] }],
+                    opacity: animationPhase === 0 ? 1 : 0,
+                  },
+                ]}
+              >
+                <TouchableOpacity
+                  style={styles.replyButton}
+                  onPress={() => handleReplySelect(suggestion.id)}
+                  disabled={selectedId !== null}
+                >
+                  <Text style={styles.replyText}>{suggestion.preview}</Text>
+                </TouchableOpacity>
+              </Animated.View>
+            ))}
 
-        {selectedId && (
-          <Animated.View
-            style={[
-              styles.replyButtonContainer,
-              styles.selectedContainer,
-              {
-                transform: [{ translateY: selectedAnimation }],
-                opacity: animationPhase >= 1 ? 1 : 0,
-              },
-            ]}
-          >
-            <TouchableOpacity
-              style={[styles.replyButton, styles.selectedReplyButton]}
-              disabled={true}
-            >
-              <Text style={styles.replyText}>
-                {suggestions.find(s => s.id === selectedId)?.preview}
-              </Text>
-            </TouchableOpacity>
-          </Animated.View>
-        )}
+            {selectedId && (
+              <Animated.View
+                style={[
+                  styles.replyButtonContainer,
+                  styles.selectedContainer,
+                  {
+                    transform: [{ translateY: selectedAnimation }],
+                    opacity: animationPhase >= 1 ? 1 : 0,
+                  },
+                ]}
+              >
+                <TouchableOpacity
+                  style={[styles.replyButton, styles.selectedReplyButton]}
+                  disabled={true}
+                >
+                  <Text style={styles.replyText}>
+                    {suggestions.find(s => s.id === selectedId)?.preview}
+                  </Text>
+                </TouchableOpacity>
+              </Animated.View>
+            )}
 
-        {selectedId && (
-          <Animated.View
-            style={[
-              styles.responseContainer,
-              {
-                transform: [{ translateY: responseContainerAnimation }],
-                opacity: animationPhase >= 1 ? 1 : 0,
-              },
-            ]}
-          >
-            <YuGeneratedResponseContainer
-              selectedPrompt={suggestions.find(s => s.id === selectedId)?.preview || ''}
-              onSendMessage={handleSendMessage}
-              onEditMessage={() => {}}
-              onSuggestChanges={() => {}}
-              onClose={onClose}
-            />
-          </Animated.View>
+            {selectedId && (
+              <Animated.View
+                style={[
+                  styles.responseContainer,
+                  {
+                    transform: [{ translateY: responseContainerAnimation }],
+                    opacity: animationPhase >= 1 ? 1 : 0,
+                  },
+                ]}
+              >
+                <YuGeneratedResponseContainer
+                  selectedPrompt={suggestions.find(s => s.id === selectedId)?.preview || ''}
+                  currentUserId={currentUserId}
+                  friendId={friendId}
+                  onSendMessage={handleSendMessage}
+                  onClose={onClose}
+                />
+              </Animated.View>
+            )}
+          </>
         )}
       </View>
     </View>
@@ -300,7 +334,12 @@ const styles = StyleSheet.create({
     bottom: 0,
     top: 60, // Adjust this value to position below the selected reply
   },
+  loadingText: {
+    fontSize: 14,
+    color: Colors.gray,
+    textAlign: 'center',
+    marginTop: 16,
+  },
 });
 
 export default YuSuggestions;
-*/

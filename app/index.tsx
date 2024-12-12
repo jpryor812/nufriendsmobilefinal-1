@@ -53,7 +53,7 @@ export default function Index() {
         onPress={handleGenerateAllSummaries}
       />
       
-      <Link href={"/OnboardingEditProfile"} style={styles.button}>
+      <Link href={"/OnboardingPreQuestionsCreateAccount"} style={styles.button}>
         About
       </Link>
       <Link href={"/HomePage"} style={styles.button}>

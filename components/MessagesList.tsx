@@ -1,197 +1,212 @@
-import React, { useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, ImageSourcePropType, Pressable } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, FlatList, StyleSheet, Image, Pressable } from 'react-native';
 import { Link } from "expo-router";
-import {friendsData} from '../constants/FriendsData';
+import { useMessaging } from '@/contexts/MessageContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/config/firebase';
+import Colors from '@/assets/Colors';
 
-interface Message {
-  id: string;
+interface MessageListItem {
+  conversationId: string;
   userId: string;
-  text: string;
-  timestamp: string;
-  avatar: ImageSourcePropType
-}
-
-const parseTimestamp = (timestamp: string): Date => {
-  const today = new Date();
-  const [time, period] = timestamp.split(' ');
-  const [hours, minutes] = time.split(':');
-  
-  let hour = parseInt(hours);
-  if (period.toLowerCase() === 'pm' && hour !== 12) {
-    hour += 12;
-  } else if (period.toLowerCase() === 'am' && hour === 12) {
-    hour = 0;
-  }
-  
-  today.setHours(hour, parseInt(minutes), 0);
-  return today;
-};
-
-const messages: Message[] = [
-  { id: '1', userId: 'Jpp123', text: "Yeah I should really read more, but I probably play too much Magic haha. I actually have a tournament this weekend in my city to defend my title.", timestamp: "6:45 pm", avatar: require('../assets/images/profile_picture.jpg') },
-  { id: '2', userId: 'AlexD33', text: "You know what? You were right... Andor is the best Star Wars TV series, and I'd even go as far to say one of the best TV series ever!", timestamp: "5:45 pm", avatar: require('../assets/images/profile_icon.png') },
-  { id: '3', userId: 'PChak55', text: "Been experimenting with new recipes lately. Made this incredible Thai curry last night with fresh lemongrass and coconut milk. The kitchen smelled amazing!", timestamp: "4:45 pm", avatar: require('../assets/images/profile-800x800.png') },
-  { id: '4', userId: 'OnDeck02', text: "Finally finished that sci-fi series I was telling you about. The plot twists in the final episode were mind-blowing. We should definitely discuss it sometime!", timestamp: "3:45 pm", avatar: require('../assets/images/profile2-500x500.png') },
-  { id: '5', userId: 'AJones01', text: "Just adopted a rescue puppy! She's a golden retriever mix and absolutely loves playing in the yard. Still working on house training though.", timestamp: "11:45 am", avatar: require('../assets/images/profile3-500x500.png') },
-  { id: '6', userId: 'Hpp123', text: "Started learning guitar last month. My fingers are still getting used to the strings, but I can finally play through my first complete song!", timestamp: "10:45 am", avatar: require('../assets/images/profile_picture.jpg') },
-  { id: '7', userId: 'Tpp123', text: "Visited this amazing art gallery downtown yesterday. The contemporary exhibition was fascinating, especially the interactive installations. You'd love it.", timestamp: "9:45 am", avatar: require('../assets/images/profile_picture.jpg') },
-  { id: '8', userId: 'Mike123', text: "Just finished planting my summer garden. Got tomatoes, peppers, and lots of herbs. Can't wait to start cooking with fresh ingredients!", timestamp: "8:45 am", avatar: require('../assets/images/profile_picture.jpg') },
-  { id: '9', userId: 'Wpp123', text: "Been getting into photography lately. Got this great shot of the sunset at the beach yesterday. The colors were absolutely incredible.", timestamp: "9:35 am", avatar: require('../assets/images/profile_picture.jpg') },
-];
-
-interface MessageItemProps {
-  item: Message;
-  isRead: boolean;
-  onMessageClick: (messageId: string) => void;
-}
-
-const MessageItem: React.FC<MessageItemProps> = ({ item, isRead, onMessageClick }) => {
-  const friend = friendsData.find(f => f.name === item.userId);
-  console.log('Looking for friend:', item.userId);
-  console.log('Found friend:', friend);  // item.userId is actually the name
-    
-  const handlePress = () => {
-      onMessageClick(item.id);
+  username: string;
+  lastMessage: {
+    content: string;
+    timestamp: Date;
+    type: 'text' | 'ai_generated' | 'voice' | 'image';
   };
-  
-  return (
-    <Link 
+  unreadCount: number;
+  isInitialConversation: boolean;
+}
+
+const MessageList: React.FC = () => {
+  const { user } = useAuth();
+  const { conversations } = useMessaging();
+  const [messageItems, setMessageItems] = useState<MessageListItem[]>([]);
+
+  useEffect(() => {
+    const loadConversations = async () => {
+      if (!conversations || !user) return;
+
+      const conversationItems = await Promise.all(
+        conversations.map(async (conv) => {
+          // Get the other user's ID (not the current user)
+          const otherUserId = Object.keys(conv.participants)
+            .find(id => id !== user.uid);
+
+          if (!otherUserId) return null;
+
+          // Get the other user's data
+          const userDoc = await getDoc(doc(db, 'users', otherUserId));
+          const userData = userDoc.data();
+
+          if (!userData) return null;
+
+          return {
+            conversationId: conv.id,
+            userId: otherUserId,
+            username: userData.username,
+            lastMessage: {
+              content: conv.lastMessage.content || "Start your conversation!",
+              timestamp: conv.lastMessage.timestamp?.toDate() || new Date(),
+              type: conv.lastMessage.type || 'text'
+            },
+            unreadCount: conv.participants[user.uid].unreadCount,
+            isInitialConversation: conv.isInitialAiConversation
+          };
+        })
+      );
+
+      // Filter out nulls and sort by timestamp
+      const validConversations = conversationItems
+        .filter((item): item is MessageListItem => item !== null)
+        .sort((a, b) => b.lastMessage.timestamp.getTime() - a.lastMessage.timestamp.getTime());
+
+      setMessageItems(validConversations);
+    };
+
+    loadConversations();
+  }, [conversations, user]);
+
+  const MessageItem = ({ item }: { item: MessageListItem }) => (
+    <Link
       href={{
-        pathname: "/ChatRoomFriend",
-        params: { id: friend.id.toString() }  // Just pass the id
-      }} 
+        pathname: item.isInitialConversation ? "/ChatRoomNewFriend" : "/ChatRoomFriend",
+        params: { 
+          matchId: item.conversationId,
+          friendId: item.userId
+        }
+      }}
       asChild
     >
-      <Pressable 
-        style={styles.messageContainer}
-        onPress={handlePress}
-      >
+      <Pressable style={styles.messageContainer}>
         <View style={styles.avatarContainer}>
           <Image 
-            source={item.avatar}
-            style={styles.avatarImage} 
+            source={require('@/assets/images/profile_picture.jpg')} 
+            style={styles.avatar} 
           />
+          {item.unreadCount > 0 && (
+            <View style={styles.unreadBadge}>
+              <Text style={styles.unreadCount}>{item.unreadCount}</Text>
+            </View>
+          )}
         </View>
-        <View style={styles.textContainer}>
-          <Text style={[styles.username, !isRead && styles.unreadText]}>
-            {item.userId}
-          </Text>
+
+        <View style={styles.messageContent}>
+          <Text style={styles.username}>{item.username}</Text>
           <Text 
-            style={[styles.messageText, !isRead && styles.unreadText]} 
-            numberOfLines={2} 
-            ellipsizeMode="tail"
+            style={[
+              styles.lastMessage,
+              item.unreadCount > 0 && styles.unreadText
+            ]} 
+            numberOfLines={1}
           >
-            {item.text}
+            {item.lastMessage.content}
           </Text>
         </View>
-        <Text style={[styles.timestamp, !isRead && styles.unreadText]}>
-          {item.timestamp}
+
+        <Text style={styles.timestamp}>
+          {formatTimestamp(item.lastMessage.timestamp)}
         </Text>
       </Pressable>
     </Link>
   );
-};
-
-const MessageList: React.FC = () => {
-  const [readMessages, setReadMessages] = useState<Set<string>>(new Set());
-
-  const handleMessageClick = (messageId: string) => {
-    setReadMessages(prev => {
-      const newSet = new Set(prev);
-      newSet.add(messageId);
-      return newSet;
-    });
-  };
-
-  // Sort messages by read status first, then by timestamp
-  const sortedMessages = [...messages].sort((a, b) => {
-    const isARead = readMessages.has(a.id);
-    const isBRead = readMessages.has(b.id);
-    
-    // If read status is different, unread messages come first
-    if (isARead !== isBRead) {
-      return isARead ? 1 : -1;
-    }
-    
-    // If read status is the same, sort by timestamp
-    const dateA = parseTimestamp(a.timestamp);
-    const dateB = parseTimestamp(b.timestamp);
-    return dateB.getTime() - dateA.getTime();
-  });
 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Messages</Text>
       <FlatList
-        data={sortedMessages}
-        renderItem={({ item }) => (
-          <MessageItem 
-            item={item} 
-            isRead={readMessages.has(item.id)}
-            onMessageClick={handleMessageClick}
-          />
-        )}
-        keyExtractor={item => item.id}
+        data={messageItems}
+        renderItem={({ item }) => <MessageItem item={item} />}
+        keyExtractor={item => item.conversationId}
+        contentContainerStyle={styles.listContent}
       />
     </View>
   );
 };
 
+const formatTimestamp = (date: Date) => {
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  const diffHours = diff / (1000 * 60 * 60);
+
+  if (diffHours < 24) {
+    return date.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      hour12: true 
+    });
+  }
+  return date.toLocaleDateString();
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.background,
   },
   header: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    padding: 15,
-    textAlign: 'center',
-    textDecorationLine: 'underline',
+    fontSize: 24,
+    fontWeight: '600',
+    padding: 16,
+    color: Colors.primary,
+  },
+  listContent: {
+    paddingHorizontal: 16,
   },
   messageContainer: {
     flexDirection: 'row',
-    padding: 12,
+    alignItems: 'center',
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#e1e1e1',
+    borderBottomColor: Colors.lightGray,
   },
   avatarContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#3498db',
+    position: 'relative',
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  unreadBadge: {
+    position: 'absolute',
+    right: -2,
+    top: -2,
+    backgroundColor: Colors.primary,
+    borderRadius: 10,
+    width: 20,
+    height: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10,
   },
-  avatarText: {
-    color: '#fff',
-    fontWeight: 'bold',
+  unreadCount: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '600',
   },
-  avatarImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
-  textContainer: {
+  messageContent: {
     flex: 1,
+    marginLeft: 12,
   },
   username: {
-    fontWeight: 'bold',
-    marginBottom: 5,
     fontSize: 16,
-    color: '#333',
+    fontWeight: '600',
+    marginBottom: 4,
   },
-  messageText: {
-    color: '#333',
-    fontSize: 15,
+  lastMessage: {
+    fontSize: 14,
+    color: Colors.gray,
+  },
+  unreadText: {
+    fontWeight: '600',
+    color: Colors.lightGray,
   },
   timestamp: {
     fontSize: 12,
-    color: '#999',
-    alignSelf: 'flex-start',
-  },
-  unreadText: {
-    color: '#2196F3', // Blue color for unread messages
+    color: Colors.gray,
+    marginLeft: 8,
   },
 });
 

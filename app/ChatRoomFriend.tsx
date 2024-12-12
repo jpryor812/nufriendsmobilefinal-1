@@ -8,11 +8,10 @@ import {
   Send,
   SystemMessage,
   IMessage,
+  InputToolbarProps,
 } from 'react-native-gifted-chat';
 import { useLocalSearchParams } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useMessaging } from '@/contexts/MessageContext'; 
-import { useAuth } from '@/contexts/AuthContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';import { useAuth } from '@/contexts/AuthContext';
 import Colors from '@/assets/Colors';
 import ChatMessageBox from '@/components/ChatMessageBox';
 import FriendProfileMessageHeader from '@/components/FriendProfileMessageHeader';
@@ -29,6 +28,7 @@ import {
   DocumentData,
 } from 'firebase/firestore';
 import { db } from '@/config/firebase';
+import { useMessaging } from '@/contexts/MessageContext';
 
 const ChatRoomFriend = () => {
   const insets = useSafeAreaInsets();
@@ -36,14 +36,12 @@ const ChatRoomFriend = () => {
   const { 
     sendMessage, 
     currentConversation,
-    markConversationAsRead,
     setTypingStatus 
   } = useMessaging();
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [isYuSuggestionsMode, setIsYuSuggestionsMode] = useState(false);
   const params = useLocalSearchParams();
   const friend = friendsData.find(f => f.id === Number(params.id));
-
   if (!friend) return null;
 
   // Subscribe to messages from Firebase
@@ -70,9 +68,6 @@ const ChatRoomFriend = () => {
 
       setMessages(newMessages);
     });
-
-    // Mark conversation as read when opened
-    markConversationAsRead(currentConversation.id);
 
     return () => unsubscribe();
   }, [currentConversation?.id, user?.uid]);
@@ -107,12 +102,14 @@ const ChatRoomFriend = () => {
     }
   };
 
-  const renderInputToolbar = (props: any) => {
+  const renderInputToolbar = (props: InputToolbarProps<IMessage>) => {
     if (isYuSuggestionsMode) {
       return (
         <YuSuggestions
           onSelectContent={handleYuMessage}
           onClose={() => setIsYuSuggestionsMode(false)}
+          currentUserId={user?.uid || ''}
+          friendId={friend.id.toString()}
         />
       );
     }
@@ -139,8 +136,8 @@ const ChatRoomFriend = () => {
   return (
     <SafeLayout style={styles.container}>
       <FriendProfileMessageHeader
-        id={friend.id}
-        name={friend.name}
+    id={friend.id.toString()}
+    name={friend.name}
         avatar={friend.avatar}
       />
       

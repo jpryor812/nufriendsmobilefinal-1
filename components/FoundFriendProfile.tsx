@@ -1,6 +1,10 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
+import { httpsCallable } from 'firebase/functions';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db, auth, functions as baseFunctions } from '@/config/firebase';
+import { Ionicons } from '@expo/vector-icons';
 
 interface GenderIcon {
   source: any;
@@ -40,6 +44,7 @@ interface FriendProfileProps {
 
 const FoundFriendProfile: React.FC<FriendProfileProps> = ({ friend }) => {
   const router = useRouter();
+  const [isGeneratingChat, setIsGeneratingChat] = useState(false);
 
   const displayNames = {
     'location': 'Born In',
@@ -73,7 +78,54 @@ const FoundFriendProfile: React.FC<FriendProfileProps> = ({ friend }) => {
                 dimensions: { width: 18, height: 18 }
             };
     }
-};
+  };
+
+    const handleOpenChat = async () => {
+      try {
+        setIsGeneratingChat(true);
+        
+        const currentUser = auth.currentUser;
+        if (!currentUser) {
+          throw new Error('No authenticated user');
+        }
+  
+        // Query matches collection to find the match document
+        const matchesRef = collection(db, 'matches');
+        const q = query(
+          matchesRef,
+          where('users', 'array-contains', currentUser.uid)
+        );
+        const querySnapshot = await getDocs(q);
+        const matchDoc = querySnapshot.docs.find(
+          doc => doc.data().users.includes(friend.uid)
+        );
+        
+        if (!matchDoc) {
+          throw new Error('Match not found');
+        }
+  
+        // Generate initial conversation
+        const generateConversation = httpsCallable(baseFunctions, 'generateInitialConversation');
+        await generateConversation({ matchId: matchDoc.id });
+  
+        // Navigate to chat room
+        router.push({
+          pathname: '/ChatRoomFriend',
+          params: { 
+            matchId: matchDoc.id,
+            friendId: friend.uid
+          }
+        });
+      } catch (error) {
+        console.error('Error opening chat:', error);
+        Alert.alert(
+          'Error',
+          'Unable to open chat at this time. Please try again later.'
+        );
+      } finally {
+        setIsGeneratingChat(false);
+      }
+    };
 
   return (
     <View style={styles.container}>
@@ -131,6 +183,25 @@ const FoundFriendProfile: React.FC<FriendProfileProps> = ({ friend }) => {
               ))}
           </View>
         )}
+        <TouchableOpacity
+          style={[
+            styles.chatButton,
+            isGeneratingChat && styles.chatButtonDisabled
+          ]}
+          onPress={handleOpenChat}
+          disabled={isGeneratingChat}
+        >
+          <View style={styles.buttonContent}>
+            <Ionicons 
+              name="chatbubble-outline" 
+              size={24} 
+              color="white" 
+            />
+            <Text style={styles.chatButtonText}>
+              {isGeneratingChat ? "Opening Chat..." : "Start Chatting!"}
+            </Text>
+          </View>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -295,6 +366,36 @@ const styles = StyleSheet.create({
     color: '#444',
     lineHeight: 20,
   },
+  chatButton: {
+    backgroundColor: '#42ade2',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 25,
+    marginTop: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    width: '80%', // Adjust this to match your design
+  },
+  chatButtonDisabled: {
+    backgroundColor: '#a0d8f4',
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  chatButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '600',
+  }
 });
 
 export default FoundFriendProfile;

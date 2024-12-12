@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Text, Image, } from 'react-native';
 
-const BigYuOnboarding = ({ text }: { text: string }) => {
+const SmallYuOnboarding = ({ text }: { text: string }) => {
   return (
     <View style={styles.container}>
       <View style={styles.big_yu_chat_bubble_container}>
@@ -81,4 +81,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BigYuOnboarding;
+export default SmallYuOnboarding;

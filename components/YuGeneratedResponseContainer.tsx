@@ -1,29 +1,35 @@
-/*
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '@/config/firebase';
 import Colors from '@/assets/Colors';
-import { useAIMessaging } from '@/contexts/AIMessagingContext';
 
 interface YuGeneratedResponseContainerProps {
   selectedPrompt: string;
+  currentUserId: string;
+  friendId: string;
   onSendMessage: (text: string) => void;
-  onEditMessage: (text: string) => void;
-  onSuggestChanges: (text: string) => void;
   onClose: () => void;
+}
+interface ConversationRequest {
+  userId: string;
+  matchedUserId: string;
+  selectedTopic?: string;
+  refinementRequest?: string;
+}
+
+interface ConversationResponse {
+  type: 'topics' | 'message';
+  content: string[] | string;
 }
 
 const YuGeneratedResponseContainer: React.FC<YuGeneratedResponseContainerProps> = ({
   selectedPrompt,
+  currentUserId,
+  friendId,
   onSendMessage,
   onClose
 }) => {
-  const { generateResponse, modifyResponse } = useAIMessaging();
   const [messageText, setMessageText] = useState('');
   const [suggestionText, setSuggestionText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -34,8 +40,16 @@ const YuGeneratedResponseContainer: React.FC<YuGeneratedResponseContainerProps> 
       
       setIsLoading(true);
       try {
-        const response = await generateResponse(selectedPrompt);
-        setMessageText(response.content);
+        const generateContent = httpsCallable<any, ConversationResponse>(functions, 'generateConversationContent');
+        const result = await generateContent({ 
+          userId: currentUserId,
+          matchedUserId: friendId,
+          selectedTopic: selectedPrompt
+        });
+        
+        if (result.data.type === 'message') {
+          setMessageText(result.data.content as string);
+        }
       } catch (error) {
         console.error('Error generating response:', error);
       } finally {
@@ -44,7 +58,7 @@ const YuGeneratedResponseContainer: React.FC<YuGeneratedResponseContainerProps> 
     };
 
     generateInitialResponse();
-  }, [selectedPrompt]);
+  }, [selectedPrompt, currentUserId, friendId]);
 
   const handleSendMessage = () => {
     if (messageText.trim()) {
@@ -56,11 +70,24 @@ const YuGeneratedResponseContainer: React.FC<YuGeneratedResponseContainerProps> 
 
   const handleSuggestChanges = async () => {
     if (!suggestionText.trim()) return;
-
+  
     setIsLoading(true);
     try {
-      const modifiedResponse = await modifyResponse(messageText, suggestionText);
-      setMessageText(modifiedResponse.content);
+      const generateContent = httpsCallable<ConversationRequest, ConversationResponse>(
+        functions, 
+        'generateConversationContent'
+      );
+      
+      const result = await generateContent({ 
+        userId: currentUserId,
+        matchedUserId: friendId,
+        selectedTopic: selectedPrompt,
+        refinementRequest: suggestionText
+      });
+      
+      if (result.data.type === 'message') {
+        setMessageText(result.data.content as string);
+      }
       setSuggestionText('');
     } catch (error) {
       console.error('Error modifying response:', error);
@@ -220,4 +247,3 @@ const styles = StyleSheet.create({
 });
 
 export default YuGeneratedResponseContainer;
-*/
