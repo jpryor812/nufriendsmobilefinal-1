@@ -83,16 +83,18 @@ export function MessagingProvider({ children }: { children: ReactNode }) {
   // Subscribe to user's conversations
   useEffect(() => {
     if (!user?.uid) return;
-
+  
+    console.log('Setting up conversation subscription for user:', user.uid);
+  
     const conversationsRef = collection(db, 'conversations');
     const q = query(
       conversationsRef,
-      where(`participants.${user.uid}`, '!=', null),
-      orderBy('updatedAt', 'desc')
+      where(`participants.${user.uid}.lastRead`, '!=', null) // This is a more reliable way to check
     );
-
+  
     const unsubscribe = onSnapshot(q, 
       (snapshot) => {
+        console.log('Raw snapshot data:', snapshot.docs.map(doc => ({id: doc.id, data: doc.data()})));
         const conversationList = snapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
@@ -101,12 +103,12 @@ export function MessagingProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       },
       (err) => {
-        console.error('Error fetching conversations:', err);
+        console.error('Error in conversation subscription:', err);
         setError(err.message);
         setLoading(false);
       }
     );
-
+  
     return () => unsubscribe();
   }, [user?.uid]);
 
@@ -189,7 +191,7 @@ export function MessagingProvider({ children }: { children: ReactNode }) {
           }
         },
         lastMessage: {
-          content: '',
+          content: 'Start your conversation!',
           timestamp: serverTimestamp() as Timestamp,
           senderId: '',
           type: 'text'

@@ -238,8 +238,8 @@ async function getPotentialMatches(userId: string, userAge: number) {
         ...doc.data()
     } as UserProfile));
 
-    if (potentialMatches.length > 12) {
-        potentialMatches = shuffleArray(potentialMatches).slice(0, 12);
+    if (potentialMatches.length > 15) {
+        potentialMatches = shuffleArray(potentialMatches).slice(0, 15);
     }
   
     return potentialMatches;

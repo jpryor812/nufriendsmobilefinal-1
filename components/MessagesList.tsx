@@ -27,45 +27,62 @@ const MessageList: React.FC = () => {
 
   useEffect(() => {
     const loadConversations = async () => {
+      console.log('Current user:', user?.uid);
+      console.log('Raw conversations from context:', conversations);
+  
       if (!conversations || !user) return;
-
+  
       const conversationItems = await Promise.all(
         conversations.map(async (conv) => {
-          // Get the other user's ID (not the current user)
           const otherUserId = Object.keys(conv.participants)
             .find(id => id !== user.uid);
-
+  
+          console.log('Found other user ID:', otherUserId);
+  
           if (!otherUserId) return null;
-
-          // Get the other user's data
+  
           const userDoc = await getDoc(doc(db, 'users', otherUserId));
           const userData = userDoc.data();
-
+  
+          console.log('Found user data:', userData);
+  
           if (!userData) return null;
 
+          const isNewConversation = !conv.lastMessage.content || 
+          conv.lastMessage.content === "Start your conversation!" ||
+          conv.isInitialAiConversation;
+  
+          // Show conversation even if there's no message history
           return {
             conversationId: conv.id,
             userId: otherUserId,
             username: userData.username,
             lastMessage: {
-              content: conv.lastMessage.content || "Start your conversation!",
-              timestamp: conv.lastMessage.timestamp?.toDate() || new Date(),
-              type: conv.lastMessage.type || 'text'
+              content: isNewConversation 
+                ? "Click here to start your conversation!" 
+                : conv.lastMessage.content,
+              timestamp: isNewConversation 
+                ? conv.createdAt.toDate() 
+                : conv.lastMessage.timestamp.toDate(),
+              type: 'text'
             },
             unreadCount: conv.participants[user.uid].unreadCount,
-            isInitialConversation: conv.isInitialAiConversation
+            isInitialConversation: isNewConversation
           };
         })
       );
-
+  
+      console.log('Final formatted items:', conversationItems);
+  
       // Filter out nulls and sort by timestamp
       const validConversations = conversationItems
         .filter((item): item is MessageListItem => item !== null)
         .sort((a, b) => b.lastMessage.timestamp.getTime() - a.lastMessage.timestamp.getTime());
-
+  
+      console.log('Valid conversations to display:', validConversations);
       setMessageItems(validConversations);
     };
-
+  
     loadConversations();
   }, [conversations, user]);
 
@@ -115,13 +132,17 @@ const MessageList: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Messages</Text>
+    <Text style={styles.header}>Messages</Text>
+    {messageItems.length === 0 ? (
+      <Text style={styles.emptyState}>No conversations yet</Text>
+    ) : (
       <FlatList
         data={messageItems}
         renderItem={({ item }) => <MessageItem item={item} />}
         keyExtractor={item => item.conversationId}
         contentContainerStyle={styles.listContent}
       />
+    )}
     </View>
   );
 };
@@ -150,7 +171,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '600',
     padding: 16,
-    color: Colors.primary,
+    color: '#42ADE2',
+  },
+  emptyState: {
+    textAlign: 'center',
+    color: Colors.gray,
+    marginTop: 20,
+    fontSize: 16,
   },
   listContent: {
     paddingHorizontal: 16,

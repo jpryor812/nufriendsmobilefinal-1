@@ -18,5 +18,9 @@
       "region": "us-central1",
       "invoker": "public"
     }
-  ]
+  ],
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
 }

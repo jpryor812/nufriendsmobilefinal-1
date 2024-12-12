@@ -10,7 +10,7 @@ import SafeLayout from '@/components/SafeLayout';
 import ConfettiEffect from '@/components/ConfettiEffect';
 import { httpsCallable, getFunctions } from 'firebase/functions';
 import { FirebaseError } from 'firebase/app';  
-
+import { useMessaging } from '@/contexts/MessageContext';
 
 interface Friend {
   uid: string;  // Changed from id to uid
@@ -86,6 +86,7 @@ const SEARCHING_MESSAGES = [
 
 const FindingFriends = () => {
   const params = useLocalSearchParams();
+  const { createConversation } = useMessaging();
   const [friends, setFriends] = useState<Friend[]>([]);
   const [currentFriendIndex, setCurrentFriendIndex] = useState(0);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -121,13 +122,20 @@ const FindingFriends = () => {
     });
   };
 
-  const handleNextFriend = () => {
-    console.log("Before transition - Current index:", currentFriendIndex);
-    console.log("Before transition - Total friends:", friends.length);
-
+  const handleNextFriend = async () => {
     if (currentFriendIndex === friends.length - 1) {
+      try {
+        // Now we can use createConversation from the hook
+        console.log("Creating conversations for matches:", friends);
+        for (const friend of friends) {
+          const conversationId = await createConversation(friend.uid, true);
+          console.log(`Created conversation ${conversationId} with friend ${friend.username}`);
+        }
         router.replace('/HomePage');
-        return;
+      } catch (error) {
+        console.error('Error creating conversations:', error);
+      }
+      return;
     }
 
     // Reset animations
