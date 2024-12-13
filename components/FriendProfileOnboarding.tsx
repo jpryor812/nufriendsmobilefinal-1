@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, StyleSheet } from 'react-native';
+import Colors from '@/assets/Colors';
+import ScrollSafeLayout from './ScrollSafeLayout';
 
 interface FriendProfileOnboardingProps {
   friend: {
-    username: string;
     demographics: {
       city: string;
       state: string;
@@ -23,134 +23,97 @@ interface FriendProfileOnboardingProps {
 }
 
 const FriendProfileOnboarding: React.FC<FriendProfileOnboardingProps> = ({ friend }) => {
+  const displayNames = {
+    'location': 'Born In',
+    'hobbies': 'Hobbies',
+    'music': 'Favorite Music',
+    'entertainment': 'Favorite Content',
+    'travel': 'Best Trip',
+    'goals': 'Goals'
+  };
+
   return (
+    <ScrollSafeLayout>
     <View style={styles.container}>
-      <View style={styles.card}>
-        <Image 
-          source={require('@/assets/images/profile_picture.jpg')}
-          style={styles.avatar}
-        />
-        <Text style={styles.username}>{friend.username}</Text>
-        
-        <View style={styles.basicInfo}>
-          <View style={styles.infoRow}>
-            <Ionicons name="home-outline" size={16} color="#666" />
-            <Text style={styles.infoText}>
-              {friend.demographics.city}, {friend.demographics.state}
-            </Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Ionicons name="person-outline" size={16} color="#666" />
-            <Text style={styles.infoText}>{friend.demographics.gender}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Ionicons name="calendar-outline" size={16} color="#666" />
-            <Text style={styles.infoText}>{friend.demographics.age} years-old</Text>
-          </View>
-        </View>
-
-        <View style={styles.aboutSection}>
-          <Text style={styles.aboutTitle}>About {friend.username}</Text>
-          
-          <View style={styles.infoItem}>
-            <Text style={styles.label}>Goals:</Text>
-            <Text style={styles.value}>{friend.profileSummaries.goals}</Text>
-          </View>
-
-          <View style={styles.infoItem}>
-            <Text style={styles.label}>Best Trip:</Text>
-            <Text style={styles.value}>{friend.profileSummaries.travel}</Text>
-          </View>
-
-          <View style={styles.infoItem}>
-            <Text style={styles.label}>Favorite Content:</Text>
-            <Text style={styles.value}>{friend.profileSummaries.entertainment}</Text>
-          </View>
-
-          <View style={styles.infoItem}>
-            <Text style={styles.label}>Born In:</Text>
-            <Text style={styles.value}>{friend.profileSummaries.location}</Text>
-          </View>
-
-          <View style={styles.infoItem}>
-            <Text style={styles.label}>Hobbies:</Text>
-            <Text style={styles.value}>{friend.profileSummaries.hobbies}</Text>
-          </View>
-
-          <View style={styles.infoItem}>
-            <Text style={styles.label}>Favorite Music:</Text>
-            <Text style={styles.value}>{friend.profileSummaries.music}</Text>
-          </View>
+      {/* Basic Details */}
+      <View style={styles.details}>
+        <View style={styles.detailContainer}>
+          <Text style={styles.detailText}>
+            {friend.demographics.city}, {friend.demographics.state}
+          </Text>
+          <Text style={styles.detailText}>{friend.demographics.gender}</Text>
+          <Text style={styles.detailText}>{friend.demographics.age} years-old</Text>
         </View>
       </View>
+      
+      {/* Profile Summaries */}
+      {friend.profileSummaries && (
+        <View style={styles.summaryContainer}>
+          {Object.entries(friend.profileSummaries)
+            .filter(([key]) => key !== 'isVisible')
+            .map(([key, value]) => (
+              <View key={key} style={styles.summaryRow}>
+                <Text style={styles.summaryLabel}>
+                  {displayNames[key as keyof typeof displayNames]}:
+                </Text>
+                <Text style={styles.summaryValue}>{value}</Text>
+              </View>
+            ))}
+        </View>
+      )}
     </View>
+    </ScrollSafeLayout>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
-    backgroundColor: '#f5f5f5',
-  },
-  card: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    padding: 12,
+    marginHorizontal: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    alignSelf: 'center',
+  details: {
     marginBottom: 8,
   },
-  username: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#42ade2',
-    textAlign: 'center',
-    marginBottom: 16,
-  },
-  basicInfo: {
-    marginBottom: 16,
-  },
-  infoRow: {
+  detailContainer: {
+    gap: 24,
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: 4,
+    alignItems: 'center', 
   },
-  infoText: {
-    marginLeft: 8,
-    color: '#666',
+  detailText: {
     fontSize: 14,
+    color: Colors.gray,
+    fontWeight: '600',
+    textAlign: 'center',
   },
-  aboutSection: {
+  summaryContainer: {
     borderTopWidth: 1,
     borderTopColor: '#eee',
-    paddingTop: 16,
+    paddingTop: 8,
   },
-  aboutTitle: {
+  summaryTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: '#42ade2',
     marginBottom: 12,
   },
-  infoItem: {
-    marginBottom: 8,
+  summaryRow: {
+    marginBottom: 6,
   },
-  label: {
-    fontSize: 15,
+  summaryLabel: {
+    fontSize: 14,
     fontWeight: '600',
     color: '#333',
     marginBottom: 2,
   },
-  value: {
+  summaryValue: {
     fontSize: 14,
     color: '#666',
     lineHeight: 20,

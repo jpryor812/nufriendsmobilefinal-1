@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {
   GiftedChat,
@@ -26,6 +26,8 @@ import {
   orderBy, 
   onSnapshot,
   DocumentData,
+  getDoc,
+  doc,
 } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 import { useMessaging } from '@/contexts/MessageContext';
@@ -33,20 +35,40 @@ import { useMessaging } from '@/contexts/MessageContext';
 const ChatRoomFriend = () => {
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
-  const { 
-    sendMessage, 
-    currentConversation,
-    setTypingStatus 
-  } = useMessaging();
+  const { sendMessage, currentConversation, setCurrentConversation, setTypingStatus } = useMessaging();
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [isYuSuggestionsMode, setIsYuSuggestionsMode] = useState(false);
+  const [friend, setFriend] = useState<any>(null);
   const params = useLocalSearchParams();
-  const friend = friendsData.find(f => f.id === Number(params.id));
-  if (!friend) return null;
+  const { matchId, friendId, showSuggestions } = params;
 
-  // Subscribe to messages from Firebase
+  // Load friend data and set conversation
   useEffect(() => {
-    if (!currentConversation?.id || !user?.uid) return;
+    const loadFriendAndConversation = async () => {
+      if (!friendId || !matchId) return;
+
+      try {
+        const friendDoc = await getDoc(doc(db, 'users', friendId as string));
+        if (friendDoc.exists()) {
+          setFriend(friendDoc.data());
+        }
+        await setCurrentConversation(matchId as string);
+        
+        // Set Yu suggestions if coming from onboarding
+        if (showSuggestions === 'true') {
+          setIsYuSuggestionsMode(true);
+        }
+      } catch (error) {
+        console.error('Error loading friend data:', error);
+      }
+    };
+
+    loadFriendAndConversation();
+  }, [friendId, matchId]);
+
+  // Subscribe to messages
+  useEffect(() => {
+    if (!currentConversation?.id || !user?.uid || !friend) return;
 
     const messagesRef = collection(db, `conversations/${currentConversation.id}/messages`);
     const q = query(messagesRef, orderBy('timestamp', 'desc'));
@@ -60,7 +82,7 @@ const ChatRoomFriend = () => {
           createdAt: data.timestamp.toDate(),
           user: {
             _id: data.senderId,
-            name: data.senderId === user.uid ? 'You' : friend?.name
+            name: data.senderId === user.uid ? 'You' : friend.username
           },
           messageType: data.type
         };
@@ -70,18 +92,13 @@ const ChatRoomFriend = () => {
     });
 
     return () => unsubscribe();
-  }, [currentConversation?.id, user?.uid]);
+  }, [currentConversation?.id, user?.uid, friend]);
 
   const onSend = useCallback(async (newMessages: IMessage[] = []) => {
     if (!currentConversation?.id) return;
-
     try {
       const [firstMessage] = newMessages;
-      await sendMessage(
-        currentConversation.id,
-        firstMessage.text,
-        'text'
-      );
+      await sendMessage(currentConversation.id, firstMessage.text, 'text');
     } catch (error) {
       console.error('Error sending message:', error);
     }
@@ -89,18 +106,22 @@ const ChatRoomFriend = () => {
 
   const handleYuMessage = async (text: string) => {
     if (!currentConversation?.id) return;
-
     try {
-      await sendMessage(
-        currentConversation.id,
-        text,
-        'ai_generated'
-      );
+      await sendMessage(currentConversation.id, text, 'ai_generated');
       setIsYuSuggestionsMode(false);
     } catch (error) {
       console.error('Error sending Yu message:', error);
     }
   };
+
+  // Add loading state
+  if (!friend) {
+    return (
+      <SafeLayout style={styles.container}>
+        <Text>Loading...</Text>
+      </SafeLayout>
+    );
+  }
 
   const renderInputToolbar = (props: InputToolbarProps<IMessage>) => {
     if (isYuSuggestionsMode) {
@@ -109,7 +130,7 @@ const ChatRoomFriend = () => {
           onSelectContent={handleYuMessage}
           onClose={() => setIsYuSuggestionsMode(false)}
           currentUserId={user?.uid || ''}
-          friendId={friend.id.toString()}
+          friendId={friendId as string}
         />
       );
     }
@@ -135,11 +156,11 @@ const ChatRoomFriend = () => {
 
   return (
     <SafeLayout style={styles.container}>
-      <FriendProfileMessageHeader
-    id={friend.id.toString()}
-    name={friend.name}
-        avatar={friend.avatar}
-      />
+<FriendProfileMessageHeader
+  id={friendId as string}  // Use friendId from params instead of friend.id
+  name={friend.username}   // Use username from Firebase user data
+  avatar={friend.avatar}
+/>
       
       <GiftedChat
         messages={messages}

@@ -8,6 +8,7 @@ import FriendProfileMessageHeader from '@/components/FriendProfileMessageHeader'
 import SmallYuOnboarding from '@/components/SmallYuOnboarding';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/config/firebase';
+import FriendProfileOnboarding from '@/components/FriendProfileOnboarding';
 
 const ChatRoomNewFriend = () => {
   const { user } = useAuth();
@@ -43,7 +44,7 @@ const ChatRoomNewFriend = () => {
       
       <View style={styles.contentContainer}>
         <SmallYuOnboarding 
-          text="Hey There! Feel free to start the conversation off however you'd like. If you're not sure what to say, you can tap me in the bottom left corner there at any time for some suggested conversation starters. As a reminder, here is some information about your friend. You can also just tap on their profile to view that information as well. Feel free to select where you want some help, or to send the message on your own."
+          text="Hey There! Feel free to start the conversation yourself, or with some tips from me! Also, here is a reminder of what your new friend is like."
         />
         
         <View style={styles.buttonContainer}>
@@ -80,42 +81,42 @@ const ChatRoomNewFriend = () => {
           </TouchableOpacity>
         </View>
       </View>
+      <FriendProfileOnboarding friend={friend} />
     </SafeLayout>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: Colors.background,
   },
   contentContainer: {
-    flex: 1,
-    padding: 16,
-    justifyContent: 'space-between',
   },
   buttonContainer: {
+    marginTop: 6,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 12,
-    marginBottom: 20,
+    gap: 60,
+    marginHorizontal: 48,
   },
   button: {
     flex: 1,
-    padding: 12,
+    padding: 10,
     borderRadius: 25,
+    marginBottom: 16,
     alignItems: 'center',
   },
   tipButton: {
-    backgroundColor: '#42ade2',
+    backgroundColor: '#57C7FF',
   },
   directButton: {
     backgroundColor: '#57C7FF',
   },
   buttonText: {
     color: 'white',
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 14,
+    fontWeight: '700',
+    textAlign: 'center',
   },
 });
 

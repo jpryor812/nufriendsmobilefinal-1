@@ -111,24 +111,32 @@ const MessageList: React.FC = () => {
         </View>
 
         <View style={styles.messageContent}>
-          <Text style={styles.username}>{item.username}</Text>
-          <Text 
-            style={[
-              styles.lastMessage,
-              item.unreadCount > 0 && styles.unreadText
-            ]} 
-            numberOfLines={1}
-          >
-            {item.lastMessage.content}
-          </Text>
-        </View>
-
-        <Text style={styles.timestamp}>
-          {formatTimestamp(item.lastMessage.timestamp)}
+        <Text style={[
+          styles.username,
+          item.unreadCount > 0 && styles.unreadText
+        ]}>
+          {item.username}
         </Text>
-      </Pressable>
-    </Link>
-  );
+        <Text 
+          style={[
+            styles.lastMessage,
+            item.unreadCount > 0 && styles.unreadText
+          ]} 
+          numberOfLines={1}
+        >
+          {item.lastMessage.content}
+        </Text>
+      </View>
+
+      <Text style={[
+        styles.timestamp,
+        item.unreadCount > 0 && styles.unreadText
+      ]}>
+        {formatTimestamp(item.lastMessage.timestamp)}
+      </Text>
+    </Pressable>
+  </Link>
+);
 
   return (
     <View style={styles.container}>
@@ -221,19 +229,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 4,
+    color: Colors.gray, // Default color for read messages
   },
   lastMessage: {
     fontSize: 14,
-    color: Colors.gray,
-  },
-  unreadText: {
-    fontWeight: '600',
-    color: Colors.lightGray,
+    color: Colors.gray, // Default color for read messages
   },
   timestamp: {
     fontSize: 12,
-    color: Colors.gray,
+    color: Colors.gray, // Default color for read messages
     marginLeft: 8,
+  },
+  unreadText: {
+    color: '#42ADE2', // Blue color for unread messages
+    fontWeight: '600',
   },
 });
 

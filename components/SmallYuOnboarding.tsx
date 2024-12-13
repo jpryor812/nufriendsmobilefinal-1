@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#ccc',
     padding: 12,
-    width: '64%',
+    width: '70%',
     marginBottom: 0, // Remove bottom margin
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
