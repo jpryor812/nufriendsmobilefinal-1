@@ -5,7 +5,7 @@ export { testUserRead } from './testUserRead';
 export { saveSummaries } from './saveSummaries';
 export { generateProfileSummaries } from './generateProfileSummaries';
 export { generateAllUserSummaries } from './generateAllUserSummaries';
-export { generateConversationContent } from './generateChatContent';
+export { generateConversationContent } from './generateConversationContent';
 
 const secretManager = new SecretManagerServiceClient();
 
