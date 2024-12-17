@@ -1,5 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
+import { useAuth } from '@/contexts/AuthContext';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/config/firebase';
+import { avatarStyles } from '@/constants/avatarData';
 import HeaderButtons from '../../components/HeaderButtons';
 import FriendProfileVertical from '../../components/FriendProfileVertical';
 import MessagesChart from '../../components/MessagesChart';
@@ -14,7 +18,10 @@ import { useRouter } from 'expo-router';
 import { TouchableOpacity } from 'react-native';
 
 const ProfilePage = () => {
+  const { user } = useAuth();
   const router = useRouter();
+  const [currentAvatar, setCurrentAvatar] = useState<any>(null);
+  const [username, setUsername] = useState<string>("");
 
   const handleFindFriends = () => {
     console.log('Find friends');
@@ -27,6 +34,36 @@ const ProfilePage = () => {
   const handleSettingsPress = () => {
     router.push('/Settings');
   };
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!user?.uid) return;
+
+      try {
+        const userRef = doc(db, 'users', user.uid);
+        const userDoc = await getDoc(userRef);
+        const userData = userDoc.data();
+
+        // Get current avatar
+        const currentOutfitId = userData?.avatar?.currentOutfit?.id;
+        if (currentOutfitId) {
+          const avatar = avatarStyles.find(a => a.id === currentOutfitId);
+          if (avatar) {
+            setCurrentAvatar(avatar.image);
+          }
+        }
+
+        // Get username
+        if (userData?.username) {
+          setUsername(userData.username);
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUserData();
+  }, [user?.uid]);
 
   return (
     <SafeLayout style={styles.container} hasTabBar>
@@ -48,12 +85,12 @@ const ProfilePage = () => {
               </TouchableOpacity>
         </View>
         <View style={styles.friendProfileContainer}>
-          <FriendProfileVertical 
-            imageSource={require('../../assets/images/puja_picture.png')} 
-            name="PChak55" 
-            onPress={() => console.log('Friend profile pressed')}
-          />
-        </View>
+      <FriendProfileVertical 
+        imageSource={currentAvatar || require('../../assets/avatars/avatar_default.png')}
+        name={username || "User"}
+        onPress={() => console.log('Friend profile pressed')}
+      />
+    </View>
         <View style={styles.chartContainer}>
           <MessagesChart />
         </View>

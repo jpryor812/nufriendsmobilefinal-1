@@ -60,7 +60,7 @@ interface MessagingContextType {
   sendMessage: (
     conversationId: string,
     content: string,
-    type?: 'text' | 'ai_generated' | 'voice' | 'image',
+    type: 'text' | 'image' | 'voice', // Remove the optional flag (?)
     mediaUrl?: string
   ) => Promise<void>;
   createConversation: (recipientId: string, isAiGenerated?: boolean) => Promise<string>;
@@ -115,30 +115,33 @@ export function MessagingProvider({ children }: { children: ReactNode }) {
   const sendMessage = async (
     conversationId: string,
     content: string,
-    type: 'text' | 'ai_generated' | 'voice' | 'image' = 'text',
+    type: 'text' | 'image' | 'voice',
     mediaUrl?: string
   ) => {
     if (!user?.uid) throw new Error('User not authenticated');
-
+  
     try {
+      console.log('Sending message with:', { content, type, mediaUrl });
+  
       const conversationRef = doc(db, 'conversations', conversationId);
       const conversation = await getDoc(conversationRef);
       
       if (!conversation.exists()) {
         throw new Error('Conversation not found');
       }
-
+  
       const conversationData = conversation.data() as Conversation;
       const recipientId = Object.keys(conversationData.participants).find(id => id !== user.uid);
       
       if (!recipientId) {
         throw new Error('Recipient not found');
       }
-
+  
       const messagesRef = collection(db, `conversations/${conversationId}/messages`);
       const newMessageRef = doc(messagesRef);
-
-      const message: Message = {
+  
+      // Create message object without giftedChatMessage field
+      const message = {
         id: newMessageRef.id,
         conversationId,
         senderId: user.uid,
@@ -147,9 +150,11 @@ export function MessagingProvider({ children }: { children: ReactNode }) {
         type,
         timestamp: serverTimestamp() as Timestamp,
         read: false,
-        mediaUrl
+        mediaUrl: mediaUrl || null  // Include mediaUrl only if it exists
       };
-
+  
+      console.log('Created message object:', message);
+  
       await Promise.all([
         setDoc(newMessageRef, message),
         updateDoc(conversationRef, {

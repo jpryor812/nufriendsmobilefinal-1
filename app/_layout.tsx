@@ -106,6 +106,10 @@ export default function RootLayout() {
       options={{ headerShown: false }} />
       <Stack.Screen name="OnboardingEditProfile"
       options={{ headerShown: false }} />
+      <Stack.Screen name ="AvatarCustomization"
+      options={{ headerShown: false }} />
+      <Stack.Screen name ="AchievementsPage"
+      options={{ headerShown: false }} />
     </Stack>
     </MessagingProvider>
     </AuthProvider>

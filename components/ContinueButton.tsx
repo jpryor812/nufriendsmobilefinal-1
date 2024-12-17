@@ -1,43 +1,45 @@
 import React from 'react';
-import { View, StyleSheet, Text, Image, TouchableOpacity } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
 
 interface ContinueProps {
-  text: string;
-  onContinue: () => void; // Add this prop
+  onPress: () => void | Promise<void>;
+  isLoading?: boolean;
+  text?: string;  // Add this prop
 }
 
 const Continue: React.FC<ContinueProps> = ({ 
-  text, 
-  onContinue 
+  onPress, 
+  isLoading = false, 
+  text = "Continue"  // Default text if none provided
 }) => {
   return (
-
-      <TouchableOpacity 
-        style={styles.continue_button_container}
-        onPress={onContinue}
-      >
-        <Text style={styles.continue_button_text}>Let's do it!</Text>
-      </TouchableOpacity>
-
+    <TouchableOpacity 
+      style={styles.button} 
+      onPress={onPress}
+      disabled={isLoading}
+    >
+      {isLoading ? (
+        <ActivityIndicator color="white" />
+      ) : (
+        <Text style={styles.text}>{text}</Text>
+      )}
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  continue_button_container: {
-    width: 80,
-    height: 20, // Fixed height for the button
-    backgroundColor: '#6ECFFF',
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-
+  button: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginTop: 20,
   },
-  continue_button_text: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+  text: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
     textAlign: 'center',
-    textAlignVertical: 'center', // For Android
   },
 });
 

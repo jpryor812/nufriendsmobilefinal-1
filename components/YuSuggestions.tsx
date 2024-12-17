@@ -14,6 +14,7 @@ import { httpsCallable } from 'firebase/functions';
 import { functions } from '@/config/firebase';
 import Colors from '@/assets/Colors';
 import YuGeneratedResponseContainer from './YuGeneratedResponseContainer';
+import ScrollSafeLayout from './ScrollSafeLayout';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
@@ -142,7 +143,7 @@ const YuSuggestions: React.FC<YuSuggestionsProps> = ({
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollSafeLayout style={styles.container}>
       <View style={[styles.header, animationComplete && styles.headerCompleted]}>
         <Image source={require('../assets/images/yu_progress_bar.png')} style={styles.Yu} />
         <Text style={styles.title}>Suggestions From Yu</Text>
@@ -233,7 +234,7 @@ const YuSuggestions: React.FC<YuSuggestionsProps> = ({
           </>
         )}
       </View>
-    </View>
+    </ScrollSafeLayout>
   );
 };
 

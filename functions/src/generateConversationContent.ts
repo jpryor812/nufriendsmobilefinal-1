@@ -14,6 +14,11 @@ interface UserResponses {
   travel: { answer: string };
 }
 
+interface UserWithResponses {
+  username: string;
+  responses: UserResponses;
+}
+
 export const generateConversationContent = onCall({
   region: 'us-central1',
   memory: "1GiB",
@@ -35,7 +40,8 @@ export const generateConversationContent = onCall({
     }
 
     interface UserData {
-        questionnaire: {
+      username: string;  
+      questionnaire: {
           onboarding: {
             responses: {
               aspirations: { answer: string };
@@ -56,9 +62,16 @@ export const generateConversationContent = onCall({
 
     // If no topic is selected, generate topics with GPT-3.5
     if (!selectedTopic) {
+      // We already checked if docs exist above
       const topics = await generateTopics(
-        userData.questionnaire.onboarding.responses,
-        matchedUserData.questionnaire.onboarding.responses
+        {
+          username: (userDoc.data() as UserData).username,
+          responses: userData.questionnaire.onboarding.responses
+        },
+        {
+          username: (matchedUserDoc.data() as UserData).username,
+          responses: matchedUserData.questionnaire.onboarding.responses
+        }
       );
       return { type: 'topics', content: topics };
     }
@@ -67,7 +80,8 @@ export const generateConversationContent = onCall({
     const message = await generateMessage(
       userData.questionnaire.onboarding.responses,
       matchedUserData.questionnaire.onboarding.responses,
-      selectedTopic
+      selectedTopic,
+      (matchedUserDoc.data() as UserData).username
     );
     return { type: 'message', content: message };
 
@@ -80,21 +94,28 @@ export const generateConversationContent = onCall({
 });
 
 async function generateTopics(
-  userResponses: UserResponses,
-  matchedUserResponses: UserResponses
+  user: UserWithResponses,  // Current user who'll be sending messages
+  matchedUser: UserWithResponses  // The friend they'll be talking to
 ): Promise<string[]> {
   const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
-  const prompt = `Analyze these two users' responses and suggest 5 specific conversation topics they might connect over.
+  const prompt = `Generate 4 conversation starters for ${user.username} to use when talking with ${matchedUser.username}.
 
-USER 1 RESPONSES:
-${JSON.stringify(userResponses, null, 2)}
+${matchedUser.username}'s PROFILE (the person being messaged):
+${JSON.stringify(matchedUser.responses, null, 2)}
 
-USER 2 RESPONSES:
-${JSON.stringify(matchedUserResponses, null, 2)}
+${user.username}'s PROFILE (the person sending messages):
+${JSON.stringify(user.responses, null, 2)}
 
-Return only a JSON array of 4 conversation topic suggestions.
-Each topic should be specific and based on their shared interests or experiences, or a question to get to know each other better.`;
+Return a JSON array of 4 conversation starters where:
+- "You could ask ${matchedUser.username} about..." should be used for asking about THEIR interests
+- "You could tell ${matchedUser.username} about..." should be used for sharing YOUR (${user.username}'s) experiences
+
+Examples:
+- If ${matchedUser.username} likes hiking: "You could ask ${matchedUser.username} about their favorite hiking trails"
+- If ${user.username} likes reading: "You could tell ${matchedUser.username} about your favorite sci-fi books"
+
+Keep each suggestion under 15 words and return as a raw JSON array (no formatting).`;
 
   try {
     const completion = await openai.chat.completions.create({
@@ -102,7 +123,7 @@ Each topic should be specific and based on their shared interests or experiences
       messages: [
         {
           role: 'system',
-          content: 'You are an expert at suggesting engaging conversation topics based on shared interests, or a question to get to know each other better. Return ONLY a JSON array of 4 strings.'
+          content: 'You are an expert at suggesting engaging conversation topics based on shared interests, or a question to get to know each other better. Return ONLY a JSON array of 4 strings. Never include markdown, backticks, or any formatting. Return only raw JSON arrays.'
         },
         { role: 'user', content: prompt }
       ],
@@ -111,31 +132,58 @@ Each topic should be specific and based on their shared interests or experiences
     });
 
     const responseContent = completion.choices[0].message.content;
+    console.log('Raw GPT response:', responseContent); // Debug log
+
     if (!responseContent) {
       throw new Error('Empty response from GPT');
     }
+    try {
+      // Aggressively clean the response
+      const cleanedResponse = responseContent
+        .trim()
+        .replace(/```json\n?|\n?```/g, '')  // Remove code blocks
+        .replace(/`/g, '')                   // Remove any remaining backticks
+        .replace(/\n/g, ' ')                 // Remove newlines
+        .trim();
 
-    return JSON.parse(responseContent);
+      console.log('Cleaned response:', cleanedResponse); // Debug log
+      return JSON.parse(cleanedResponse);
+    } catch (parseError) {
+      console.error('Parse error with cleaned response:', parseError);
+      throw new Error('Failed to parse GPT response into JSON');
+    }
   } catch (error) {
     console.error("Error generating topics:", error);
     throw error;
   }
 }
 
+
 async function generateMessage(
   userResponses: UserResponses,
   matchedUserResponses: UserResponses,
-  selectedTopic: string
+  selectedTopic: string,
+  matchedUsername: string 
 ): Promise<string> {
   const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
-  const prompt = `Create a natural, friendly first message in a conversation (maximum 200 characters) about: "${selectedTopic}"
+  const prompt = `Write a natural first message to ${matchedUsername} based on this conversation topic: "${selectedTopic}"
 
-Based on these profiles:
-USER 1: ${JSON.stringify(userResponses, null, 2)}
-USER 2: ${JSON.stringify(matchedUserResponses, null, 2)}
+Rules:
+- Write as if you're directly messaging ${matchedUsername}
+- Don't reference any third parties
+- Start with a friendly greeting
+- Include a specific question or comment about their interests
+- Keep it under 200 characters
+- Make it casual and conversational
 
-Return only the message text. Keep it casual and under 200 characters.`;
+GOOD EXAMPLES:
+"Hey! I saw you're into Star Wars too - which movie in the series is your favorite? The original trilogy is classic!"
+"Hi! I noticed you love hiking - have you explored any of the trails around Denver yet?"
+
+BAD EXAMPLES:
+"You should ask them about their favorite sci-fi shows"
+"Hey! I heard you like the same shows as Alex_Tech"`;
 
   try {
     const completion = await openai.chat.completions.create({
@@ -143,7 +191,7 @@ Return only the message text. Keep it casual and under 200 characters.`;
       messages: [
         {
           role: 'system',
-          content: 'You are an expert at crafting friendly, natural conversation starters. Return ONLY the message text.'
+          content: 'You are writing direct messages between two people. Write ONLY the message text with no commentary or third-party references.'
         },
         { role: 'user', content: prompt }
       ],

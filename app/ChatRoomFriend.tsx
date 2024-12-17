@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, Image, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {
   GiftedChat,
@@ -28,9 +28,14 @@ import {
   DocumentData,
   getDoc,
   doc,
+  updateDoc,
+  increment,
 } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 import { useMessaging } from '@/contexts/MessageContext';
+import { Audio } from 'expo-av';
+import { checkMessageAchievements } from '@/utils/achievements';
+import AchievementModal from '@/components/AchievementModal';
 
 const ChatRoomFriend = () => {
   const insets = useSafeAreaInsets();
@@ -41,6 +46,7 @@ const ChatRoomFriend = () => {
   const [friend, setFriend] = useState<any>(null);
   const params = useLocalSearchParams();
   const { matchId, friendId, showSuggestions } = params;
+  const [showAchievementModal, setShowAchievementModal] = useState(false);
 
   // Load friend data and set conversation
   useEffect(() => {
@@ -68,41 +74,78 @@ const ChatRoomFriend = () => {
 
   // Subscribe to messages
   useEffect(() => {
-    if (!currentConversation?.id || !user?.uid || !friend) return;
-
+    if (!currentConversation?.id || !user?.uid) return;
+  
     const messagesRef = collection(db, `conversations/${currentConversation.id}/messages`);
     const q = query(messagesRef, orderBy('timestamp', 'desc'));
-
+  
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const newMessages: IMessage[] = snapshot.docs.map(doc => {
         const data = doc.data();
-        return {
+        console.log('Raw message data:', data);
+        const baseMessage: IMessage = {
           _id: doc.id,
-          text: data.content,
-          createdAt: data.timestamp.toDate(),
+          text: data.content || '',
+          createdAt: data.timestamp?.toDate() || new Date(),
           user: {
             _id: data.senderId,
-            name: data.senderId === user.uid ? 'You' : friend.username
+            name: data.senderId === user.uid ? 'You' : friend?.name
           },
-          messageType: data.type
         };
+      
+        // Add properties based on message type
+        if (data.type === 'image') {
+          return {
+            ...baseMessage,
+            image: data.mediaUrl,
+          } as IMessage;
+        } else if (data.type === 'voice') {
+          return {
+            ...baseMessage,
+            audio: data.mediaUrl,
+          } as IMessage;
+        }
+      
+        return baseMessage;
       });
-
+    
       setMessages(newMessages);
     });
-
+  
     return () => unsubscribe();
-  }, [currentConversation?.id, user?.uid, friend]);
+  }, [currentConversation?.id, user?.uid]);
 
   const onSend = useCallback(async (newMessages: IMessage[] = []) => {
-    if (!currentConversation?.id) return;
+    if (!currentConversation?.id || !user?.uid) return;
     try {
       const [firstMessage] = newMessages;
       await sendMessage(currentConversation.id, firstMessage.text, 'text');
+  
+      // Get user reference
+      const userRef = doc(db, 'users', user.uid);
+      
+      // Update messagesSent counter
+      await updateDoc(userRef, {
+        'stats.messagesSent': increment(1)
+      });
+  
+      // Get updated message count after increment
+      const updatedUserDoc = await getDoc(userRef);
+      const messageCount = updatedUserDoc.data()?.stats?.messagesSent || 0;
+  
+      // Check for achievements with updated count
+      const achievement = await checkMessageAchievements(user.uid, messageCount);
+      
+      if (achievement?.unlockedOutfit) {
+        setShowAchievementModal(true);
+        console.log('New outfit unlocked:', achievement.unlockedOutfit);
+      }
+  
     } catch (error) {
       console.error('Error sending message:', error);
     }
-  }, [currentConversation?.id, sendMessage]);
+  }, [currentConversation?.id, sendMessage, user?.uid]);
+
 
   const handleYuMessage = async (text: string) => {
     if (!currentConversation?.id) return;
@@ -123,6 +166,44 @@ const ChatRoomFriend = () => {
     );
   }
 
+  const renderMessageImage = (props: any) => {
+    return (
+      <View style={styles.imageContainer}>
+        <Image 
+          source={{ uri: props.currentMessage.image }}
+          style={styles.messageImage}
+          resizeMode="cover"
+        />
+      </View>
+    );
+  };
+
+  const renderMessageAudio = (props: any) => {
+    const { currentMessage } = props;
+    
+    return (
+      <View style={styles.audioContainer}>
+        <TouchableOpacity 
+          style={styles.audioButton}
+          onPress={() => playAudio(currentMessage.audio)}
+        >
+          <Ionicons name="play" size={24} color={Colors.primary} />
+          <Text style={styles.audioText}>Voice Message</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  const playAudio = async (uri: string) => {
+    try {
+      const sound = new Audio.Sound();
+      await sound.loadAsync({ uri });
+      await sound.playAsync();
+    } catch (error) {
+      console.error('Error playing audio:', error);
+    }
+  };
+
   const renderInputToolbar = (props: InputToolbarProps<IMessage>) => {
     if (isYuSuggestionsMode) {
       return (
@@ -132,7 +213,7 @@ const ChatRoomFriend = () => {
           currentUserId={user?.uid || ''}
           friendId={friendId as string}
         />
-      );
+     );
     }
 
     return (
@@ -147,12 +228,15 @@ const ChatRoomFriend = () => {
             <Send {...props} containerStyle={{ justifyContent: 'center' }}>
               <Ionicons name="send" color={Colors.primary} size={22} />
             </Send>
-            <ActionMenu />
+            {currentConversation ? (
+              <ActionMenu conversationId={currentConversation.id} />
+            ) : null}
           </View>
         )}
       />
     );
   };
+  
 
   return (
     <SafeLayout style={styles.container}>
@@ -166,6 +250,8 @@ const ChatRoomFriend = () => {
         messages={messages}
         onSend={onSend}
         user={{ _id: user?.uid || '' }}
+        renderMessageImage={renderMessageImage}
+        renderMessageAudio={renderMessageAudio}
         onInputTextChanged={(text) => {
           if (currentConversation?.id) {
             setTypingStatus(currentConversation.id, text.length > 0);
@@ -208,6 +294,14 @@ const ChatRoomFriend = () => {
           </View>
         )}
       />
+      <AchievementModal
+      visible={showAchievementModal}
+      onClose={() => setShowAchievementModal(false)}
+      achievementType="avatar"
+      achievementTitle="🎉 New Avatar Unlocked!"
+      achievementDescription="You've unlocked a new avatar style! Want to try it on?"
+      navigateTo="/avatar-customization"
+    />
     </SafeLayout>
   );
 };
@@ -239,6 +333,31 @@ const styles = StyleSheet.create({
     marginTop: 2,
     marginBottom: 2,
     textAlignVertical: 'center',
+  },
+  imageContainer: {
+    borderRadius: 13,
+    margin: 3,
+    overflow: 'hidden',
+  },
+  messageImage: {
+    width: 200,
+    height: 200,
+    resizeMode: 'cover',
+  },
+  audioContainer: {
+    padding: 8,
+    borderRadius: 15,
+    backgroundColor: '#f0f0f0',
+    marginVertical: 2,
+  },
+  audioButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+  },
+  audioText: {
+    marginLeft: 8,
+    color: Colors.primary,
   },
 });
 

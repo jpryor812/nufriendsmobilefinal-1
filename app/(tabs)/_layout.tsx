@@ -1,20 +1,39 @@
 import { Tabs } from "expo-router";
 import { Image } from 'react-native';
-import { useAuth, } from "../../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { Redirect } from "expo-router";
 import { useState, useEffect } from "react";
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/config/firebase';
+import { avatarStyles } from '@/constants/avatarData';
 
 export default function TabsLayout() {
   const { user, onboardingProgress } = useAuth();
+  const [currentAvatar, setCurrentAvatar] = useState<any>(null);
   
+  useEffect(() => {
+    const fetchCurrentAvatar = async () => {
+      if (!user?.uid) return;
 
-  if (!user) {
-    return <Redirect href="/OnboardingPage1" />;
-  }
-  
-  if (onboardingProgress && !onboardingProgress.isComplete) {
-    return <Redirect href={`/OnboardingQuestion${onboardingProgress.firstUnanswered}`} />;
-  }
+      try {
+        const userRef = doc(db, 'users', user.uid);
+        const userDoc = await getDoc(userRef);
+        const currentOutfitId = userDoc.data()?.avatar?.currentOutfit?.id;
+
+        if (currentOutfitId) {
+          // Find the avatar image from your avatarStyles
+          const avatar = avatarStyles.find(a => a.id === currentOutfitId);
+          if (avatar) {
+            setCurrentAvatar(avatar.image);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching current avatar:', error);
+      }
+    };
+
+    fetchCurrentAvatar();
+  }, [user?.uid]);
 
   return (
     <Tabs
@@ -62,15 +81,14 @@ export default function TabsLayout() {
           tabBarLabel: '',
           tabBarIcon: ({ focused }) => (
             <Image
-              source={require('../../assets/images/profile_picture.jpg')}
+              source={currentAvatar || require('../../assets/images/profile_picture.jpg')} // Fallback to default if no avatar
               style={{
                 width: 34,
-                height: 34,
+                height: 40,
                 marginTop: 10,
-                marginBottom: 4,
+                marginBottom: 1,
                 borderRadius: 25,
                 opacity: focused ? 1 : 0.5,
-                // Don't use tintColor for profile pictures
               }}
               resizeMode="cover"
             />

@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, StyleSheet, Image, Text, TouchableOpacity, ImageSourcePropType } from 'react-native';
 import { Feather } from '@expo/vector-icons'; // Import Feather icons from expo
+import { useRouter, Link } from 'expo-router';
 
 interface FriendProfileVerticalProps {
   imageSource: ImageSourcePropType;
   name: string;
   onPress: () => void;
-  onEditImage?: () => void;
   onEditName?: () => void;
   onEditCity?: () => void;
 }
@@ -15,21 +15,26 @@ const FriendProfileVertical: React.FC<FriendProfileVerticalProps> = ({
   imageSource, 
   name, 
   onPress,
-  onEditImage,
   onEditName,
   onEditCity 
 }) => {
+  const router = useRouter();  // Inside the component
+
+  const handleEditAvatar = () => {
+    router.push('/AvatarCustomization')
+  };
+
   return (
     <View style={styles.friend_profile_container}>
       <View style={styles.friendContainer}>
         <View style={styles.itemContainer}>
           <Image source={imageSource} style={styles.profilePicture} resizeMode="contain" />
           <TouchableOpacity 
-            style={styles.editIcon} 
-            onPress={onEditImage}
-          >
-            <Feather name="edit-2" size={14} color="#666" />
-          </TouchableOpacity>
+          style={styles.editIcon} 
+          onPress={handleEditAvatar}
+        >
+          <Feather name="edit-2" size={14} color="#666" />
+        </TouchableOpacity>
         </View>
 
         <View style={styles.itemContainer}>
@@ -53,12 +58,11 @@ const styles = StyleSheet.create({
   },
   itemContainer: {
     position: 'relative',
-    marginBottom: 8,
   },
   profilePicture: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 80,
+    height: 80,
+    marginBottom: -10,
   },
   profileNameText: {
     fontSize: 22,
@@ -67,8 +71,8 @@ const styles = StyleSheet.create({
   },
   editIcon: {
     position: 'absolute',
-    bottom: -8,
-    right: -20,
+    bottom: -2,
+    right: -2,
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 4,
