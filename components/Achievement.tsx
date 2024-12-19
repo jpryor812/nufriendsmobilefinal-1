@@ -3,18 +3,24 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, ImageSourcePropType, P
 import { LinearGradient } from 'expo-linear-gradient';
 
 interface AchievementProps {
-  title: string;
-  emoji?: string;
-  imageSource?: ImageSourcePropType;
+  regularAvatar: {
+    id: string;
+    image: ImageSourcePropType;
+  };
+  premiumAvatar: {
+    id: string;
+    image: ImageSourcePropType;
+  };
+  requirementText: string;
   isUnlocked: boolean;
   size?: number;
   onPress?: () => void;
 }
 
 const Achievement: React.FC<AchievementProps> = ({ 
-  title, 
-  emoji, 
-  imageSource,
+  regularAvatar,
+  premiumAvatar,
+  requirementText,
   isUnlocked, 
   size = 110,
   onPress
@@ -38,38 +44,37 @@ const Achievement: React.FC<AchievementProps> = ({
             ]}
           >
             <View style={styles.contentContainer}>
-              {imageSource ? (
+              <View style={styles.avatarsContainer}>
                 <Image 
-                  source={imageSource}
+                  source={regularAvatar.image}
                   style={[
-                    styles.badgeImage,
-                    { 
-                      width: size * 0.5,
-                      height: size * 0.5,
-                      opacity: isUnlocked ? 1 : 0.3
-                    }
+                    styles.avatar,
+                    { opacity: isUnlocked ? 1 : 0.3 }
                   ]}
                   resizeMode="contain"
                 />
-              ) : (
-                <Text style={[
-                  styles.emoji,
-                  { opacity: isUnlocked ? 1 : 0.3 }
-                ]}>
-                  {emoji}
-                </Text>
-              )}
+                <View style={styles.premiumAvatarContainer}>
+                  <Image 
+                    source={premiumAvatar.image}
+                    style={[
+                      styles.avatar,
+                      { opacity: isUnlocked ? 1 : 0.3 }
+                    ]}
+                    resizeMode="contain"
+                  />
+                  <Text style={styles.starBadge}>⭐</Text>
+                </View>
+              </View>
               
               <Text style={[
                 styles.achievementTitle,
                 { opacity: isUnlocked ? 1 : 0.3 }
               ]}>
-                {title}
+                {requirementText}
               </Text>
             </View>
           </LinearGradient>
 
-          {/* New triangle implementation */}
           <View style={[styles.triangleContainer, { width: size }]}>
             <View style={[
               styles.triangle,
@@ -92,6 +97,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 30,
     marginHorizontal: 10,
+  },
+  avatarsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 10,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+  },
+  premiumAvatarContainer: {
+    position: 'relative',
+  },
+  starBadge: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    fontSize: 14,
+    color: '#fff',
   },
   badgeWrapper: {
     alignItems: 'center',
