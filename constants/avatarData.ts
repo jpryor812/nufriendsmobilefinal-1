@@ -1,117 +1,99 @@
 interface AvatarItem {
     id: string;
     image: any;
-    defaultUnlocked?: boolean;  // Make optional since achievement items won't have it
-    achievement?: string;       // Optional for achievement-based items
+    defaultUnlocked?: boolean;
+    achievement?: string;
     requirementText?: string;
-  }
-  
-  export const avatarStyles: AvatarItem[] = [
-      {
-        id: 'default_avatar',
-        image: require('../assets/avatars/avatar_default.png'),
-        defaultUnlocked: true
-    },
-      // Solid avatars
-      {
-        id: 'solid_green',
-        image: require('../assets/avatars/solid/solid_avatar_green.png'),
-        defaultUnlocked: true
-    },
-      {
-        id: 'solid_lightgreen',
-        image: require('../assets/avatars/solid/solid_avatar_lightgreen.png'),
-        defaultUnlocked: true
-    },
-      {
-        id: 'solid_orange',
-        image: require('../assets/avatars/solid/solid_avatar_orange.png'),
-        defaultUnlocked: true
-    },
-      {
-        id: 'solid_pink',
-        image: require('../assets/avatars/solid/solid_avatar_pink.png'),
-        defaultUnlocked: true
-    },
-      {
-        id: 'solid_purple',
-        image: require('../assets/avatars/solid/solid_avatar_purple.png'),
-        defaultUnlocked: true
-    },
-      {
-        id: 'solid_red',
-        image: require('../assets/avatars/solid/solid_avatar_red.png'),
-        defaultUnlocked: true
-    },
-      {
+}
+
+interface AvatarPair {
+    regularAvatar: {
+        id: string;
+        image: any;
+    };
+    premiumAvatar: {
+        id: string;
+        image: any;
+    };
+    requirementText: string;
+    defaultUnlocked?: boolean;
+    messageCount?: number;
+}
+
+export const defaultAvatarPairs: AvatarPair[] = [
+    {
+        regularAvatar: {
+            id: 'default_avatar',
+            image: require('../assets/avatars/avatar_default.png'),
+        },
+    premiumAvatar: {
         id: 'solid_yellow',
-        image: require('../assets/avatars/solid/solid_avatar_yellow.png'),
+            image: require('../assets/avatars/solid/solid_avatar_yellow.png'),
+        },
+        requirementText: 'Default Avatars',
+        defaultUnlocked: true
+        },
+    {
+        regularAvatar: {
+            id: 'solid_green',
+            image: require('../assets/avatars/solid/solid_avatar_green.png'),
+        },
+        premiumAvatar: {
+            id: 'solid_lightgreen',
+            image: require('../assets/avatars/solid/solid_avatar_lightgreen.png'),
+        },
+        requirementText: 'Default Avatars',
         defaultUnlocked: true
     },
-      //small dots
-      {
-        id: 'small_dots_blue',
-        image: require('../assets/avatars/small_dots/small_dots_blue.png'),
+    {
+        regularAvatar: {
+            id: 'solid_orange',
+            image: require('../assets/avatars/solid/solid_avatar_orange.png'),
+        },
+        premiumAvatar: {
+            id: 'solid_pink',
+            image: require('../assets/avatars/solid/solid_avatar_pink.png'),
+        },
+        requirementText: 'Default Avatars',
         defaultUnlocked: true
     },
-      {
-        id: 'small_dots_green',
-        image: require('../assets/avatars/small_dots/small_dots_green.png'),
+    {
+        regularAvatar: {
+            id: 'solid_purple',
+            image: require('../assets/avatars/solid/solid_avatar_purple.png'),
+        },
+        premiumAvatar: {
+            id: 'solid_red',
+            image: require('../assets/avatars/solid/solid_avatar_red.png'),
+        },
+        requirementText: 'Default Avatars',
         defaultUnlocked: true
+    }
+];
+
+export const achievementAvatarPairs: AvatarPair[] = [
+    {
+        regularAvatar: {
+            id: 'lightsaber_green',
+            image: require('../assets/avatars/lightsaber/Avatar_1.png'),
+        },
+        premiumAvatar: {
+            id: 'lightsaber_blue',
+            image: require('../assets/avatars/lightsaber/Avatar_2.png'),
+        },
+        requirementText: 'Send your first message',
+        messageCount: 1
     },
-      {
-        id: 'small_dots_orange',
-        image: require('../assets/avatars/small_dots/small_dots_orange.png'),
-        defaultUnlocked: true
-    },
-      {
-        id: 'small_dots_pink',
-        image: require('../assets/avatars/small_dots/small_dots_pink.png'),
-        defaultUnlocked: true
-    },
-      {
-        id: 'small_dots_purple',
-        image: require('../assets/avatars/small_dots/small_dots_purple.png'),
-        defaultUnlocked: true
-    },
-      {
-        id: 'small_dots_red',
-        image: require('../assets/avatars/small_dots/small_dots_red.png'),
-        defaultUnlocked: true
-    },
-      {
-        id: 'small_dots_teal',
-        image: require('../assets/avatars/small_dots/small_dots_teal.png'),
-        defaultUnlocked: true
-    },
-      {
-        id: 'small_dots_yellow',
-        image: require('../assets/avatars/small_dots/small_dots_yellow.png'),
-        defaultUnlocked: true
-    },
-      //lightsabers
-      {
-        id: 'lightsaber_green',
-        image: require('../assets/avatars/lightsaber/Avatar_1.png'),
-        achievement: 'FIRST_MESSAGE',
-        requirementText: 'Send your first message'
-      },
-      {
-        id: 'lightsaber_blue',
-        image: require('../assets/avatars/lightsaber/Avatar_2.png'),
-        achievement: 'FIVE_MESSAGES',
-        requirementText: 'Send 5 messages'
-      },
-      {
-        id: 'lightsaber_red',
-        image: require('../assets/avatars/lightsaber/Avatar_3.png'),
-        achievement: 'TEN_MESSAGES',
-        requirementText: 'Send 10 messages'
-      },
-      {
-        id: 'lightsaber_purple',
-        image: require('../assets/avatars/lightsaber/Avatar.png'),
-        achievement: 'FIFTEEN_MESSAGES',
-        requirementText: 'Send 15 messages'
-      },
-    ];
+    {
+        regularAvatar: {
+            id: 'lightsaber_red',
+            image: require('../assets/avatars/lightsaber/Avatar_3.png'),
+        },
+        premiumAvatar: {
+            id: 'lightsaber_purple',
+            image: require('../assets/avatars/lightsaber/Avatar.png'),
+        },
+        requirementText: 'Send 5 messages',
+        messageCount: 5
+    }
+];

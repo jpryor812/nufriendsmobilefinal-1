@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Image, FlatList, StyleSheet, Dimensions, TouchableOpacity, SafeAreaView, Text } from 'react-native';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/config/firebase'; // Adjust path to your Firebase config
-import { avatarStyles } from '@/constants/avatarData';
+import { getAllAvatars } from '@/constants/avatars';
 import { router } from 'expo-router';
 import Continue from '@/components/ContinueButton';
 import { useAuth } from '@/contexts/AuthContext';

@@ -1,44 +1,12 @@
-// AchievementsPage.tsx
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/config/firebase';
-import { achievementPairs } from '@/constants/avatarData';
+import { defaultAvatarPairs, achievementAvatarPairs } from '@/constants/avatarData';
 import Card from '@/components/Card';
 import ScrollSafeLayout from '@/components/ScrollSafeLayout';
-import Achievement from '@/components/Achievement';
-
-const AchievementBadge = ({ 
-  regularAvatar, 
-  premiumAvatar, 
-  requirementText, 
-  isUnlocked 
-}: {
-  regularAvatar: { id: string; image: any };
-  premiumAvatar: { id: string; image: any };
-  requirementText: string;
-  isUnlocked: boolean;
-}) => (
-  <View style={styles.badge}>
-    <View style={styles.avatarsContainer}>
-      <Image 
-        source={regularAvatar.image}
-        style={[styles.avatar, !isUnlocked && styles.lockedAvatar]}
-        resizeMode="contain"
-      />
-      <View style={styles.premiumContainer}>
-        <Image 
-          source={premiumAvatar.image}
-          style={[styles.avatar, !isUnlocked && styles.lockedAvatar]}
-          resizeMode="contain"
-        />
-        <Text style={styles.starBadge}>⭐</Text>
-      </View>
-    </View>
-    <Text style={styles.requirementText}>{requirementText}</Text>
-  </View>
-);
+import AchievementBadge from '@/components/AchievementBadge';
 
 const AchievementsPage = () => {
   const { user } = useAuth();
@@ -63,25 +31,44 @@ const AchievementsPage = () => {
 
   return (
     <ScrollSafeLayout style={styles.container}>
-    <Card>
-      <View style={styles.messageCountContainer}>
-        <Text style={styles.messageCount}>Messages Sent: {messageCount}</Text>
-      </View>
+      <Card>
+        <View style={styles.messageCountContainer}>
+          <Text style={styles.messageCount}>Messages Sent: {messageCount}</Text>
+        </View>
 
+    {/* Default Avatars Section */}
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>Default Avatars</Text>
       <View style={styles.badgesGrid}>
-        {achievementPairs.map((pair) => (
-          <Achievement
+        {defaultAvatarPairs.map((pair) => (
+          <AchievementBadge
             key={pair.regularAvatar.id}
             regularAvatar={pair.regularAvatar}
             premiumAvatar={pair.premiumAvatar}
             requirementText={pair.requirementText}
-            isUnlocked={messageCount >= pair.messageCount}
-            onPress={() => console.log('Badge pressed')}
+            isUnlocked={true} // Always unlocked
           />
         ))}
       </View>
-    </Card>
-  </ScrollSafeLayout>
+    </View>
+
+    {/* Achievement Avatars Section */}
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>Achievement Avatars</Text>
+      <View style={styles.badgesGrid}>
+        {achievementAvatarPairs.map((pair) => (
+          <AchievementBadge
+            key={pair.regularAvatar.id}
+            regularAvatar={pair.regularAvatar}
+            premiumAvatar={pair.premiumAvatar}
+            requirementText={pair.requirementText}
+            isUnlocked={messageCount >= (pair.messageCount || 0)}
+          />
+        ))}
+      </View>
+    </View>
+  </Card>
+</ScrollSafeLayout>
   );
 };
 
@@ -105,50 +92,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     gap: 20,
   },
-  badge: {
-    width: 160,
-    height: 160,
-    backgroundColor: 'white',
-    borderRadius: 80,
-    padding: 15,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+  section: {
+    marginBottom: 24,
   },
-  avatarsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    paddingHorizontal: 10,
-    marginTop: 10,
-  },
-  avatar: {
-    width: 50,
-    height: 50,
-  },
-  lockedAvatar: {
-    opacity: 0.3,
-    tintColor: '#000',
-  },
-  premiumContainer: {
-    position: 'relative',
-  },
-  starBadge: {
-    position: 'absolute',
-    top: -10,
-    right: -10,
-    fontSize: 16,
-  },
-  requirementText: {
-    textAlign: 'center',
-    fontSize: 14,
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
     color: '#333',
-    marginTop: 15,
-    paddingHorizontal: 5,
+    marginBottom: 12,
   },
 });
 
