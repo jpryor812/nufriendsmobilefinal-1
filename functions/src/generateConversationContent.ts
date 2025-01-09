@@ -2,7 +2,7 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import OpenAI from 'openai';
 import * as admin from 'firebase-admin';
 
-const OPENAI_API_KEY = 'sk-svcacct-B8xs6K8nBAJSV4vmKphNkJOaQb_FXd9CO-4R-eTHkKG3HsBi7Zfe4DFzZ3tK_eE7T3BlbkFJ2VF_wXPVcjX1TkLRzBz1PEGL75fTosNfao6y-QIbiOJ-m9M_p1UFGsZAePx_K_QA'; // Move to environment variables
+const OPENAI_API_KEY = '***'; // Move to environment variables
 
 interface UserResponses {
   aspirations: { answer: string };
