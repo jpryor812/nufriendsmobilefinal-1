@@ -8,7 +8,7 @@ if (!admin.apps.length) {
     console.log("Firebase Admin initialized");
 }
 
-const OPENAI_API_KEY = 'sk-svcacct-B8xs6K8nBAJSV4vmKphNkJOaQb_FXd9CO-4R-eTHkKG3HsBi7Zfe4DFzZ3tK_eE7T3BlbkFJ2VF_wXPVcjX1TkLRzBz1PEGL75fTosNfao6y-QIbiOJ-m9M_p1UFGsZAePx_K_QA'; // Replace with your actual OpenAI API key
+const OPENAI_API_KEY = '***'; 
 const db = admin.firestore();
 const MINIMUM_COMPATIBILITY = 65;
 
