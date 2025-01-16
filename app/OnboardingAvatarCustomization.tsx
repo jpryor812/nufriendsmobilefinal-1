@@ -174,6 +174,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'row',
+    backgroundColor: '#F0FCFE',
   },
   showroomContainer: {
     flex: 1,

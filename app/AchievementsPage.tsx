@@ -38,7 +38,7 @@ const AchievementsPage = () => {
 
     {/* Default Avatars Section */}
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>Default Avatars</Text>
+      <Text style={styles.sectionTitle}>Unlocked Achievements</Text>
       <View style={styles.badgesGrid}>
         {defaultAvatarPairs.map((pair) => (
           <AchievementBadge
@@ -54,7 +54,7 @@ const AchievementsPage = () => {
 
     {/* Achievement Avatars Section */}
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>Achievement Avatars</Text>
+      <Text style={styles.sectionTitle}>Locked Achievements</Text>
       <View style={styles.badgesGrid}>
         {achievementAvatarPairs.map((pair) => (
           <AchievementBadge
@@ -76,6 +76,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    marginTop: 60, 
+    backgroundColor: '#F0FCFE',
   },
   messageCountContainer: {
     alignItems: 'center',

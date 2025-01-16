@@ -10,7 +10,7 @@ const OnboardingEditProfile = () => (
   <SafeLayout style={styles.appContainer}>
     <ProgressBar progress={84} />
     <ScrollView>
-    <SmallYuOnboarding text="(Show Avatar First, Then): Lastly, what do you want your friends to know about you when they view your profile?" />
+    <SmallYuOnboarding text="Lastly, what do you want your friends to know about you when they view your profile?" />
     <MyProfile />
     </ScrollView>
     <Text style={styles.continueWarning}>Please Save Your Changes Before Continuing</Text> 

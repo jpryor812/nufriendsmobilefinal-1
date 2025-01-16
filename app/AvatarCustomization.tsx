@@ -35,7 +35,7 @@ const AvatarCustomization = ({ unlockedItems = [] }: Props) => {  // Remove user
   };
   
   // Modify the lock status logic
-  const avatarsWithLockStatus = avatarStyles.map(avatar => ({
+  const avatarsWithLockStatus = getAllAvatars().map((avatar: AvatarItem) => ({
     ...avatar,
     locked: !(avatar.defaultUnlocked || unlockedItems.includes(avatar.id))
   }));
@@ -212,13 +212,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'row',
+    backgroundColor: '#F0FCFE',
   },
   showroomContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
     padding: 20,
+    backgroundColor: '#F0FCFE',
   },
   selectorContainer: {
     backgroundColor: '#ffffff',
@@ -280,7 +281,7 @@ const styles = StyleSheet.create({
   },
     backButton: {
     position: 'absolute',
-    top: 20,
+    top: 60,
     left: 20,
     zIndex: 1,
     padding: 8,

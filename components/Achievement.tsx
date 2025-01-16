@@ -62,7 +62,7 @@ const Achievement: React.FC<AchievementProps> = ({
                     ]}
                     resizeMode="contain"
                   />
-                  <Text style={styles.starBadge}>⭐</Text>
+                  <Text style={styles.starBadge}>🌟</Text>
                 </View>
               </View>
               

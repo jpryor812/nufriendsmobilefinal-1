@@ -172,13 +172,7 @@ const OnboardingBasicQuestions = () => {
           <Text style={styles.usernameNote}>
             Note: You must wait six months to change your username again
           </Text>
-          <TouchableOpacity 
-  style={[styles.button, { marginTop: 10, backgroundColor: '#9100C3' }]}
-  onPress={testFirestoreRead}
->
-  <Text style={styles.buttonText}>Test Cloud Function</Text>
-</TouchableOpacity>
-          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
         </KeyboardAwareScrollView>
         
         <View style={styles.buttonContainer}>

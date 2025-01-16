@@ -1,24 +1,20 @@
 import React, { useState, useRef } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
-  Animated, 
-  Dimensions,
-  Platform 
-} from 'react-native';
+import { View, Text, TouchableOpacity, Animated, Dimensions, StyleSheet } from 'react-native';
 import Achievement from './Achievement';
 import BadgeCard from './BadgeCard';
 import BadgeModal from './BadgeModal';
-import { badges, Achievement as AchievementType } from '../constants/FriendBadges';
 import ScrollSafeLayout from './ScrollSafeLayout';
 import { Ionicons } from '@expo/vector-icons';
+import { defaultAvatars, achievementAvatars } from '@/constants/avatars';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
-const BadgesSection = () => {
-  const [selectedBadge, setSelectedBadge] = useState<AchievementType | null>(null);
+interface BadgesSectionProps {
+  unlockedItems?: string[];
+}
+
+const BadgesSection: React.FC<BadgesSectionProps> = ({ unlockedItems = [] }) => {
+  const [selectedBadge, setSelectedBadge] = useState<any>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const slideAnim = useRef(new Animated.Value(0)).current;
@@ -30,41 +26,44 @@ const BadgesSection = () => {
       tension: 20,
       friction: 7
     }).start();
-    
     setIsExpanded(!isExpanded);
   };
 
-    const handleBadgePress = (badge: AchievementType) => {
-    setSelectedBadge(badge);
-    setIsModalVisible(true);
-  };
-
-  const handleModalClose = () => {
-    setIsModalVisible(false);
-    setSelectedBadge(null);
-  };
-
-  const renderBadgeRows = () => {
-    const rows = [];
-    for (let i = 0; i < badges.length; i += 2) {
-      const rowBadges = badges.slice(i, i + 2);
-      rows.push(
-        <View key={i} style={styles.badgeRow}>
-          {rowBadges.map((badge) => (
-            <Achievement
-              key={badge.id}
-              title={badge.title}
-              emoji={badge.emoji}
-              imageSource={badge.imageSource}
-              isUnlocked={badge.isUnlocked}
-              onPress={() => handleBadgePress(badge)}
-              size={102}
-            />
-          ))}
-        </View>
+  const renderAvatarPairs = () => {
+    const pairs = defaultAvatars
+      .filter((_, i) => i % 2 === 0)
+      .map((_, index) => ({
+        regularAvatar: defaultAvatars[index * 2],
+        premiumAvatar: defaultAvatars[index * 2 + 1],
+        requirementText: 'Default Avatars',
+        isUnlocked: true
+      }))
+      .concat(
+        achievementAvatars
+          .filter((_, i) => i % 2 === 0)
+          .map((_, index) => ({
+            regularAvatar: achievementAvatars[index * 2],
+            premiumAvatar: achievementAvatars[index * 2 + 1],
+            requirementText: achievementAvatars[index * 2].requirementText || '',
+            isUnlocked: unlockedItems.includes(achievementAvatars[index * 2].id)
+          }))
       );
-    }
-    return rows;
+
+    return pairs.map((pair, index) => (
+      <View key={index} style={styles.badgeRow}>
+        <Achievement
+          regularAvatar={pair.regularAvatar}
+          premiumAvatar={pair.premiumAvatar}
+          requirementText={pair.requirementText}
+          isUnlocked={pair.isUnlocked}
+          onPress={() => {
+            setSelectedBadge(pair);
+            setIsModalVisible(true);
+          }}
+          size={102}
+        />
+      </View>
+    ));
   };
 
   return (
@@ -96,7 +95,7 @@ const BadgesSection = () => {
               isExpanded && styles.expandedScrollContainer
             ]}
           >
-            {renderBadgeRows()}
+            {renderAvatarPairs()}
           </ScrollSafeLayout>
         </BadgeCard>
       </Animated.View>
@@ -113,14 +112,14 @@ const BadgesSection = () => {
 const styles = StyleSheet.create({
   outerContainer: {
     width: '100%',
-    height: 250, // Initial height of badge section
+    height: 250,
     backgroundColor: '#f0f8ff',
     zIndex: 1,
   },
   animatedContainer: {
     position: 'absolute',
     width: '100%',
-    backgroundColor: '#f0f8ff', // Add here too
+    backgroundColor: '#f0f8ff',
     minHeight: 250,
   },
   card: {
@@ -128,7 +127,7 @@ const styles = StyleSheet.create({
   },
   expandedCard: {
     height: SCREEN_HEIGHT * 0.6,
-    zIndex: 100001, // Even higher z-index when expanded
+    zIndex: 100001,
   },
   headerContainer: {
     flexDirection: 'row',

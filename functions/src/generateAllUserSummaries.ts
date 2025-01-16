@@ -3,7 +3,7 @@ import * as admin from 'firebase-admin';
 import OpenAI from 'openai';
 
 // Initialize OpenAI with environment variable
-const OPENAI_API_KEY = '***'; // Move to environment variables
+const OPENAI_API_KEY = '***'; 
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });// Replace with env variable in production
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
